@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory Items</title>
+</head>
+<body>
+    <h1>Inventory Items</h1>
+    <ul>
+        {% for item in items %}
+            <li>{{ item.name }}: {{ item.quantity }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'add_purchase' %}">Add Purchase</a>
+    <a href="{% url 'add_consumption' %}">Add Consumption</a>
+
+    {% comment %} <a class="dropdown-item" type="button" href="{% url "loginaccount" %}">Zaloguj</a> {% endcomment %}
+</body>
+</html>
