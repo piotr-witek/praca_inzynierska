@@ -12,7 +12,7 @@ def add_purchase(request):
             item.quantity += purchase.quantity
             item.save()
             messages.success(request, f"Purchase of {purchase.quantity} {item.name} added successfully.")
-            return redirect('item_list')
+            return redirect('stock_status')
     else:
         form = PurchaseForm()
     return render(request, 'inventory/add_purchase.html', {'form': form})
@@ -29,7 +29,7 @@ def add_consumption(request):
             if item.quantity <= item.threshold:
                 messages.warning(request, f"{item.name} has reached its threshold.")
             messages.success(request, f"Consumption of {consumption.quantity} {item.name} recorded successfully.")
-            return redirect('item_list')
+            return redirect('stock_status')
     else:
         form = ConsumptionForm()
     return render(request, 'inventory/add_consumption.html', {'form': form})
@@ -37,3 +37,7 @@ def add_consumption(request):
 def item_list(request):
     items = InventoryItem.objects.all()
     return render(request, 'inventory/item_list.html', {'items': items})
+
+def inventory_management_page(request):
+
+    return render(request, 'inventory/inventory_management.html')
