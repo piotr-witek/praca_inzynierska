@@ -1,22 +1,119 @@
-<!DOCTYPE html>
 {% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
 
 {% block content %}
 <html>
 <head>
-    <title>Inventory Items</title>
+    <title>Stan Magazynu</title>
+    <link rel="stylesheet" href="{% static 'css/item_list.css' %}">
 </head>
 <body>
-    <h1>Inventory Items</h1>
-    <ul>
-        {% for item in items %}
-            <li>{{ item.name }}: {{ item.quantity }}</li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'add_purchase' %}">Add Purchase</a>
-    <a href="{% url 'add_consumption' %}">Add Consumption</a>
+    <h1>Stan Magazynu</h1>
 
-    {% comment %} <a class="dropdown-item" type="button" href="{% url "loginaccount" %}">Zaloguj</a> {% endcomment %}
+    <!-- Formularz do filtrowania -->
+<form method="GET" action="{% url 'stock_status' %}">
+  <div class="filter-container"> <!-- Kontener dla filtrów -->
+  <h2>Filtr</h2> <!-- Dodany nagłówek -->
+    <div>
+        <label for="name">Nazwa:</label>
+        <input type="text" id="name" name="name" class="input-field" placeholder="Wprowadź nazwę" value="{{ request.GET.name }}">
+    </div>
+    <div>
+        <label for="category">Kategoria:</label>
+        <select id="category" name="category" class="input-field">
+            <option value="">-- Wybierz kategorię --</option>
+            {% for category in categories %}
+                <option value="{{ category }}" {% if category == request.GET.category %}selected{% endif %}>{{ category }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="unit">Jednostka:</label>
+        <select id="unit" name="unit" class="input-field">
+            <option value="">-- Wybierz jednostke --</option>
+            {% for unit in units %}
+                <option value="{{ unit }}" {% if unit == request.GET.unit %}selected{% endif %}>{{ unit }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="supplier">Dostawca:</label>
+        <select id="supplier" name="supplier" class="input-field">
+            <option value="">-- Wybierz dostawcę --</option>
+            {% for supplier in suppliers %}
+                <option value="{{ supplier }}" {% if supplier == request.GET.supplier %}selected{% endif %}>{{ supplier }}</option>
+            {% endfor %}
+        </select>
+    </div>
+   </div>
+    <button type="submit">Filtruj</button>
+    <button type="button" onclick="clearFilters()">Usuń filtry</button>
+</form>
+
+<script>
+    function clearFilters() {
+        // Ustawia wartości pól na pusty ciąg
+        document.getElementById('name').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('supplier').value = '';
+        document.getElementById('unit').value = '';
+
+        // Możesz również przeładować stronę, aby usunąć parametry z URL
+        window.location.href = "{% url 'stock_status' %}";
+    }
+</script>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Kategoria</th>
+                <th>Ilosc</th>
+                <th>Min. na stanie</th>
+                <th>Jednostka</th>
+                <th>Data ważności</th>
+                <th>Cena zakupu</th>
+                <th>Dostawca</th>
+                <th>Data uzupelnienia</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.category }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.reorder_level }}</td>
+                    <td>{{ item.unit }}</td>
+                    <td>{{ item.expiration_date }}</td>
+                    <td>{{ item.purchase_price }}</td>
+                    <td>{{ item.supplier }}</td>
+                    <td>{{ item.last_restock_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span class="current">
+            Strona {{ items.number }} z {{ items.paginator.num_pages }}
+        </span>
+    </div>
+    <div class="step-links">
+        {% if items.has_previous %}
+            <a href="?page=1">&laquo; pierwsza</a>
+            <a href="?page={{ items.previous_page_number }}">poprzednia</a>
+        {% endif %}
+
+        {% if items.has_next %}
+            <a href="?page={{ items.next_page_number }}">następna</a>
+            <a href="?page={{ items.paginator.num_pages }}">ostatnia &raquo;</a>
+        {% endif %}
+    </div>
+
 </body>
 </html>
-{% endblock content%}
+{% endblock content %}

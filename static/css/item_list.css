@@ -1,0 +1,101 @@
+/* Stylizacja tabeli */
+table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+body {
+    font-family: Arial, sans-serif;  /* Ustal czcionkę */
+    margin: 0;                       /* Usunięcie domyślnych marginesów */
+    padding: 20px;                   /* Padding wokół treści */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+        }
+
+/* Kolor tła dla nagłówka tabeli */
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+        }
+
+/* Efekt "zebry" - różne kolory tła dla kolejnych wierszy */
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+    }
+
+tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Stylizacja wiersza po najechaniu myszką */
+tr:hover {
+    background-color: #d1e7dd;
+}
+
+
+
+table {
+    width: 100%;                     /* Ustal szerokość tabeli */
+    border-collapse: collapse;       /* Usunięcie odstępów między komórkami */
+}
+
+th, td {
+    border: 1px solid #ddd;          /* Obramowanie komórek */
+    padding: 8px;                    /* Padding wewnątrz komórek */
+    text-align: left;                /* Wyrównanie tekstu w lewo */
+}
+
+.pagination {
+    width: 100%; /* Szerokość kontenera */
+    margin-top: 20px;
+    display: flex; /* Użycie flexbox */
+    justify-content: center; /* Wyśrodkowanie poziome */
+
+
+}
+
+.step-links{
+
+    width: 100%; /* Szerokość kontenera */
+    display: flex; /* Użycie flexbox */
+    justify-content: center; /* Wyśrodkowanie poziome */
+}
+
+.current {
+    font-weight: bold;                /* Pogrubienie tekstu */
+    margin-bottom: 10px;              /* Odstęp poniżej */
+}
+
+.step-links a {
+    margin: 0 5px;                   /* Odstęp między linkami */
+    text-decoration: none;            /* Usunięcie podkreślenia */
+    color: #007BFF;                  /* Kolor linków */
+}
+
+.step-links a:hover {
+    text-decoration: underline;       /* Podkreślenie linku przy najechaniu */
+}
+.filter-container {
+    border: 1px solid #ccc; /* Ramka wokół filtrów */
+    border-radius: 5px; /* Zaokrąglenie rogów */
+    padding: 15px; /* Padding wewnętrzny */
+    margin-bottom: 20px; /* Margines dolny */
+    background-color: #f9f9f9; /* Kolor tła */
+}
+
+h2 {
+    margin-bottom: 15px; /* Margines dolny dla nagłówka */
+}
+
+.input-field {
+    width: 100%; /* Szerokość inputów i selectów */
+    padding: 8px; /* Padding wewnętrzny */
+    margin: 5px 0; /* Marginesy górny i dolny */
+    border: 1px solid #ccc; /* Kolor ramki */
+    border-radius: 4px; /* Zaokrąglenie rogów */
+}

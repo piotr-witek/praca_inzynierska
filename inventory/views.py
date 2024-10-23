@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import InventoryItem, Purchase, Consumption
 from .forms import PurchaseForm, ConsumptionForm
+from django.core.paginator import Paginator
+
 
 def add_purchase(request):
     if request.method == 'POST':
@@ -17,8 +19,8 @@ def add_purchase(request):
         form = PurchaseForm()
     return render(request, 'inventory/add_purchase.html', {'form': form})
 
+
 def add_consumption(request):
-    
     if request.method == 'POST':
         form = ConsumptionForm(request.POST)
         if form.is_valid():
@@ -34,10 +36,39 @@ def add_consumption(request):
         form = ConsumptionForm()
     return render(request, 'inventory/add_consumption.html', {'form': form})
 
+
 def item_list(request):
     items = InventoryItem.objects.all()
-    return render(request, 'inventory/item_list.html', {'items': items})
+
+    # Pobierz unikalne wartości dla kategorii i dostawców
+    categories = InventoryItem.objects.values_list('category', flat=True).distinct()
+    suppliers = InventoryItem.objects.values_list('supplier', flat=True).distinct()
+    units = InventoryItem.objects.values_list('unit', flat=True).distinct()
+
+    # Filtracja
+    if 'name' in request.GET and request.GET['name']:
+        items = items.filter(name__icontains=request.GET['name'])
+
+    if 'category' in request.GET and request.GET['category']:
+        items = items.filter(category=request.GET['category'])
+
+    if 'supplier' in request.GET and request.GET['supplier']:
+        items = items.filter(supplier=request.GET['supplier'])
+
+    if 'unit' in request.GET and request.GET['unit']:
+        items = items.filter(unit=request.GET['unit'])
+
+    # Paginacja
+    paginator = Paginator(items, 50)  # 50 rekordów na stronę
+    page_number = request.GET.get('page')  # Pobierz numer strony z parametrów URL
+    page_obj = paginator.get_page(page_number)  # Pobierz obiekt strony
+
+    return render(request, 'inventory/item_list.html', {
+        'items': page_obj,
+        'categories': categories,
+        'suppliers': suppliers,
+        'units': units,
+    })
 
 def inventory_management_page(request):
-
     return render(request, 'inventory/inventory_management.html')
