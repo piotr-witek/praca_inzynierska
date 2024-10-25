@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import InventoryItem, Purchase, Consumption
-from .forms import PurchaseForm, ConsumptionForm
+from .forms import PurchaseForm, ConsumptionForm, ProductForm
 from django.core.paginator import Paginator
 
 
@@ -70,5 +70,21 @@ def item_list(request):
         'units': units,
     })
 
+def add_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Produkt został dodany pomyślnie!")  # Komunikat o sukcesie
+            return redirect('add_product')  # Przekierowanie po sukcesie
+        else:
+            messages.error(request, "Wystąpił błąd podczas dodawania produktu.")  # Komunikat o błędzie
+    else:
+        form = ProductForm()
+
+    return render(request, 'inventory/add_product.html', {'form': form})
+
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')
+
+
