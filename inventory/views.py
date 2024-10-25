@@ -119,6 +119,35 @@ def edit_product(request):
 
     return render(request, 'inventory/edit_product.html', {'form': form, 'searched': False})
 
+
+def delete_product(request):
+    product = None
+
+    if request.method == 'POST':
+        # Sprawdzenie, czy użytkownik wysłał formularz wyszukiwania
+        if 'search' in request.POST:
+            search_term = request.POST.get('product_id', '').strip()
+            if search_term:
+                try:
+                    product = InventoryItem.objects.get(id=search_term)
+                except InventoryItem.DoesNotExist:
+                    messages.error(request, "Nie znaleziono produktu o podanym identyfikatorze.")
+
+        # Sprawdzenie, czy użytkownik wysłał formularz usuwania
+        elif 'delete' in request.POST:
+            # Użyj identyfikatora produktu z ukrytego pola
+            product_id = request.POST.get('product_id')
+            if product_id:
+                try:
+                    product_to_delete = InventoryItem.objects.get(id=product_id)
+                    product_to_delete.delete()
+                    messages.success(request, f"Produkt '{product_to_delete.name}' został usunięty pomyślnie!")
+                    product = None  # Resetowanie produktu po usunięciu
+                except InventoryItem.DoesNotExist:
+                    messages.error(request, "Nie znaleziono produktu do usunięcia.")
+
+    return render(request, 'inventory/delete_product.html', {'product': product})
+
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')
 
