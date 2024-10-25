@@ -24,3 +24,12 @@ class ProductForm(forms.ModelForm):
             'expiration_date': forms.DateInput(attrs={'type': 'date'}),
             'last_restock_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+
+class ProductFormEdit(forms.ModelForm):
+    class Meta:
+        model = InventoryItem
+        fields = [
+            'name', 'category', 'quantity', 'unit',
+            'reorder_level', 'expiration_date',
+            'last_restock_date', 'purchase_price', 'supplier'
+        ]

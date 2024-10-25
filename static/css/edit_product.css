@@ -1,0 +1,46 @@
+
+h1 {
+    color: #333333;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
+
+
+.search-form label {
+    font-weight: bold;
+}
+
+.search-form input {
+    width: 25%; !important;
+    padding: 8px;
+    margin: 5px 0;
+}
+
+.search-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.submit-btn {
+    background-color: #008CBA;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.product-dates {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.form-card {
+    margin: 30px 0 0 0;
+}

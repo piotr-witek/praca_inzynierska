@@ -69,6 +69,7 @@
     <table>
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Nazwa</th>
                 <th>Kategoria</th>
                 <th>Ilosc</th>
@@ -83,6 +84,7 @@
         <tbody>
             {% for item in items %}
                 <tr>
+                    <td>{{ item.id }}</td>
                     <td>{{ item.name }}</td>
                     <td>{{ item.category }}</td>
                     <td>{{ item.quantity }}</td>

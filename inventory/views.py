@@ -1,7 +1,8 @@
+from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import InventoryItem, Purchase, Consumption
-from .forms import PurchaseForm, ConsumptionForm, ProductForm
+from .forms import PurchaseForm, ConsumptionForm, ProductForm,ProductFormEdit
 from django.core.paginator import Paginator
 
 
@@ -83,6 +84,40 @@ def add_product(request):
         form = ProductForm()
 
     return render(request, 'inventory/add_product.html', {'form': form})
+
+
+def edit_product(request):
+    product = None  # Domyślnie produkt jest None
+
+    if 'search' in request.GET:  # Sprawdzenie, czy wysłano zapytanie do wyszukiwania
+        query = request.GET.get('search').strip()
+        try:
+            product = InventoryItem.objects.get(id__iexact=query)  # Wyszukiwanie produktu po nazwie
+            form = ProductFormEdit(instance=product)  # Uzupełniamy formularz danymi produktu
+            return render(request, 'inventory/edit_product.html', {
+                'form': form,
+                'product': product,
+                'searched': True
+            })
+        except InventoryItem.DoesNotExist:
+            messages.error(request, f"Produkt o nazwie '{query}' nie istnieje.")
+            return render(request, 'inventory/edit_product.html', {'searched': False})
+
+    elif request.method == 'POST' and 'product_id' in request.POST:
+        # Formularz edycji produktu po znalezieniu
+        product = get_object_or_404(InventoryItem, id=request.POST.get('product_id'))
+        form = ProductFormEdit(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Produkt został zaktualizowany pomyślnie!")
+            return redirect('stock_status')
+        else:
+            messages.error(request, "Wystąpił błąd podczas aktualizacji produktu.")
+
+    # Domyślny formularz wyszukiwania, bez edycji
+    form = ProductFormEdit() if not product else form
+
+    return render(request, 'inventory/edit_product.html', {'form': form, 'searched': False})
 
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')

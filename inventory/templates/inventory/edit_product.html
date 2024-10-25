@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+{% block content %}
+<html>
+<head>
+    <title>Edytuj Produkt</title>
+    <link rel="stylesheet" href="{% static 'css/edit_product.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Edytuj Produkt</h1>
+
+        <!-- Sekcja komunikatów -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Formularz wyszukiwania produktu -->
+        <form action="{% url 'edit_product' %}" method="get" class="search-form">
+            <label for="search">Wyszukaj produkt:</label>
+            <br>
+            <input type="text" name="search" id="search" placeholder="Wpisz identyfikator produktu">
+            <button type="submit" class="search-btn">Szukaj</button>
+        </form>
+
+        {% if searched %}
+            <!-- Formularz edycji produktu (widoczny po wyszukaniu) -->
+            <form action="{% url 'edit_product' %}" method="post" class="form-card">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <button type="submit" class="submit-btn">Zapisz zmiany</button>
+            </form>
+        {% endif %}
+
+        <a href="{% url 'stock_status' %}" class="back-link">Powrót do stanu magazynu</a>
+    </div>
+</body>
+</html>
+{% endblock content %}
