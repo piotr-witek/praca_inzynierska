@@ -23,7 +23,8 @@
         <!-- Formularz wyszukiwania produktu -->
         <form action="" method="post" class="form-card">
             {% csrf_token %}
-            <input type="text" name="product_id" placeholder="ID produktu" required>
+            <input type="text" name="product_id" placeholder="Wpisz identyfikator" required>
+
             <button type="submit" name="search" class="search-btn">Wyszukaj</button>
         </form>
 

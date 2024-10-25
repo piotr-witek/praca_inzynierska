@@ -110,7 +110,7 @@ def edit_product(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Produkt został zaktualizowany pomyślnie!")
-            return redirect('stock_status')
+            return redirect('edit_product')
         else:
             messages.error(request, "Wystąpił błąd podczas aktualizacji produktu.")
 

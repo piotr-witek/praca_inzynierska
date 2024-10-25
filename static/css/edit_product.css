@@ -12,7 +12,7 @@ h1 {
 }
 
 .search-form input {
-    width: 25%; !important;
+    width: 25%;
     padding: 8px;
     margin: 5px 0;
 }
@@ -22,6 +22,7 @@ h1 {
     color: white;
     padding: 8px 12px;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -30,6 +31,7 @@ h1 {
     color: white;
     padding: 10px;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -43,4 +45,28 @@ h1 {
 
 .form-card {
     margin: 30px 0 0 0;
+}
+
+/* Stylizacja komunikatów */
+.messages {
+    max-width: 500px;
+    margin: 0 auto 15px;
+    padding: 10px;
+    text-align: center;
+}
+
+.message {
+    padding: 10px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.message.success {
+    background-color: #4CAF50; /* Zielony dla sukcesu */
+}
+
+.message.error {
+    background-color: #f44336; /* Czerwony dla błędu */
 }

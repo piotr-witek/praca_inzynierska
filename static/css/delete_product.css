@@ -2,7 +2,7 @@
 /* Styl dla nagłówka */
 h1 {
     font-size: 1.8rem;
-    text-align: center; /* Wyśrodkowanie tekstu */
+
     color: #333; /* Kolor tekstu */
 }
 
@@ -31,7 +31,6 @@ h1 {
 
 /* Styl dla formularza */
 .form-card {
-    display: flex;
     flex-direction: column; /* Ustawienie elementów w kolumnie */
     align-items: center; /* Wyśrodkowanie elementów w formularzu */
 }
@@ -42,7 +41,7 @@ button.confirm-btn, button.search-btn {
     color: white; /* Kolor tekstu */
     border: none; /* Bez obramowania */
     border-radius: 5px; /* Zaokrąglenie rogów */
-    padding: 10px 20px; /* Odstępy wewnętrzne */
+    padding: 8px 12px;
     cursor: pointer; /* Kursor w formie ręki */
     font-size: 1em; /* Rozmiar czcionki */
     margin-top: 10px; /* Odstęp nad przyciskiem */
@@ -63,4 +62,11 @@ a.back-link {
 
 a.back-link:hover {
     text-decoration: underline; /* Podkreślenie linku przy najechaniu */
+}
+
+input {
+
+    width: 25%;
+    padding: 8px;
+    margin: 5px 0;
 }
