@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+{% block content %}
+<html>
+<head>
+    <title>Administracja</title>
+    <link rel="stylesheet" href="{% static 'css/administration.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Administracja</h1>
+
+        <!-- Sekcja komunikatów -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Formularz dodawania dostawcy -->
+        <h2>Dodaj Dostawcę</h2>
+        <form method="post" action="{% url 'administration' %}" class="form">
+            {% csrf_token %}
+            {{ supplier_form.as_p }}
+            <button type="submit" name="add_supplier">Dodaj Dostawcę</button>
+        </form>
+
+        <!-- Formularz dodawania kategorii towaru -->
+        <h2>Dodaj Kategorię Towaru</h2>
+        <form method="post" action="{% url 'administration' %}" class="form">
+            {% csrf_token %}
+            {{ category_form.as_p }}
+            <button type="submit" name="add_category">Dodaj Kategorię</button>
+        </form>
+    </div>
+</body>
+</html>
+{% endblock content %}

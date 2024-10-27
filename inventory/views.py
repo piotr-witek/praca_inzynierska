@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import InventoryItem, Purchase, Consumption
-from .forms import PurchaseForm, ConsumptionForm, ProductForm,ProductFormEdit
+from .models import InventoryItem, ItemCategory, Supplier,UnitOfMeasurement
+from .forms import PurchaseForm, ConsumptionForm, ProductForm,ProductFormEdit, SupplierForm, ItemCategoryForm
 from django.core.paginator import Paginator
 
 
@@ -39,25 +39,32 @@ def add_consumption(request):
 
 
 def item_list(request):
+    # Pobranie wszystkich towarów
     items = InventoryItem.objects.all()
 
-    # Pobierz unikalne wartości dla kategorii i dostawców
-    categories = InventoryItem.objects.values_list('category', flat=True).distinct()
-    suppliers = InventoryItem.objects.values_list('supplier', flat=True).distinct()
-    units = InventoryItem.objects.values_list('unit', flat=True).distinct()
+    # Pobierz unikalne wartości dla kategorii, dostawców i jednostek
+    categories = ItemCategory.objects.all()  # Zmiana tutaj
+    suppliers = Supplier.objects.all()  # Zmiana tutaj
+    units = UnitOfMeasurement.objects.all()  # Dodane pobieranie jednostek
 
     # Filtracja
     if 'name' in request.GET and request.GET['name']:
         items = items.filter(name__icontains=request.GET['name'])
 
     if 'category' in request.GET and request.GET['category']:
-        items = items.filter(category=request.GET['category'])
+        items = items.filter(category__id=request.GET['category'])  # Zmiana na kategorię ID
 
     if 'supplier' in request.GET and request.GET['supplier']:
-        items = items.filter(supplier=request.GET['supplier'])
+        items = items.filter(supplier__id=request.GET['supplier'])  # Zmiana na dostawcę ID
 
     if 'unit' in request.GET and request.GET['unit']:
-        items = items.filter(unit=request.GET['unit'])
+        items = items.filter(unit__id=request.GET['unit'])  # Dodano filtrację jednostki
+
+    if 'expiration_date_start' in request.GET and request.GET['expiration_date_start']:
+        items = items.filter(expiration_date__gte=request.GET['expiration_date_start'])
+
+    if 'expiration_date_end' in request.GET and request.GET['expiration_date_end']:
+        items = items.filter(expiration_date__lte=request.GET['expiration_date_end'])
 
     # Paginacja
     paginator = Paginator(items, 50)  # 50 rekordów na stronę
@@ -68,7 +75,7 @@ def item_list(request):
         'items': page_obj,
         'categories': categories,
         'suppliers': suppliers,
-        'units': units,
+        'units': units,  # Dodano jednostki do kontekstu
     })
 
 def add_product(request):
@@ -100,7 +107,7 @@ def edit_product(request):
                 'searched': True
             })
         except InventoryItem.DoesNotExist:
-            messages.error(request, f"Produkt o nazwie '{query}' nie istnieje.")
+            messages.error(request, f"Produkt o identyfikatorze '{query}' nie istnieje.")
             return render(request, 'inventory/edit_product.html', {'searched': False})
 
     elif request.method == 'POST' and 'product_id' in request.POST:
@@ -147,6 +154,38 @@ def delete_product(request):
                     messages.error(request, "Nie znaleziono produktu do usunięcia.")
 
     return render(request, 'inventory/delete_product.html', {'product': product})
+
+
+def administration(request):
+    # Obsługa formularza dostawcy
+    if request.method == 'POST' and 'add_supplier' in request.POST:
+        supplier_form = SupplierForm(request.POST)
+        if supplier_form.is_valid():
+            supplier_form.save()
+            messages.success(request, "Dostawca został pomyślnie dodany.")
+            return redirect('administration')
+        else:
+            messages.error(request, "Wystąpił błąd podczas dodawania dostawcy.")
+
+    # Obsługa formularza kategorii towaru
+    elif request.method == 'POST' and 'add_category' in request.POST:
+        category_form = ItemCategoryForm(request.POST)
+        if category_form.is_valid():
+            category_form.save()
+            messages.success(request, "Kategoria towaru została pomyślnie dodana.")
+            return redirect('administration')
+        else:
+            messages.error(request, "Wystąpił błąd podczas dodawania kategorii.")
+
+    else:
+        supplier_form = SupplierForm()
+        category_form = ItemCategoryForm()
+
+    return render(request, 'inventory/administration.html', {
+        'supplier_form': supplier_form,
+        'category_form': category_form,
+    })
+
 
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')

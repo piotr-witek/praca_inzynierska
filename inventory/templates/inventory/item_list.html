@@ -12,7 +12,10 @@
     <h1>Stan Magazynu</h1>
 
     <!-- Formularz do filtrowania -->
-<form method="GET" action="{% url 'stock_status' %}">
+
+
+
+    <form method="GET" action="{% url 'stock_status' %}">
   <div class="filter-container"> <!-- Kontener dla filtrów -->
   <h2>Filtr</h2> <!-- Dodany nagłówek -->
     <div>
@@ -24,7 +27,7 @@
         <select id="category" name="category" class="input-field">
             <option value="">-- Wybierz kategorię --</option>
             {% for category in categories %}
-                <option value="{{ category }}" {% if category == request.GET.category %}selected{% endif %}>{{ category }}</option>
+                <option value="{{ category.id }}" {% if category.id == request.GET.category %}selected{% endif %}>{{ category.name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -32,9 +35,9 @@
     <div>
         <label for="unit">Jednostka:</label>
         <select id="unit" name="unit" class="input-field">
-            <option value="">-- Wybierz jednostke --</option>
+            <option value="">-- Wybierz jednostkę --</option>
             {% for unit in units %}
-                <option value="{{ unit }}" {% if unit == request.GET.unit %}selected{% endif %}>{{ unit }}</option>
+                <option value="{{ unit.id }}" {% if unit.id == request.GET.unit %}selected{% endif %}>{{ unit.name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -44,14 +47,29 @@
         <select id="supplier" name="supplier" class="input-field">
             <option value="">-- Wybierz dostawcę --</option>
             {% for supplier in suppliers %}
-                <option value="{{ supplier }}" {% if supplier == request.GET.supplier %}selected{% endif %}>{{ supplier }}</option>
+                <option value="{{ supplier.id }}" {% if supplier.id == request.GET.supplier %}selected{% endif %}>{{ supplier.name }}</option>
             {% endfor %}
         </select>
     </div>
+
+    <div>
+        <label for="expiration_date_start">Data ważności od:</label>
+        <input type="date" id="expiration_date_start" name="expiration_date_start" class="input-field" value="{{ request.GET.expiration_date_start }}">
+    </div>
+
+    <div>
+        <label for="expiration_date_end">Data ważności do:</label>
+        <input type="date" id="expiration_date_end" name="expiration_date_end" class="input-field" value="{{ request.GET.expiration_date_end }}">
+    </div>
    </div>
+
     <button type="submit">Filtruj</button>
     <button type="button" onclick="clearFilters()">Usuń filtry</button>
 </form>
+
+
+
+
 
 <script>
     function clearFilters() {
@@ -60,9 +78,11 @@
         document.getElementById('category').value = '';
         document.getElementById('supplier').value = '';
         document.getElementById('unit').value = '';
+        document.getElementById('expiration_date_start').value = '';  // Jeśli dodano zakres dat
+        document.getElementById('expiration_date_end').value = '';    // Jeśli dodano zakres dat
 
         // Możesz również przeładować stronę, aby usunąć parametry z URL
-        window.location.href = "{% url 'stock_status' %}";
+        window.location.href = "{% url 'stock_status' %}";  // Przekierowanie do pełnej listy towarów
     }
 </script>
 
@@ -72,13 +92,13 @@
                 <th>Id</th>
                 <th>Nazwa</th>
                 <th>Kategoria</th>
-                <th>Ilosc</th>
+                <th>Ilość</th>
                 <th>Min. na stanie</th>
                 <th>Jednostka</th>
                 <th>Data ważności</th>
                 <th>Cena zakupu</th>
                 <th>Dostawca</th>
-                <th>Data uzupelnienia</th>
+                <th>Data uzupełnienia</th>
             </tr>
         </thead>
         <tbody>
