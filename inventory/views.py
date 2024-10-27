@@ -1,10 +1,12 @@
+from django.utils import timezone
+from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import InventoryItem, ItemCategory, Supplier,UnitOfMeasurement
 from .forms import PurchaseForm, ConsumptionForm, ProductForm,ProductFormEdit, SupplierForm, ItemCategoryForm
 from django.core.paginator import Paginator
-
+from django.db.models import F
 
 def add_purchase(request):
     if request.method == 'POST':
@@ -218,6 +220,35 @@ def administration(request):
     return render(request, 'inventory/administration.html', {
         'supplier_form': supplier_form,
         'category_form': category_form,
+    })
+
+
+def notifications(request):
+    # Ustawienie bieżącej daty
+    current_date = timezone.now().date()
+
+    # Ustal okres, np. towary przeterminujące się w ciągu najbliższych 7 dni
+    days_until_expiration = 7
+    expiration_date_limit = current_date + timedelta(days=days_until_expiration)
+
+    # Towary bliskie przeterminowaniu: data ważności jest w okresie [dzisiaj, dzisiaj + 7 dni]
+    expiring_items = InventoryItem.objects.filter(
+        expiration_date__gte=current_date,
+        expiration_date__lte=expiration_date_limit
+    )
+
+    # Towary przeterminowane: data ważności jest wcześniejsza niż bieżąca data
+    expired_items = InventoryItem.objects.filter(
+        expiration_date__lt=current_date
+    )
+
+    # Towary z niskim stanem magazynowym
+    low_stock_items = [item for item in InventoryItem.objects.all() if item.quantity < item.reorder_level]
+
+    return render(request, 'inventory/notifications.html', {
+        'low_stock_items': low_stock_items,
+        'expiring_items': expiring_items,
+        'expired_items': expired_items,
     })
 
 def inventory_management_page(request):

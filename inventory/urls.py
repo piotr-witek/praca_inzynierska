@@ -13,4 +13,5 @@ urlpatterns = [
     path('inventory/administration/', views.administration, name='administration'),
     path('inventory/categories/', views.category_list, name='category_list'),
     path('inventory/suppliers/', views.supplier_list, name='supplier_list'),
+    path('inventory/notifications/', views.notifications, name='notifications'),
 ]

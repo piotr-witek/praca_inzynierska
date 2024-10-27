@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+{% block content %}
+<html>
+<head>
+    <title>Powiadomienia</title>
+    <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+</head>
+<body>
+
+<h1 class="notifications-header">Powiadomienia</h1>
+
+    <div class="container_notifications">
+
+        <!-- Sekcja: Niski stan magazynowy -->
+        <section class="notification-section notification-section-low-stock">
+            <h2 class="notification-title">Niski stan na magazynie</h2>
+            {% if low_stock_items %}
+                <ul class="notification-list">
+                    {% for item in low_stock_items %}
+                        <li class="notification-item">
+                            <span class="notification-item-name">{{ item.name }}</span> <br>
+                            Aktualny stan: {{ item.quantity }} {{ item.unit.name }} <br>
+                            <span class="notification-item-minimum">Minimalny stan: {{ item.reorder_level }} {{ item.unit.name }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-items-message">Brak towarów o niskim stanie magazynowym.</p>
+            {% endif %}
+        </section>
+
+        <!-- Sekcja towarów bliskich przeterminowaniu -->
+        <section class="notification-section notification-section-expiring">
+            <h2 class="notification-title">Bliskie Przeterminowaniu</h2>
+            {% if expiring_items %}
+                <ul class="notification-list">
+                    {% for item in expiring_items %}
+                        <li class="notification-item">
+                            <span class="notification-item-name">{{ item.name }}</span>
+                            - Termin ważności: {{ item.expiration_date }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-items-message">Brak towarów bliskich przeterminowaniu.</p>
+            {% endif %}
+        </section>
+
+        <!-- Sekcja towarów przeterminowanych -->
+        <section class="notification-section notification-section-expired">
+            <h2 class="notification-title">Przeterminowane</h2>
+            {% if expired_items %}
+                <ul class="notification-list">
+                    {% for item in expired_items %}
+                        <li class="notification-item">
+                            <span class="notification-item-name">{{ item.name }}</span>
+                            - Przeterminowany: {{ item.expiration_date }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-items-message">Brak przeterminowanych towarów.</p>
+            {% endif %}
+        </section>
+    </div>
+
+</body>
+</html>
+{% endblock content %}

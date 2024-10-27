@@ -1,0 +1,80 @@
+
+.container_notifications {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.notifications-title {
+    text-align: center;
+    color: #444;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.notification-section {
+    margin-bottom: 30px;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.notification-section-expiring {
+    background-color: #fffbe6;
+    border: 1px solid #ffe680;
+}
+
+.notification-section-expired {
+    background-color: #ffe6e6;
+    border: 1px solid #ff9999;
+}
+
+.notification-section-low-stock {
+    background-color: #e6f7ff;
+    border: 1px solid #80d4ff;
+}
+
+.notification-title {
+    font-size: 24px;
+    color: #333;
+    margin-top: 0;
+}
+
+.notification-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item {
+    font-size: 18px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    align-items: center;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item-name {
+    color: #333;
+    font-weight: bold;
+}
+
+.no-items-message {
+    font-size: 16px;
+    color: #777;
+    text-align: center;
+    padding: 10px;
+}
+
+.notification-section-expiring .notification-item-name {
+    color: #ff9900;
+}
+
+.notification-section-expired .notification-item-name {
+    color: #cc0000;
+}
