@@ -56,14 +56,19 @@ class ProductFormEdit(forms.ModelForm):
             'supplier': 'Dostawca',
         }
 
+
+
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
-        fields = ['name', 'contact_info']
+        fields = ['name', 'address', 'phone', 'email']
         labels = {
-            'name': 'Nazwa dostawcy',
-            'contact_info': 'Informacje kontaktowe',
+            'name': 'Nazwa',
+            'address': 'Adres',
+            'phone': 'Telefon',
+            'email': 'E-mail',
         }
+
 
 class ItemCategoryForm(forms.ModelForm):
     class Meta:

@@ -78,6 +78,40 @@ def item_list(request):
         'units': units,  # Dodano jednostki do kontekstu
     })
 
+def category_list(request):
+    # Pobierz wszystkie kategorie
+    categories = ItemCategory.objects.all()
+
+    # Filtracja po nazwie
+    if 'name' in request.GET and request.GET['name']:
+        categories = categories.filter(name__icontains=request.GET['name'])
+
+    # Paginacja
+    paginator = Paginator(categories, 50)  # 50 kategorii na stronę
+    page_number = request.GET.get('page')  # Pobierz numer strony z parametrów URL
+    page_obj = paginator.get_page(page_number)  # Pobierz obiekt strony
+
+    return render(request, 'inventory/category_list.html', {
+        'categories': page_obj,
+    })
+
+def supplier_list(request):
+    # Pobranie wszystkich dostawców
+    suppliers = Supplier.objects.all()
+
+    # Filtracja
+    if 'name' in request.GET and request.GET['name']:
+        suppliers = suppliers.filter(name__icontains=request.GET['name'])
+
+    # Paginacja
+    paginator = Paginator(suppliers, 50)  # 50 rekordów na stronę
+    page_number = request.GET.get('page')  # Pobierz numer strony z parametrów URL
+    page_obj = paginator.get_page(page_number)  # Pobierz obiekt strony
+
+    return render(request, 'inventory/supplier_list.html', {
+        'suppliers': page_obj,
+    })
+
 def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
@@ -185,7 +219,6 @@ def administration(request):
         'supplier_form': supplier_form,
         'category_form': category_form,
     })
-
 
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+{% block content %}
+<html>
+<head>
+    <title>Lista Kategorii</title>
+    <link rel="stylesheet" href="{% static 'css/category_list.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Lista Kategorii</h1>
+
+        <!-- Formularz do filtrowania -->
+        <form method="GET" action="{% url 'category_list' %}">
+            <div>
+                <label for="name">Nazwa kategorii:</label>
+                <input type="text" id="name" name="name" class="input-field" placeholder="Wprowadź nazwę" value="{{ request.GET.name }}">
+            </div>
+            <button type="submit">Filtruj</button>
+            <button type="button" onclick="clearFilters()">Usuń filtry</button>
+        </form>
+
+        <script>
+            function clearFilters() {
+                document.getElementById('name').value = '';
+                window.location.href = "{% url 'category_list' %}";  // Przekierowanie do pełnej listy kategorii
+            }
+        </script>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nazwa Kategorii</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.id }}</td>
+                        <td>{{ category.name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <span class="current">
+                Strona {{ categories.number }} z {{ categories.paginator.num_pages }}
+            </span>
+        </div>
+        <div class="step-links">
+            {% if categories.has_previous %}
+                <a href="?page=1">&laquo; pierwsza</a>
+                <a href="?page={{ categories.previous_page_number }}">poprzednia</a>
+            {% endif %}
+
+            {% if categories.has_next %}
+                <a href="?page={{ categories.next_page_number }}">następna</a>
+                <a href="?page={{ categories.paginator.num_pages }}">ostatnia &raquo;</a>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>
+{% endblock content %}

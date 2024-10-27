@@ -19,8 +19,10 @@ class UnitOfMeasurement(models.Model):
 
 
 class Supplier(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    contact_info = models.CharField(max_length=100, null=True, blank=True)  # Dodatkowe informacje kontaktowe
+    name = models.CharField(max_length=100, null=False)  # Nazwa dostawcy
+    address = models.CharField(max_length=255, null=True, blank=True)  # Adres dostawcy
+    phone = models.CharField(max_length=15, null=True, blank=True)  # Numer telefonu
+    email = models.EmailField(max_length=100, null=True, blank=True)  # Adres email
 
     def __str__(self):
         return self.name
