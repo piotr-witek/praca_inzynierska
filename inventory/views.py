@@ -4,9 +4,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import InventoryItem, ItemCategory, Supplier,UnitOfMeasurement
-from .forms import PurchaseForm, ConsumptionForm, ProductForm,ProductFormEdit, SupplierForm, ItemCategoryForm
+from .forms import PurchaseForm, ConsumptionForm, ProductForm,ProductFormEdit, SupplierForm, ItemCategoryForm, ItemUnitForm
 from django.core.paginator import Paginator
-from django.db.models import F
+from .reports import  generate_inventory_xls, generate_inventory_csv, generate_suppliers_csv, generate_suppliers_xls
 
 def add_purchase(request):
     if request.method == 'POST':
@@ -114,6 +114,22 @@ def supplier_list(request):
         'suppliers': page_obj,
     })
 
+def unit_list(request):
+    # Pobranie wszystkich dostawców
+    UnitOfMeasurements = UnitOfMeasurement.objects.all()
+
+    # Filtracja
+    if 'name' in request.GET and request.GET['name']:
+        UnitOfMeasurements = UnitOfMeasurements.filter(name__icontains=request.GET['name'])
+
+    # Paginacja
+    paginator = Paginator(UnitOfMeasurements, 50)  # 50 rekordów na stronę
+    page_number = request.GET.get('page')  # Pobierz numer strony z parametrów URL
+    page_obj = paginator.get_page(page_number)  # Pobierz obiekt strony
+
+    return render(request, 'inventory/unit_list.html', {
+        'UnitOfMeasurements': page_obj,
+    })
 def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
@@ -213,13 +229,25 @@ def administration(request):
         else:
             messages.error(request, "Wystąpił błąd podczas dodawania kategorii.")
 
+    # Obsługa formularza jednostki mary
+    elif request.method == 'POST' and 'add_unit' in request.POST:
+        unit_form = ItemUnitForm(request.POST)
+        if unit_form.is_valid():
+            unit_form.save()
+            messages.success(request, "Jednostka miary została pomyślnie dodana.")
+            return redirect('administration')
+        else:
+            messages.error(request, "Wystąpił błąd podczas dodawania jednostki miary.")
+
     else:
         supplier_form = SupplierForm()
         category_form = ItemCategoryForm()
+        unit_form = ItemUnitForm()
 
     return render(request, 'inventory/administration.html', {
         'supplier_form': supplier_form,
         'category_form': category_form,
+        'unit_form': unit_form,
     })
 
 
@@ -250,6 +278,29 @@ def notifications(request):
         'expiring_items': expiring_items,
         'expired_items': expired_items,
     })
+
+
+def reports(request):
+    if request.method == 'POST':
+        report_type = request.POST.get('report_type')
+        file_format = request.POST.get('file_format')
+
+        # W zależności od typu raportu, generujemy odpowiedni raport
+        if report_type == 'inventory':
+            if file_format == 'xls':
+                return generate_inventory_xls()  # Funkcja generująca plik XLS
+            elif file_format == 'csv':
+                return generate_inventory_csv()  # Funkcja generująca plik CSV
+        elif report_type == 'suppliers':
+            if file_format == 'xls':
+                return generate_suppliers_xls()  # Funkcja generująca plik XLS dla dostawców
+            elif file_format == 'csv':
+                return generate_suppliers_csv()  # Funkcja generująca plik CSV dla dostawców
+
+        messages.error(request, "Nieznany typ raportu lub format pliku.")
+
+    # Renderuj stronę raportów, jeśli nie wykonano POST lub wystąpił błąd
+    return render(request, 'inventory/reports.html')
 
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')

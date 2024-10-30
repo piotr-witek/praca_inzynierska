@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+{% block content %}
+<html>
+<head>
+    <title>Raporty</title>
+    <link rel="stylesheet" href="{% static 'css/reports.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Raporty</h1>
+
+        <!-- Sekcja komunikatów -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Opcje raportów -->
+        <div class="form-section">
+            <h2>Wygeneruj Zestawienie</h2>
+
+
+            <form method="post" action="{% url 'reports' %}">
+                {% csrf_token %}
+                <label for="report_type">Typ zestawienia:</label>
+                <select name="report_type" id="report_type">
+                    <option value="inventory">Lista towarów</option>
+                    <option value="suppliers">Lista dostawców</option>
+        <!-- Dodaj inne typy raportów, jeśli istnieją -->
+                </select>
+
+                <label for="file_format">Format pliku:</label>
+                <select name="file_format" id="file_format">
+                    <option value="xls">XLS</option>
+                    <option value="csv">CSV</option>
+                </select>
+
+                <button type="submit">Generuj raport</button>
+            </form>
+
+
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

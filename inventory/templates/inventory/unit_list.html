@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+{% block content %}
+<html>
+<head>
+    <title>Lista Kategorii</title>
+    <link rel="stylesheet" href="{% static 'css/unit_list.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Lista Jednostek Miar</h1>
+
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nazwa Jednostki</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for UnitOfMeasurement in UnitOfMeasurements %}
+                    <tr>
+                        <td>{{ UnitOfMeasurement.id }}</td>
+                        <td>{{ UnitOfMeasurement.name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <span class="current">
+                Strona {{ UnitOfMeasurements.number }} z {{ UnitOfMeasurements.paginator.num_pages }}
+            </span>
+        </div>
+        <div class="step-links">
+            {% if categories.has_previous %}
+                <a href="?page=1">&laquo; pierwsza</a>
+                <a href="?page={{ UnitOfMeasurements.previous_page_number }}">poprzednia</a>
+            {% endif %}
+
+            {% if categories.has_next %}
+                <a href="?page={{ UnitOfMeasurements.next_page_number }}">następna</a>
+                <a href="?page={{ UnitOfMeasurements.paginator.num_pages }}">ostatnia &raquo;</a>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>
+{% endblock content %}

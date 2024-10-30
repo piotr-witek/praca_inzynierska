@@ -36,6 +36,17 @@
             <button type="submit" name="add_category">Dodaj Kategorię</button>
         </form>
     </div>
+
+
+        <!-- Formularz dodawania jednostki miary -->
+        <h2>Dodaj Jednostke miary</h2>
+        <form method="post" action="{% url 'administration' %}" class="form">
+            {% csrf_token %}
+            {{ category_form.as_p }}
+            <button type="submit" name="add_unit">Dodaj Jednostke Miary</button>
+        </form>
+    </div>
+
 </body>
 </html>
 {% endblock content %}

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Purchase, Consumption, InventoryItem, Supplier, ItemCategory
+from .models import Purchase, Consumption, InventoryItem, Supplier, ItemCategory,UnitOfMeasurement
 
 class PurchaseForm(forms.ModelForm):
     class Meta:
@@ -76,4 +76,12 @@ class ItemCategoryForm(forms.ModelForm):
         fields = ['name']
         labels = {
             'name': 'Kategoria',
+        }
+
+class ItemUnitForm(forms.ModelForm):
+    class Meta:
+        model = UnitOfMeasurement
+        fields = ['name']
+        labels = {
+            'name': 'Jednostka miary',
         }

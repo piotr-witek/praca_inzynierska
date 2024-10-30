@@ -14,4 +14,6 @@ urlpatterns = [
     path('inventory/categories/', views.category_list, name='category_list'),
     path('inventory/suppliers/', views.supplier_list, name='supplier_list'),
     path('inventory/notifications/', views.notifications, name='notifications'),
+    path('inventory/units/', views.unit_list, name='unit_list'),
+    path('inventory/reports/', views.reports, name='reports'),
 ]

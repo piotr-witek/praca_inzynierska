@@ -95,9 +95,9 @@
                 <th>Ilość</th>
                 <th>Min. na stanie</th>
                 <th>Jednostka</th>
-                <th>Data ważności</th>
                 <th>Cena zakupu</th>
                 <th>Dostawca</th>
+                <th>Data ważności</th>
                 <th>Data uzupełnienia</th>
             </tr>
         </thead>
@@ -110,10 +110,10 @@
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.reorder_level }}</td>
                     <td>{{ item.unit }}</td>
-                    <td>{{ item.expiration_date }}</td>
                     <td>{{ item.purchase_price }}</td>
                     <td>{{ item.supplier }}</td>
-                    <td>{{ item.last_restock_date }}</td>
+                    <td>{{ item.expiration_date|date:"d.m.Y" }}</td>
+                    <td>{{ item.last_restock_date|date:"d.m.Y H:i" }}</td>
                 </tr>
             {% endfor %}
         </tbody>
