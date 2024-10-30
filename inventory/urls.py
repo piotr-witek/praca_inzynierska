@@ -16,4 +16,6 @@ urlpatterns = [
     path('inventory/notifications/', views.notifications, name='notifications'),
     path('inventory/units/', views.unit_list, name='unit_list'),
     path('inventory/reports/', views.reports, name='reports'),
+    path('inventory/download_price_chart/', views.download_price_chart, name='download_price_chart'),
+    path('inventory/download_purchase_sum_by_category/', views.download_purchase_sum_by_category, name='download_purchase_sum_by_category'),
 ]

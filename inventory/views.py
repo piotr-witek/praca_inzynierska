@@ -7,6 +7,16 @@ from .models import InventoryItem, ItemCategory, Supplier,UnitOfMeasurement
 from .forms import PurchaseForm, ConsumptionForm, ProductForm,ProductFormEdit, SupplierForm, ItemCategoryForm, ItemUnitForm
 from django.core.paginator import Paginator
 from .reports import  generate_inventory_xls, generate_inventory_csv, generate_suppliers_csv, generate_suppliers_xls
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import pandas as pd
+import io
+from django.shortcuts import render
+from django.http import HttpResponse
+
+
+
 
 def add_purchase(request):
     if request.method == 'POST':
@@ -301,6 +311,127 @@ def reports(request):
 
     # Renderuj stronę raportów, jeśli nie wykonano POST lub wystąpił błąd
     return render(request, 'inventory/reports.html')
+
+
+
+
+# Widok do generowania raportów
+def reports(request):
+    if request.method == 'POST':
+        report_type = request.POST.get('report_type')
+        file_format = request.POST.get('file_format')
+
+        # W zależności od typu raportu, generujemy odpowiedni raport
+        if report_type == 'inventory':
+            if file_format == 'xls':
+                return generate_inventory_xls()  # Funkcja generująca plik XLS
+            elif file_format == 'csv':
+                return generate_inventory_csv()  # Funkcja generująca plik CSV
+
+
+        messages.error(request, "Nieznany typ raportu lub format pliku.")
+
+    # Renderuj stronę raportów, jeśli nie wykonano POST lub wystąpił błąd
+    return render(request, 'inventory/reports.html')
+
+
+def download_price_chart(request):
+    # Pobierz dane z modelu InventoryItem
+    data = []
+    items = InventoryItem.objects.all()
+
+    for item in items:
+        if item.purchase_price is not None:  # Upewnij się, że cena zakupu nie jest None
+            data.append({
+                'supplier': item.supplier.name,
+                'purchase_price': item.purchase_price
+            })
+
+    # Stwórz DataFrame
+    df = pd.DataFrame(data)
+
+    if df.empty:
+        return HttpResponse("Brak danych do wykresu.", status=404)
+
+    # Grupuj dane według dostawcy i oblicz średnią cenę zakupu
+    chart_data = df.groupby('supplier')['purchase_price'].mean().reset_index()
+
+    # Stwórz wykres
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(chart_data['supplier'], chart_data['purchase_price'], color='skyblue', edgecolor='black')
+
+    # Dodaj etykiety do słupków
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
+
+    # Ustawienia osi
+    plt.xlabel('Dostawcy', fontsize=14)
+    plt.ylabel('Średnia Cena Zakupu (PLN)', fontsize=14)
+    plt.title('Średnia Cena Zakupu według Dostawców', fontsize=16)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Zapisz wykres do bufora BytesIO
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')  # Dodaj bbox_inches='tight' do lepszego formatu
+    buf.seek(0)  # Wróć do początku bufora
+    plt.close()  # Zamknij wykres, aby zwolnić pamięć
+
+    # Ustaw odpowiedź
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    response['Content-Disposition'] = 'attachment; filename="srednia_cen_zakupu.png"'
+    return response
+
+def download_purchase_sum_by_category(request):
+    # Pobierz dane z modelu InventoryItem
+    data = []
+    items = InventoryItem.objects.all()
+
+    for item in items:
+        if item.purchase_price is not None:  # Upewnij się, że cena zakupu nie jest None
+            data.append({
+                'category': item.category.name,
+                'purchase_price': item.purchase_price
+            })
+
+    # Stwórz DataFrame
+    df = pd.DataFrame(data)
+
+    if df.empty:
+        return HttpResponse("Brak danych do wykresu.", status=404)
+
+    # Grupuj dane według kategorii i oblicz sumę cen zakupu
+    chart_data = df.groupby('category')['purchase_price'].sum().reset_index()
+
+    # Stwórz wykres
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(chart_data['category'], chart_data['purchase_price'], color='lightgreen', edgecolor='black')
+
+    # Dodaj etykiety do słupków
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
+
+    # Ustawienia osi
+    plt.xlabel('Kategorie', fontsize=14)
+    plt.ylabel('Suma Cen Zakupu (PLN)', fontsize=14)
+    plt.title('Suma Cen Zakupu według Kategorii', fontsize=16)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Zapisz wykres do bufora BytesIO
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    plt.close()
+
+    # Ustaw odpowiedź
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    response['Content-Disposition'] = 'attachment; filename="suma_cen_zakpupów_wg_kategorii.png"'
+    return response
 
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')
