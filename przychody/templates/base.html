@@ -92,171 +92,94 @@
 
           {% comment %} {% if user.is_authenticated %} {% endcomment %}
 
-            <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
-              <div class="navbar-vertical-content scrollbar">
-                <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
-                  <li class="nav-item">
-                    <!-- parent pages--><a class="nav-link dropdown-indicator" href="#dashboard" role="button" data-bs-toggle="collapse" aria-expanded="true" aria-controls="dashboard">
-                      <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-chart-pie"></span></span><span class="nav-link-text ps-1">Pulpit</span>
-                      </div>
-                    </a>
-                    <ul class="nav collapse show" id="dashboard">
-                      <li class="nav-item"><a class="nav-link active" href="index.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Default</span>
-                          </div>
-                        </a>
-                      </li>
-
-
-                      <li class="nav-item"><a class="nav-link active" href="index.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Magazyn</span>
-                          </div>
-                          </a>
-
-                             <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "notifications" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Powiadomienia</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-
-                            <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "stock_status" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Stan</span>
-                                  </div>
-                                </a>
-
-                              </li>
-
-                            </ul>
-
-                            <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "add_product" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Dodaj</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-                             <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "edit_product" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Modyfikuj</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-
-                             <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "delete_product" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Usuń</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-
-                             <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "category_list" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Kategorie</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-
-                             <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "supplier_list" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Dostawcy</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-
-                             <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "unit_list" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Jednostki</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-
-                             <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "administration" %}">
-                                  <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Administracja</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-
-                             <ul class="nav collapse show" id="dashboard">
-                              <li class="nav-item"><a class="nav-link active" href="{% url "reports" %}">
-                                      <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Raporty</span>
-                                  </div>
-                                </a>
-
-                              </li>
-                            </ul>
-
-                    </li>
-                      {% comment %} <li class="nav-item"><a class="nav-link" href="dashboard/analytics.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Analytics</span>
-                          </div>
-                        </a>
-                        <!-- more inner pages-->
-                      </li>
-                      <li class="nav-item"><a class="nav-link" href="dashboard/crm.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">CRM</span>
-                          </div>
-                        </a>
-                        <!-- more inner pages-->
-                      </li>
-                      <li class="nav-item"><a class="nav-link" href="dashboard/e-commerce.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">E commerce</span>
-                          </div>
-                        </a>
-                        <!-- more inner pages-->
-                      </li>
-                      <li class="nav-item"><a class="nav-link" href="dashboard/lms.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">LMS</span><span class="badge rounded-pill ms-2 badge-subtle-success">New</span>
-                          </div>
-                        </a>
-                        <!-- more inner pages-->
-                      </li>
-                      <li class="nav-item"><a class="nav-link" href="dashboard/project-management.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Management</span>
-                          </div>
-                        </a>
-                        <!-- more inner pages-->
-                      </li>
-                      <li class="nav-item"><a class="nav-link" href="dashboard/saas.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">SaaS</span>
-                          </div>
-                        </a>
-                        <!-- more inner pages-->
-                      </li>
-                      <li class="nav-item"><a class="nav-link" href="dashboard/support-desk.html">
-                          <div class="d-flex align-items-center"><span class="nav-link-text ps-1">Support desk</span><span class="badge rounded-pill ms-2 badge-subtle-success">New</span>
-                          </div>
-                        </a>
-                        <!-- more inner pages-->
-                      </li> {% endcomment %}
-                    </ul>
-                  </li>
-                  <li class="nav-item">
-                    <!-- label-->
-                    <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                      <div class="col-auto navbar-vertical-label">Rozliczenia
-                      </div>
-                      <div class="col ps-0">
-                        <hr class="mb-0 navbar-vertical-divider" />
-                      </div>
+          <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
+            <div class="navbar-vertical-content scrollbar">
+              <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
+                
+                <!-- Pulpit -->
+                <li class="nav-item">
+                  <a class="nav-link dropdown-indicator" href="#dashboard" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="dashboard">
+                    <div class="d-flex align-items-center">
+                      <span class="nav-link-icon"><span class="fas fa-chart-pie"></span></span>
+                      <span class="nav-link-text ps-1">Pulpit</span>
                     </div>
+                  </a>
+                </li>
+          
+                <!-- Magazyn -->
+                <li class="nav-item">
+                  <a class="nav-link dropdown-indicator" href="#sectionMagazyn" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="sectionMagazyn">
+                    <div class="d-flex align-items-center">
+                      <span class="nav-link-text ps-1">Magazyn</span>
+                    </div>
+                  </a>
+                  
+                  <!-- Magazyn: Sekcja wewnętrzna -->
+                  <ul class="nav collapse" id="sectionMagazyn">
+                    
+                    <!-- Stan -->
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'stock_status' %}">
+                        <div class="d-flex align-items-center">
+                          <span class="nav-link-text ps-1">Stan</span>
+                        </div>
+                      </a>
+                    </li>
+                    
+                    <!-- Powiadomienia -->
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'notifications' %}">
+                        <div class="d-flex align-items-center">
+                          <span class="nav-link-text ps-1">Powiadomienia</span>
+                        </div>
+                      </a>
+                    </li>
+          
+                    <!-- Towary -->
+                    <li class="nav-item">
+                      <a class="nav-link dropdown-indicator" href="#sectionTowary" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="sectionTowary">
+                        <div class="d-flex align-items-center">
+                          <span class="nav-link-text ps-1">Towary</span>
+                        </div>
+                      </a>
+                      <ul class="nav collapse" id="sectionTowary">
+                        <li class="nav-item"><a class="nav-link" href="{% url 'add_product' %}">Dodaj</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'edit_product' %}">Modyfikuj</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'delete_product' %}">Usuń</a></li>
+                      </ul>
+                    </li>
+          
+                    <!-- Słowniki -->
+                    <li class="nav-item">
+                      <a class="nav-link dropdown-indicator" href="#sectionSlowniki" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="sectionSlowniki">
+                        <div class="d-flex align-items-center">
+                          <span class="nav-link-text ps-1">Słowniki</span>
+                        </div>
+                      </a>
+                      <ul class="nav collapse" id="sectionSlowniki">
+                        <li class="nav-item"><a class="nav-link" href="{% url 'supplier_list' %}">Dostawcy</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'unit_list' %}">Jednostki</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'category_list' %}">Kategorie</a></li>
+                      </ul>
+                    </li>
+          
+                    <!-- Administracja -->
+                    <li class="nav-item">
+                      <a class="nav-link dropdown-indicator" href="#sectionAdministracja" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="sectionAdministracja">
+                        <div class="d-flex align-items-center">
+                          <span class="nav-link-text ps-1">Administracja</span>
+                        </div>
+                      </a>
+                      <ul class="nav collapse" id="sectionAdministracja">
+                        <li class="nav-item"><a class="nav-link" href="{% url 'administration' %}">Administracja</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'reports' %}">Raporty</a></li>
+                      </ul>
+                    </li>
+          
+                  </ul>
+                </li>
+              </ul>
+                
                     <!-- parent pages--><a class="nav-link" href="app/calendar.html" role="button">
                       <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar-alt"></span></span><span class="nav-link-text ps-1">Dzienny Raport</span>
                       </div>
@@ -536,9 +459,41 @@
     <!-- ===============================================-->
     <!--    JavaScripts-->
     <!-- ===============================================-->
+    <!-- JavaScript to prevent collapse on link click -->
+    <script>
+      document.querySelectorAll('.nav-item > .nav-link').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          // Check if the link has a collapse data-toggle
+          if (link.getAttribute('data-bs-toggle') === 'collapse') {
+            e.preventDefault();
+            let target = document.querySelector(link.getAttribute('href'));
+            if (target.classList.contains('show')) {
+              // If already open, close it
+              target.classList.remove('show');
+              link.setAttribute('aria-expanded', 'false');
+            } else {
+              // Otherwise, open it and set aria-expanded to true
+              target.classList.add('show');
+              link.setAttribute('aria-expanded', 'true');
+            }
+          }
+        });
+      });
+    </script>
+              
     <script src="{% static 'vendors/popper/popper.min.js' %}"></script>
     <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
     <script src="{% static 'vendors/anchorjs/anchor.min.js' %}"></script>
+    <script src="{% static 'vendors/is/is.min.js' %}"></script>
+    <script src="{% static 'vendors/echarts/echarts.min.js' %}"></script>
+    <script src="{% static 'vendors/fontawesome/all.min.js' %}"></script>
+    <script src="{% static 'vendors/lodash/lodash.min.js' %}"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="{% static 'vendors/list.js/list.min.js' %}"></script>
+    <script src="{% static 'js/theme.js' %}"></script>
+  </body>
+
+</html>>
     <script src="{% static 'vendors/is/is.min.js' %}"></script>
     <script src="{% static 'vendors/echarts/echarts.min.js' %}"></script>
     <script src="{% static 'vendors/fontawesome/all.min.js' %}"></script>

@@ -1,21 +1,24 @@
-from django.utils import timezone
 from datetime import timedelta
-from django.shortcuts import render, redirect, get_object_or_404
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import InventoryItem, ItemCategory, Supplier,UnitOfMeasurement
-from .forms import PurchaseForm, ConsumptionForm, ProductForm,ProductFormEdit, SupplierForm, ItemCategoryForm, ItemUnitForm
-from django.core.paginator import Paginator
-from .reports import  generate_inventory_xls, generate_inventory_csv, generate_suppliers_csv, generate_suppliers_xls
+
 import matplotlib
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
+from .forms import (ConsumptionForm, ItemCategoryForm, ItemUnitForm,
+                    ProductForm, ProductFormEdit, PurchaseForm, SupplierForm)
+from .models import InventoryItem, ItemCategory, Supplier, UnitOfMeasurement
+from .reports import (generate_inventory_csv, generate_inventory_xls,
+                      generate_suppliers_csv, generate_suppliers_xls)
+
 matplotlib.use('Agg')
+import io
+
 import matplotlib.pyplot as plt
 import pandas as pd
-import io
-from django.shortcuts import render
 from django.http import HttpResponse
-
-
+from django.shortcuts import render
 
 
 def add_purchase(request):

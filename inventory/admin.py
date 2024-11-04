@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import InventoryItem, Purchase, Consumption
 
+from .models import Consumption, InventoryItem, Purchase
 
 admin.site.register([InventoryItem, Purchase, Consumption])

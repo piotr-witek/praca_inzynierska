@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class Przychod(models.Model):
     dzien = models.DateField(help_text="Data raportu")

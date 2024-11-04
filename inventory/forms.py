@@ -1,5 +1,8 @@
 from django import forms
-from .models import Purchase, Consumption, InventoryItem, Supplier, ItemCategory,UnitOfMeasurement
+
+from .models import (Consumption, InventoryItem, ItemCategory, Purchase,
+                     Supplier, UnitOfMeasurement)
+
 
 class PurchaseForm(forms.ModelForm):
     class Meta:

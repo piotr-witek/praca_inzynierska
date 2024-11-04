@@ -1,5 +1,6 @@
 from django.db import migrations
 
+
 def create_initial_data(apps, schema_editor):
     Supplier = apps.get_model('your_app_name', 'Supplier')
     Category = apps.get_model('your_app_name', 'Category')

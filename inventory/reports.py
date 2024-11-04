@@ -1,9 +1,11 @@
 
-from django.http import HttpResponse
-from .models import InventoryItem, Supplier
-import xlwt
 import csv
+
+import xlwt
+from django.http import HttpResponse
 from django.utils import timezone
+
+from .models import InventoryItem, Supplier
 
 
 def generate_inventory_xls():

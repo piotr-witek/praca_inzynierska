@@ -4,6 +4,7 @@ import django.db.models.deletion
 import django.utils.timezone
 from django.db import migrations, models
 
+
 def create_initial_data(apps, schema_editor):
     # Pobierz modele
     ItemCategory = apps.get_model('inventory', 'ItemCategory')
