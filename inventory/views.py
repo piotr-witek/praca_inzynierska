@@ -159,13 +159,15 @@ def add_product(request):
 
 
 def edit_product(request):
-    product = None  # Domyślnie produkt jest None
+    product = None
+    form = None  # Użycie form w każdym bloku, co uprości kod końcowy
 
-    if 'search' in request.GET:  # Sprawdzenie, czy wysłano zapytanie do wyszukiwania
+    # Obsługa wyszukiwania
+    if 'search' in request.GET:
         query = request.GET.get('search').strip()
         try:
-            product = InventoryItem.objects.get(id__iexact=query)  # Wyszukiwanie produktu po nazwie
-            form = ProductFormEdit(instance=product)  # Uzupełniamy formularz danymi produktu
+            product = InventoryItem.objects.get(id=query)
+            form = ProductFormEdit(instance=product)
             return render(request, 'inventory/edit_product.html', {
                 'form': form,
                 'product': product,
@@ -175,22 +177,26 @@ def edit_product(request):
             messages.error(request, f"Produkt o identyfikatorze '{query}' nie istnieje.")
             return render(request, 'inventory/edit_product.html', {'searched': False})
 
+    # Obsługa przesyłania edytowanych danych
     elif request.method == 'POST' and 'product_id' in request.POST:
-        # Formularz edycji produktu po znalezieniu
         product = get_object_or_404(InventoryItem, id=request.POST.get('product_id'))
         form = ProductFormEdit(request.POST, instance=product)
+
         if form.is_valid():
-            form.save()
+            # Ustawienie last_restock_date na bieżącą datę
+            product.last_restock_date = timezone.now()  # Ustawienie daty modyfikacji
+
+            form.save()  # Zapisz zmodyfikowany produkt
             messages.success(request, "Produkt został zaktualizowany pomyślnie!")
             return redirect('edit_product')
         else:
             messages.error(request, "Wystąpił błąd podczas aktualizacji produktu.")
 
-    # Domyślny formularz wyszukiwania, bez edycji
-    form = ProductFormEdit() if not product else form
+    # Formularz pusty, jeśli nie ma jeszcze wyszukiwania
+    if form is None:
+        form = ProductFormEdit()  # Pusty formularz na początku
 
     return render(request, 'inventory/edit_product.html', {'form': form, 'searched': False})
-
 
 def delete_product(request):
     product = None
@@ -222,6 +228,11 @@ def delete_product(request):
 
 
 def administration(request):
+    # Inicjalizuj wszystkie formularze na początku
+    supplier_form = SupplierForm()
+    category_form = ItemCategoryForm()
+    unit_form = ItemUnitForm()
+
     # Obsługa formularza dostawcy
     if request.method == 'POST' and 'add_supplier' in request.POST:
         supplier_form = SupplierForm(request.POST)
@@ -242,7 +253,7 @@ def administration(request):
         else:
             messages.error(request, "Wystąpił błąd podczas dodawania kategorii.")
 
-    # Obsługa formularza jednostki mary
+    # Obsługa formularza jednostki miary
     elif request.method == 'POST' and 'add_unit' in request.POST:
         unit_form = ItemUnitForm(request.POST)
         if unit_form.is_valid():
@@ -252,17 +263,12 @@ def administration(request):
         else:
             messages.error(request, "Wystąpił błąd podczas dodawania jednostki miary.")
 
-    else:
-        supplier_form = SupplierForm()
-        category_form = ItemCategoryForm()
-        unit_form = ItemUnitForm()
-
+    # Renderuj szablon ze wszystkimi formularzami
     return render(request, 'inventory/administration.html', {
         'supplier_form': supplier_form,
         'category_form': category_form,
         'unit_form': unit_form,
     })
-
 
 def notifications(request):
     # Ustawienie bieżącej daty
@@ -293,50 +299,40 @@ def notifications(request):
     })
 
 
+from datetime import datetime
+
 def reports(request):
     if request.method == 'POST':
         report_type = request.POST.get('report_type')
         file_format = request.POST.get('file_format')
+        data_od = request.POST.get('data_od')
+        data_do = request.POST.get('data_do')
+        date_filter = request.POST.get('date_filter')
 
-        # W zależności od typu raportu, generujemy odpowiedni raport
+        # Konwersja dat na obiekty datetime (jeśli podane)
+        date_from = datetime.strptime(data_od, '%Y-%m-%d') if data_od else None
+        date_to = datetime.strptime(data_do, '%Y-%m-%d') if data_do else None
+
+        # W zależności od typu raportu i formatu, generujemy odpowiedni raport
         if report_type == 'inventory':
             if file_format == 'xls':
-                return generate_inventory_xls()  # Funkcja generująca plik XLS
+                return generate_inventory_xls(request, date_from, date_to, date_filter)
             elif file_format == 'csv':
-                return generate_inventory_csv()  # Funkcja generująca plik CSV
+                return generate_inventory_csv(request, date_from, date_to, date_filter)
         elif report_type == 'suppliers':
             if file_format == 'xls':
-                return generate_suppliers_xls()  # Funkcja generująca plik XLS dla dostawców
+                return generate_suppliers_xls(request, date_from, date_to)  # usunięty date_filter
             elif file_format == 'csv':
-                return generate_suppliers_csv()  # Funkcja generująca plik CSV dla dostawców
+                return generate_suppliers_csv(request, date_from, date_to)  # usunięty date_filter
 
+        # Jeżeli typ raportu lub format pliku są nieprawidłowe, wyświetlamy błąd
         messages.error(request, "Nieznany typ raportu lub format pliku.")
 
-    # Renderuj stronę raportów, jeśli nie wykonano POST lub wystąpił błąd
+        # Przekierowanie do tej samej strony, aby komunikat został wyświetlony
+        return redirect('reports')
+
+    # Renderowanie strony raportów, jeśli to nie jest POST
     return render(request, 'inventory/reports.html')
-
-
-
-
-# Widok do generowania raportów
-def reports(request):
-    if request.method == 'POST':
-        report_type = request.POST.get('report_type')
-        file_format = request.POST.get('file_format')
-
-        # W zależności od typu raportu, generujemy odpowiedni raport
-        if report_type == 'inventory':
-            if file_format == 'xls':
-                return generate_inventory_xls()  # Funkcja generująca plik XLS
-            elif file_format == 'csv':
-                return generate_inventory_csv()  # Funkcja generująca plik CSV
-
-
-        messages.error(request, "Nieznany typ raportu lub format pliku.")
-
-    # Renderuj stronę raportów, jeśli nie wykonano POST lub wystąpił błąd
-    return render(request, 'inventory/reports.html')
-
 
 def download_price_chart(request):
     # Pobierz dane z modelu InventoryItem
