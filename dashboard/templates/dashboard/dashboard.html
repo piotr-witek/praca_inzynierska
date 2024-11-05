@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Dashboard Restauracji - Zarządzanie Stolikami</h1>
+    <div class="dashboard" id="dashboard">
+        {% for table in tables %}
+            <div class="table" id="table-{{ table.id }}">
+                <p>Stolik {{ table.table_number }}</p>
+                <a href="{% url 'add_order' table.id %}">Dodaj Zamówienie</a>
+                <div class="order-info">
+                    <h5>Zamówienia:</h5>
+                    <ul>
+                        {% for order in table.orders.all %}
+                            <li>{{ order.details }} ({{ order.created_at }})</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

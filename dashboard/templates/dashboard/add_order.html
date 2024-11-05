@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Dodaj Zamówienie do Stolik {{ table.table_number }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Zapisz Zamówienie</button>
+    </form>
+    <a href="{% url 'dashboard' %}">Powrót do Dashboardu</a>
+</div>
+{% endblock %}
