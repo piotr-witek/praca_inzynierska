@@ -98,7 +98,6 @@
                 <th>Cena zakupu</th>
                 <th>Dostawca</th>
                 <th>Data ważności</th>
-                <th>Data uzupełnienia</th>
             </tr>
         </thead>
         <tbody>
@@ -113,7 +112,6 @@
                     <td>{{ item.purchase_price }}</td>
                     <td>{{ item.supplier }}</td>
                     <td>{{ item.expiration_date|date:"d.m.Y" }}</td>
-                    <td>{{ item.last_restock_date|date:"d.m.Y H:i" }}</td>
                 </tr>
             {% endfor %}
         </tbody>

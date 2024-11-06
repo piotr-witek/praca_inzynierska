@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django import forms
 
 from .models import (Consumption, InventoryItem, ItemCategory, Purchase,
@@ -20,8 +22,7 @@ class ProductForm(forms.ModelForm):
         model = InventoryItem
         fields = [
             'name', 'category', 'quantity', 'unit',
-            'reorder_level', 'expiration_date',
-            'last_restock_date', 'purchase_price', 'supplier'
+            'reorder_level', 'expiration_date', 'purchase_price', 'supplier'
         ]
         labels = {
             'name': 'Nazwa produktu',
@@ -30,7 +31,6 @@ class ProductForm(forms.ModelForm):
             'unit': 'Jednostka miary',
             'reorder_level': 'Minimalna ilosc na stanie',
             'expiration_date': 'Termin ważnosci',
-            'last_restock_date': 'Ostatnia data uzupełnienia',
             'purchase_price': 'Cena zakupu',
             'supplier': 'Dostawca',
         }
@@ -44,8 +44,7 @@ class ProductFormEdit(forms.ModelForm):
         model = InventoryItem
         fields = [
             'name', 'category', 'quantity', 'unit',
-            'reorder_level', 'expiration_date',
-            'last_restock_date', 'purchase_price', 'supplier'
+            'reorder_level', 'expiration_date', 'purchase_price', 'supplier'
         ]
         labels = {
             'name': 'Nazwa produktu',
@@ -54,10 +53,10 @@ class ProductFormEdit(forms.ModelForm):
             'unit': 'Jednostka miary',
             'reorder_level': 'Minimalna ilosc na stanie',
             'expiration_date': 'Termin ważnosci',
-            'last_restock_date': 'Ostatnia data uzupełnienia',
             'purchase_price': 'Cena zakupu',
             'supplier': 'Dostawca',
         }
+
 
 
 
