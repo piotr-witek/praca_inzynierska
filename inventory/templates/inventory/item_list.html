@@ -11,13 +11,11 @@
 <body>
     <h1>Stan Magazynu</h1>
 
-    <!-- Formularz do filtrowania -->
-
 
 
     <form method="GET" action="{% url 'stock_status' %}">
-  <div class="filter-container"> <!-- Kontener dla filtrów -->
-  <h2>Filtr</h2> <!-- Dodany nagłówek -->
+  <div class="filter-container">
+  <h2>Filtr</h2>
     <div>
         <label for="name">Nazwa:</label>
         <input type="text" id="name" name="name" class="input-field" placeholder="Wprowadź nazwę" value="{{ request.GET.name }}">
@@ -73,16 +71,15 @@
 
 <script>
     function clearFilters() {
-        // Ustawia wartości pól na pusty ciąg
+
         document.getElementById('name').value = '';
         document.getElementById('category').value = '';
         document.getElementById('supplier').value = '';
         document.getElementById('unit').value = '';
-        document.getElementById('expiration_date_start').value = '';  // Jeśli dodano zakres dat
-        document.getElementById('expiration_date_end').value = '';    // Jeśli dodano zakres dat
+        document.getElementById('expiration_date_start').value = '';
+        document.getElementById('expiration_date_end').value = '';
 
-        // Możesz również przeładować stronę, aby usunąć parametry z URL
-        window.location.href = "{% url 'stock_status' %}";  // Przekierowanie do pełnej listy towarów
+        window.location.href = "{% url 'stock_status' %}";
     }
 </script>
 

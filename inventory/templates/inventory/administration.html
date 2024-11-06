@@ -11,7 +11,7 @@
     <div class="container">
         <h1>Zarządzanie</h1>
 
-        <!-- Sekcja komunikatów -->
+
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -20,7 +20,7 @@
             </div>
         {% endif %}
 
-        <!-- Formularz dodawania dostawcy -->
+
         <h2>Dodaj Dostawcę</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
@@ -28,7 +28,7 @@
             <button type="submit" name="add_supplier">Dodaj Dostawcę</button>
         </form>
 
-        <!-- Formularz dodawania kategorii towaru -->
+
         <h2>Dodaj Kategorię Towaru</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
@@ -38,7 +38,7 @@
     </div>
 
 
-        <!-- Formularz dodawania jednostki miary -->
+
         <h2>Dodaj Jednostke miary</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}

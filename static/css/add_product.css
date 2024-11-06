@@ -6,7 +6,7 @@ h1 {
 }
 
 
-/* Formularz */
+
 .form-card {
     display: flex;
     flex-direction: column;
@@ -54,7 +54,7 @@ h1 {
     background-color: #357abd;
 }
 
-/* Link powrotu */
+
 .back-link {
     display: inline-block;
     margin-top: 1.5rem;
@@ -68,7 +68,7 @@ h1 {
     color: #357abd;
 }
 
-/* Stylizacja komunikatów */
+
 .messages {
     max-width: 500px;
     margin: 0 auto 15px;

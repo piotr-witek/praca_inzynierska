@@ -6,8 +6,8 @@ from django.utils import timezone
 
 class ItemCategory(models.Model):
     name = models.CharField(max_length=20, unique=True)
-    last_restock_date = models.DateTimeField(default=timezone.now, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False) #Data utworzenia
+    last_restock_date = models.DateTimeField(default=timezone.now, null=True) #Data modyfikacji
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     def __str__(self):
         return self.name
@@ -15,20 +15,20 @@ class ItemCategory(models.Model):
 
 class UnitOfMeasurement(models.Model):
     name = models.CharField(max_length=20, unique=True)
-    last_restock_date = models.DateTimeField(default=timezone.now, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False) #Data utworzenia
+    last_restock_date = models.DateTimeField(default=timezone.now, null=True) #Data modyfikacji
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     def __str__(self):
         return self.name
 
 
 class Supplier(models.Model):
-    name = models.CharField(max_length=100, null=False)  # Nazwa dostawcy
-    address = models.CharField(max_length=255, null=True, blank=True)  # Adres dostawcy
-    phone = models.CharField(max_length=15, null=True, blank=True)  # Numer telefonu
-    email = models.EmailField(max_length=100, null=True, blank=True)  # Adres email
-    last_restock_date = models.DateTimeField(null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False) #Data utworzenia
+    name = models.CharField(max_length=100, null=False)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
+    email = models.EmailField(max_length=100, null=True, blank=True)
+    last_restock_date = models.DateTimeField(null=True) #Data modyfikacji
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     def __str__(self):
         return self.name
@@ -44,7 +44,7 @@ class InventoryItem(models.Model):
     last_restock_date = models.DateTimeField(null=True) #Data modyfikacji
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, null=False)
-    created_at = models.DateTimeField(auto_now_add=True, null=False) #Data dodania
+    created_at = models.DateTimeField(auto_now_add=True, null=False) #
 
     def __str__(self):
         return f"{self.name} ({self.quantity} {self.unit})"

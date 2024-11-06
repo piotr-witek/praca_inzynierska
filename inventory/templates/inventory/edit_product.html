@@ -10,7 +10,7 @@
 <body>
     <div class="container">
 
-         <!-- Sekcja komunikatów -->
+
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -22,7 +22,7 @@
         <h1>Edytuj Produkt</h1>
 
 
-        <!-- Formularz wyszukiwania produktu -->
+
         <form action="{% url 'edit_product' %}" method="get" class="search-form">
 
             <input type="text" name="search" id="search" placeholder="Wpisz identyfikator">
@@ -30,7 +30,6 @@
         </form>
 
         {% if searched %}
-            <!-- Formularz edycji produktu (widoczny po wyszukaniu) -->
             <form action="{% url 'edit_product' %}" method="post" class="form-card">
                 {% csrf_token %}
                 {{ form.as_p }}

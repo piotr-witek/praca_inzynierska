@@ -20,7 +20,7 @@
                 <ul class="notification-list">
                     {% for item in low_stock_items %}
                         <li class="notification-item">
-                            <span class="notification-item-name">{{ item.name }}</span> <br>
+                            <span class="notification-item-name">{{ item.name }} (id: {{ item.id }})</span> <br>
                             Aktualny stan: {{ item.quantity }} {{ item.unit.name }} <br>
                             <span class="notification-item-minimum">Minimalny stan: {{ item.reorder_level }} {{ item.unit.name }}</span>
                         </li>
@@ -31,14 +31,14 @@
             {% endif %}
         </section>
 
-        <!-- Sekcja towarów bliskich przeterminowaniu -->
+
         <section class="notification-section notification-section-expiring">
             <h2 class="notification-title">Bliskie Przeterminowaniu</h2>
             {% if expiring_items %}
                 <ul class="notification-list">
                     {% for item in expiring_items %}
                         <li class="notification-item">
-                            <span class="notification-item-name">{{ item.name }}</span>
+                            <span class="notification-item-name">{{ item.name }} (id: {{ item.id }})</span>
                             - Termin ważności: {{ item.expiration_date }}
                         </li>
                     {% endfor %}
@@ -48,14 +48,14 @@
             {% endif %}
         </section>
 
-        <!-- Sekcja towarów przeterminowanych -->
+
         <section class="notification-section notification-section-expired">
             <h2 class="notification-title">Przeterminowane</h2>
             {% if expired_items %}
                 <ul class="notification-list">
                     {% for item in expired_items %}
                         <li class="notification-item">
-                            <span class="notification-item-name">{{ item.name }}</span>
+                            <span class="notification-item-name">{{ item.name }} (id: {{ item.id }}) </span>
                             - Przeterminowany: {{ item.expiration_date }}
                         </li>
                     {% endfor %}

@@ -47,7 +47,7 @@ h1 {
     margin: 30px 0 0 0;
 }
 
-/* Stylizacja komunikatów */
+
 .messages {
     max-width: 500px;
     margin: 0 auto 15px;
@@ -64,9 +64,9 @@ h1 {
 }
 
 .message.success {
-    background-color: #4CAF50; /* Zielony dla sukcesu */
+    background-color: #4CAF50;
 }
 
 .message.error {
-    background-color: #f44336; /* Czerwony dla błędu */
+    background-color: #f44336;
 }

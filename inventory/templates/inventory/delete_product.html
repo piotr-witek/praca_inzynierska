@@ -11,7 +11,7 @@
     <div class="container">
         <h1>Wyszukaj Produkt do Usunięcia</h1>
 
-        <!-- Sekcja komunikatów -->
+
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -20,7 +20,7 @@
             </div>
         {% endif %}
 
-        <!-- Formularz wyszukiwania produktu -->
+
         <form action="" method="post" class="form-card">
             {% csrf_token %}
             <input type="text" name="product_id" placeholder="Wpisz identyfikator" required>
@@ -28,7 +28,7 @@
             <button type="submit" name="search" class="search-btn">Wyszukaj</button>
         </form>
 
-        <!-- Jeśli produkt został znaleziony, wyświetl jego szczegóły -->
+
         {% if product %}
             <h2>Znaleziony Produkt</h2>
             <p><strong>ID:</strong> {{ product.id }}</p>
@@ -42,10 +42,10 @@
             <p><strong>	Dostawca:</strong> {{ product.supplier }}</p>
             <p><strong>Ostatnia data uzupełnienia:</strong> {{ product.last_restock_date }}</p>
 
-            <!-- Formularz do usunięcia produktu -->
+
             <form action="" method="post">
                 {% csrf_token %}
-                <!-- Ukryte pole z ID produktu -->
+
                 <input type="hidden" name="product_id" value="{{ product.id }}">
                 <button type="submit" name="delete" class="confirm-btn">Usuń Produkt</button>
             </form>

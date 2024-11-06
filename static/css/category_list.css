@@ -1,86 +1,86 @@
-/* Stylizacja tabeli */
+
 table {
-    width: 100%;                     /* Ustal szerokość tabeli */
-    border-collapse: collapse;       /* Usunięcie odstępów między komórkami */
-    margin-top: 20px;                /* Margines górny */
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
 
 body {
-    font-family: Arial, sans-serif;  /* Ustal czcionkę */
-    margin: 0;                       /* Usunięcie domyślnych marginesów */
-    padding: 20px;                   /* Padding wokół treści */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
 }
 
 th, td {
-    border: 1px solid #ddd;          /* Obramowanie komórek */
-    padding: 8px;                    /* Padding wewnątrz komórek */
-    text-align: left;                /* Wyrównanie tekstu w lewo */
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
 }
 
-/* Kolor tła dla nagłówka tabeli */
+
 th {
-    background-color: #f2f2f2;       /* Kolor tła nagłówka */
-    font-weight: bold;                /* Pogrubienie tekstu */
+    background-color: #f2f2f2;
+    font-weight: bold;
 }
 
-/* Efekt "zebry" - różne kolory tła dla kolejnych wierszy */
+
 tr:nth-child(even) {
-    background-color: #f9f9f9;       /* Kolor tła dla parzystych wierszy */
+    background-color: #f9f9f9;
 }
 
 tr:nth-child(odd) {
-    background-color: #ffffff;       /* Kolor tła dla nieparzystych wierszy */
+    background-color: #ffffff;
 }
 
 /* Stylizacja wiersza po najechaniu myszką */
 tr:hover {
-    background-color: #d1e7dd;       /* Kolor tła wiersza po najechaniu */
+    background-color: #d1e7dd;
 }
 
 .pagination {
-    width: 100%;                     /* Szerokość kontenera paginacji */
-    margin-top: 20px;                /* Margines górny */
-    display: flex;                   /* Użycie flexbox */
-    justify-content: center;          /* Wyśrodkowanie poziome */
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .step-links {
-    width: 100%;                     /* Szerokość kontenera linków */
-    display: flex;                   /* Użycie flexbox */
-    justify-content: center;          /* Wyśrodkowanie poziome */
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .current {
-    font-weight: bold;                /* Pogrubienie tekstu */
-    margin-bottom: 10px;              /* Odstęp poniżej */
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .step-links a {
-    margin: 0 5px;                   /* Odstęp między linkami */
-    text-decoration: none;            /* Usunięcie podkreślenia */
-    color: #007BFF;                  /* Kolor linków */
+    margin: 0 5px;
+    text-decoration: none;
+    color: #007BFF;
 }
 
 .step-links a:hover {
-    text-decoration: underline;       /* Podkreślenie linku przy najechaniu */
+    text-decoration: underline;
 }
 
 .filter-container {
-    border: 1px solid #ccc;          /* Ramka wokół filtrów */
-    border-radius: 5px;              /* Zaokrąglenie rogów */
-    padding: 15px;                   /* Padding wewnętrzny */
-    margin-bottom: 20px;             /* Margines dolny */
-    background-color: #f9f9f9;       /* Kolor tła */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
 }
 
 h2 {
-    margin-bottom: 15px;              /* Margines dolny dla nagłówka */
+    margin-bottom: 15px;
 }
 
 .input-field {
-    width: 100%;                     /* Szerokość inputów i selectów */
-    padding: 8px;                    /* Padding wewnętrzny */
-    margin: 5px 0;                   /* Marginesy górny i dolny */
-    border: 1px solid #ccc;          /* Kolor ramki */
-    border-radius: 4px;              /* Zaokrąglenie rogów */
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
