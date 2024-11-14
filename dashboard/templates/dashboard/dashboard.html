@@ -1,13 +1,86 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .dashboard {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .table {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background-color: #4CAF50;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        position: relative;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .table:hover {
+        transform: scale(1.1);
+    }
+
+    .table p {
+        font-size: 1.2em;
+        margin: 0;
+    }
+
+    .table a {
+        color: #fff;
+        text-decoration: underline;
+        font-weight: bold;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    .order-info {
+        position: absolute;
+        bottom: -20px;
+        width: 90%;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        display: none;
+        text-align: left;
+        font-size: 0.9em;
+    }
+
+    .table:hover .order-info {
+        display: block;
+    }
+
+    .order-info h5 {
+        margin-top: 0;
+        font-size: 1em;
+        text-decoration: underline;
+    }
+</style>
+
+<script>
+    function confirmOrder(url) {
+        if (confirm("Czy na pewno chcesz rozpocząć zamówienie?")) {
+            window.location.href = url;
+        }
+    }
+</script>
+
 <div class="container">
     <h1 class="text-center my-4">Dashboard Restauracji - Zarządzanie Stolikami</h1>
     <div class="dashboard" id="dashboard">
         {% for table in tables %}
             <div class="table" id="table-{{ table.id }}">
                 <p>Stolik {{ table.table_number }}</p>
-                <a href="{% url 'add_order' table.id %}">Dodaj Zamówienie</a>
+                <a href="javascript:void(0);" onclick="confirmOrder('{% url 'add_order' table.id %}')">Dodaj Zamówienie</a>
                 <div class="order-info">
                     <h5>Zamówienia:</h5>
                     <ul>
