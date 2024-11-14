@@ -1,4 +1,127 @@
 {% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+
+{% block content %}
+<html>
+<head>
+    <title>Stan Magazynu</title>
+    {% comment %} <link rel="stylesheet" href="{% static 'css/item_list.css' %}"> {% endcomment %}
+</head>
+<body>
+    <h1>Stan Magazynu</h1>
+
+
+
+    {% comment %} <form method="GET" action="{% url 'stock_status' %}"> {% endcomment %}
+  <div class="filter-container">
+  <h2>Filtr</h2>
+    <div>
+        <label for="category">Kategoria:</label>
+        <select id="category" name="category" class="input-field">
+            <option value="">-- Wybierz kategorię --</option>
+            {% comment %} {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id == request.GET.category %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %} {% endcomment %}
+        </select>
+    </div> 
+    <div>
+        <label for="name">Produkt:</label>
+        <select id="product" name="category" class="input-field">
+        <option value="">-- Wybierz produkt --</option>
+    </div>
+
+
+
+    <div>
+        <label for="supplier">Dostawca:</label>
+        <select id="supplier" name="supplier" class="input-field">
+            <option value="">-- Wybierz dostawcę --</option>
+            {% comment %} {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}" {% if supplier.id == request.GET.supplier %}selected{% endif %}>{{ supplier.name }}</option>
+            {% endfor %} {% endcomment %}
+        </select>
+    </div>
+
+
+
+    <button type="submit">Filtruj</button>
+    <button type="button" onclick="clearFilters()">Usuń filtry</button>
+</form>
+
+
+
+
+{% comment %} 
+<script>
+    function clearFilters() {
+
+        document.getElementById('name').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('supplier').value = '';
+        document.getElementById('unit').value = '';
+        document.getElementById('expiration_date_start').value = '';
+        document.getElementById('expiration_date_end').value = '';
+
+        window.location.href = "{% url 'stock_status' %}";
+    }
+</script>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nazwa</th>
+                <th>Kategoria</th>
+                <th>Ilość</th>
+                <th>Min. na stanie</th>
+                <th>Jednostka</th>
+                <th>Cena zakupu</th>
+                <th>Dostawca</th>
+                <th>Data ważności</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.category }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.reorder_level }}</td>
+                    <td>{{ item.unit }}</td>
+                    <td>{{ item.purchase_price }}</td>
+                    <td>{{ item.supplier }}</td>
+                    <td>{{ item.expiration_date|date:"d.m.Y" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span class="current">
+            Strona {{ items.number }} z {{ items.paginator.num_pages }}
+        </span>
+    </div>
+    <div class="step-links">
+        {% if items.has_previous %}
+            <a href="?page=1">&laquo; pierwsza</a>
+            <a href="?page={{ items.previous_page_number }}">poprzednia</a>
+        {% endif %}
+
+        {% if items.has_next %}
+            <a href="?page={{ items.next_page_number }}">następna</a>
+            <a href="?page={{ items.paginator.num_pages }}">ostatnia &raquo;</a>
+        {% endif %}
+    </div> {% endcomment %}
+
+</body>
+</html>
+{% endblock content %}
+
+
+
+{% comment %} {% extends 'base.html' %}
 
 {% block content %}
 <div class="container">
@@ -10,4 +133,4 @@
     </form>
     <a href="{% url 'dashboard' %}">Powrót do Dashboardu</a>
 </div>
-{% endblock %}
+{% endblock %} {% endcomment %}
