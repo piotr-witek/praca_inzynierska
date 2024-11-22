@@ -86,3 +86,5 @@ class ItemUnitForm(forms.ModelForm):
         labels = {
             'name': 'Jednostka miary',
         }
+
+

@@ -1,18 +1,46 @@
 {% extends 'base.html' %}
-
+{% load static %}
+<head>
+    <title>Zarządzanie</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Dodajemy jQuery -->
+</head>
 {% block content %}
 <div class="container">
-    <h1 class="text-center my-4">Dashboard Restauracji - Zarządzanie Stolikami</h1>
+    <h1>Dashboard Restauracji - Zarządzanie Stolikami</h1>
     <div class="dashboard" id="dashboard">
         {% for table in tables %}
-            <div class="table" id="table-{{ table.id }}">
+            <!-- Kolorowanie stolika zależnie od tego, czy ma niezrealizowane zamówienie -->
+            <div class="table" id="table-{{ table.id }}" style="background-color: {% if table.has_unprocessed_orders %}red{% else %}green{% endif %};">
                 <p>Stolik {{ table.table_number }}</p>
-                <a href="{% url 'add_order' table.id %}">Dodaj Zamówienie</a>
-                <div class="order-info">
+
+{% if table.has_unprocessed_orders %}
+    <div class="order-details" id="order-details-{{ table.id }}">
+        <p>Numer zamówienia: {{ table.unprocessed_order_id }}</p>
+        <p>Kwota zamówienia: {{ table.unprocessed_order_total_price }}</p>
+    </div>
+
+    <!-- Przycisk do podglądu zamówienia -->
+    <a href="http://127.0.0.1:8000/dashboard/add_order/{{ table.table_number }}/{{ table.unprocessed_order_id }}"
+       class="btn btn-secondary">Podgląd Zamówienia</a>
+
+    <!-- Przycisk do utworzenia transakcji -->
+    <a href="http://127.0.0.1:8000/dashboard/create_transaction/{{ table.table_number }}/{{ table.unprocessed_order_id }}"
+       class="btn btn-warning">Utwórz Transakcję</a>
+{% else %}
+    <a href="{% url 'add_order' table.id %}" class="btn btn-primary">Dodaj Zamówienie</a>
+{% endif %}
+
+
+
+
+
+                <!-- Ukryte szczegóły zamówienia -->
+                <div class="order-info" id="order-info-{{ table.id }}" style="display: none;">
                     <h5>Zamówienia:</h5>
                     <ul>
-                        {% for order in table.orders.all %}
-                            <li>{{ order.details }} ({{ order.created_at }})</li>
+                        {% for order in table.orders_details %}
+                            <li>Numer zamówienia: {{ order.order_id }} | Kwota zamówienia: {{ order.total_price }}</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -20,4 +48,6 @@
         {% endfor %}
     </div>
 </div>
+
+
 {% endblock %}

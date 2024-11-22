@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1>Utwórz Transakcję</h1>
+    <p>Stolik: {{ table_number }}</p>
+    <p>Numer zamówienia: {{ order_id }}</p>
+
+    <h2>Podsumowanie zamówienia</h2>
+    <ul>
+        {% for item in order_items %}
+        <li>{{ item.product_name }}: {{ item.quantity }} {{ item.product_unit }} - {{ item.total_price }} PLN</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Wybierz metodę płatności</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            {% for method in payment_methods %}
+            <div>
+                <input type="radio" id="method_{{ method.id }}" name="payment_method" value="{{ method.id }}" required>
+                <label for="method_{{ method.id }}">{{ method.name }}</label>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-success">Zakończ Transakcję</button>
+    </form>
+</div>
+{% endblock %}

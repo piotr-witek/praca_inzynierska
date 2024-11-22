@@ -4,5 +4,10 @@ from . import views
 
 urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
-     path('add_order/<int:table_id>/', views.add_order, name='add_order'),
+    path('add_order/<int:table_id>/<int:order_id>/', views.add_order, name='add_order'),
+    path('add_order/<int:table_id>/', views.add_order, name='add_order'),
+    path('dashboard/add_order/<int:table_id>/<int:order_id>/edit/', views.edit_order, name='edit_order'),
+    path('create_transaction/<int:table_id>/<int:order_id>/', views.create_transaction, name='create_transaction'),
+
+
 ]
