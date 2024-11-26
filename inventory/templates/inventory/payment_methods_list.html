@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+
+{% block content %}
+<html>
+<head>
+    <title>Lista Form Płatności</title>
+    <link rel="stylesheet" href="{% static 'css/supplier_list.css' %}">
+</head>
+<body>
+    <h1>Lista Form Płatności</h1>
+
+    <form method="GET" action="{% url 'payment_methods_list' %}">
+        <div class="filter-container">
+            <h2>Filtr</h2>
+            <div>
+                <label for="name">Nazwa:</label>
+                <input type="text" id="name" name="name" class="input-field" placeholder="Wprowadź nazwę" value="{{ request.GET.name }}">
+            </div>
+        </div>
+
+        <button type="submit">Filtruj</button>
+        <button type="button" onclick="clearFilters()">Usuń filtry</button>
+    </form>
+
+    <script>
+        function clearFilters() {
+            document.getElementById('name').value = '';
+            window.location.href = "{% url 'payment_methods_list' %}";
+        }
+    </script>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nazwa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment_method in payment_methods %}
+                <tr>
+                    <td>{{ payment_method.id }}</td>
+                    <td>{{ payment_method.name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span class="current">
+            Strona {{ payment_methods.number }} z {{ payment_methods.paginator.num_pages }}
+        </span>
+    </div>
+    <div class="step-links">
+        {% if payment_methods.has_previous %}
+            <a href="?page=1">&laquo; pierwsza</a>
+            <a href="?page={{ payment_methods.previous_page_number }}">poprzednia</a>
+        {% endif %}
+
+        {% if payment_methods.has_next %}
+            <a href="?page={{ payment_methods.next_page_number }}">następna</a>
+            <a href="?page={{ payment_methods.paginator.num_pages }}">ostatnia &raquo;</a>
+        {% endif %}
+    </div>
+
+</body>
+</html>
+{% endblock content %}

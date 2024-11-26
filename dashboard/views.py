@@ -10,13 +10,13 @@ def dashboard(request):
     tables = Table.objects.all()
 
     for table in tables:
-        # Sprawdzenie, czy istnieje zamówienie z is_processed=False dla danego stolika
+
         unprocessed_order = OrderedProduct.objects.filter(table=table, is_processed=0).first()
         table.has_unprocessed_orders = bool(unprocessed_order)  # Ustawienie zmiennej, czy są niezrealizowane zamówienia
         table.unprocessed_order_id = unprocessed_order.order_id if unprocessed_order else None
         table.unprocessed_order_total_price = unprocessed_order.total_price if unprocessed_order else None
 
-        # Zbieramy szczegóły zamówienia dla stolika
+
         table.orders_details = []
         for order in table.orders.all():
             order_details = {
@@ -27,6 +27,7 @@ def dashboard(request):
 
     return render(request, 'dashboard/dashboard.html', {'tables': tables})
 
+
 def add_order(request, table_id, order_id=None):
     table = Table.objects.get(id=table_id)
     categories = ItemCategory.objects.all()
@@ -36,7 +37,7 @@ def add_order(request, table_id, order_id=None):
     order_created = False
     cached_items = cache.get(f'order_{table_id}', [])
 
-    # Jeśli mamy order_id, ładowanie zamówienia z bazy danych
+
     if order_id:
         order = OrderedProduct.objects.filter(order_id=order_id, table=table)
         cached_items = [{'product': item.product, 'quantity': item.quantity, 'total_price': item.total_price} for item in order]
@@ -44,13 +45,13 @@ def add_order(request, table_id, order_id=None):
         order_created = True
 
     if request.method == 'POST':
-        # Tworzenie zamówienia
+
         if 'create_order' in request.POST and not order_created:
             if cached_items:
                 last_order = OrderedProduct.objects.order_by('-order_id').first()
                 order_number = (last_order.order_id if last_order else 0) + 1
 
-                # Dodawanie produktów do zamówienia
+
                 for item in cached_items:
                     OrderedProduct.objects.create(
                         order_id=order_number,
@@ -65,26 +66,26 @@ def add_order(request, table_id, order_id=None):
                         product_category=item['product'].category.name,
                         product_unit=item['product'].unit.name,
                         product_purchase_price=item['product'].purchase_price,
-                        product_supplier=item['product'].supplier.name  # Nowe pole: dostawca
+                        product_supplier=item['product'].supplier.name
                     )
 
-                cache.delete(f'order_{table_id}')  # Usuwamy produkty z cache po zapisaniu
+                cache.delete(f'order_{table_id}')
                 order_created = True
 
             return redirect('add_order', table_id=table_id, order_id=order_number)
 
-        # Edycja zamówienia (gdy zamówienie zostało już utworzone)
+
         if 'edit_order' in request.POST and order_created:
             return redirect('edit_order', table_id=table_id, order_id=order_id)
 
-        # Wybór kategorii
+
         category_id = request.POST.get('category')
         if category_id:
             selected_category = ItemCategory.objects.get(id=category_id)
             inventory_items = InventoryItem.objects.filter(category=selected_category)
 
-        # Dodawanie produktu do cache
-        if not order_created:  # Umożliwiamy dodawanie tylko, jeśli zamówienie nie zostało utworzone
+
+        if not order_created:
             item_id = request.POST.get('inventory_item')
             quantity = request.POST.get('quantity')
             if item_id and quantity:
@@ -105,6 +106,55 @@ def add_order(request, table_id, order_id=None):
 
         total_price = sum(item['total_price'] for item in cached_items)
 
+
+        if 'save_item' in request.POST:
+            product_id = request.POST.get('save_item')
+            new_quantity = Decimal(request.POST.get('new_quantity'))
+            for item in cached_items:
+                if str(item['product'].id) == product_id:
+                    # Zaktualizuj ilość i cenę
+                    item['quantity'] = new_quantity
+                    item['total_price'] = new_quantity * item['product'].purchase_price
+                    item['edit_mode'] = False  # Wyłącz tryb edycji
+                    break
+
+
+            total_price = sum(item['total_price'] for item in cached_items)
+
+
+            cache.set(f'order_{table_id}', cached_items, timeout=None)
+
+
+            return render(
+                request,
+                'dashboard/add_order.html',
+                {
+                    'table': table,
+                    'categories': categories,
+                    'inventory_items': inventory_items,
+                    'selected_category': selected_category,
+                    'cached_items': cached_items,
+                    'total_price': total_price,
+                    'order_created': order_created,
+                    'order_number': order_id if order_created else None
+                }
+            )
+
+
+
+        if 'remove_item' in request.POST:
+            product_id = request.POST.get('remove_item')
+            cached_items = [item for item in cached_items if str(item['product'].id) != product_id]
+            cache.set(f'order_{table_id}', cached_items, timeout=None)
+
+
+        if 'edit_item' in request.POST and not order_created:
+            product_id = request.POST.get('edit_item')
+            for item in cached_items:
+                if str(item['product'].id) == product_id:
+                    item['edit_mode'] = True  # Zmieniamy stan, aby umożliwić edycję ilości
+            cache.set(f'order_{table_id}', cached_items, timeout=None)
+
     return render(
         request,
         'dashboard/add_order.html',
@@ -119,14 +169,13 @@ def add_order(request, table_id, order_id=None):
             'order_number': order_id if order_created else None
         }
     )
-
 def edit_order(request, table_id, order_id):
     table = Table.objects.get(id=table_id)
     order_items = OrderedProduct.objects.filter(order_id=order_id, table=table)
     total_price = sum(item.total_price for item in order_items)
 
     if request.method == 'POST':
-        # Edytowanie zamówienia (zmiana ilości)
+
         for item in order_items:
             new_quantity = request.POST.get(f'quantity_{item.id}')
             if new_quantity:
@@ -134,7 +183,7 @@ def edit_order(request, table_id, order_id):
                 item.total_price = item.product.purchase_price * item.quantity
                 item.save()
 
-        # Usuwanie produktu z zamówienia
+
         remove_item_id = request.POST.get('remove_item')
         if remove_item_id:
             item_to_remove = get_object_or_404(OrderedProduct, id=remove_item_id, order_id=order_id, table=table)
@@ -151,26 +200,26 @@ def edit_order(request, table_id, order_id):
 
 
 def create_transaction(request, table_id, order_id):
-    # Pobieranie zamówienia
+
     order_items = OrderedProduct.objects.filter(order_id=order_id, table__table_number=table_id, is_processed=0)
 
     if not order_items.exists():
         return render(request, 'error.html', {'message': 'Nie znaleziono zamówienia do przetworzenia.'})
 
     if request.method == "POST":
-        # Pobieranie danych z formularza
+
         payment_method_id = request.POST.get('payment_method')
         payment_method = get_object_or_404(PaymentMethod, id=payment_method_id)
         total_amount = sum(item.total_price for item in order_items)
 
-        # Generowanie unikalnego numeru transakcji na podstawie liczby istniejących transakcji
+
         last_transaction = SalesTransaction.objects.all().order_by('id').last()
         if last_transaction:
-            new_transaction_id = str(int(last_transaction.transaction_id) + 1)  # Dodajemy 1 do ostatniego numeru
+            new_transaction_id = str(int(last_transaction.transaction_id) + 1)
         else:
-            new_transaction_id = "1"  # Pierwsza transakcja
+            new_transaction_id = "1"
 
-        # Tworzenie nowej transakcji sprzedaży
+
         transaction = SalesTransaction.objects.create(
             transaction_id=new_transaction_id,
             transaction_date=timezone.now(),
@@ -181,7 +230,7 @@ def create_transaction(request, table_id, order_id):
             is_completed=True
         )
 
-        # Tworzenie powiązanych pozycji transakcji
+
         for item in order_items:
             SalesTransactionItem.objects.create(
                 sales_transaction=transaction,
@@ -195,12 +244,12 @@ def create_transaction(request, table_id, order_id):
                 product_supplier=item.product_supplier
             )
 
-        # Aktualizacja statusu zamówień na przetworzone
+
         order_items.update(is_processed=1)
 
-        return redirect('dashboard')  # Powrót do dashboardu po zakończeniu transakcji
+        return redirect('dashboard')
 
-    # Formularz wyboru metody płatności
+
     payment_methods = PaymentMethod.objects.all()
     return render(request, 'dashboard/create_transaction.html', {
         'table_number': table_id,

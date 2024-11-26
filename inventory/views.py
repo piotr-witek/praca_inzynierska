@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import (ConsumptionForm, ItemCategoryForm, ItemUnitForm,
-                    ProductForm, ProductFormEdit, PurchaseForm, SupplierForm)
+                    ProductForm, ProductFormEdit, PurchaseForm, SupplierForm,PaymentMethodForm)
 from .models import InventoryItem, ItemCategory, Supplier, UnitOfMeasurement
 from .reports import (generate_inventory_csv, generate_inventory_xls,
                       generate_suppliers_csv, generate_suppliers_xls, generate_expired_inventory_csv,generate_expired_inventory_xls,
@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from django.http import HttpResponse
 from django.shortcuts import render
-
+from dashboard.models import PaymentMethod
 
 def add_purchase(request):
     if request.method == 'POST':
@@ -144,6 +144,24 @@ def unit_list(request):
     return render(request, 'inventory/unit_list.html', {
         'UnitOfMeasurements': page_obj,
     })
+
+
+def payment_methods_list(request):
+    payment_methods = PaymentMethod.objects.all()
+
+    # Filtrowanie po nazwie, jeśli parametr jest przekazany
+    if 'name' in request.GET and request.GET['name']:
+        payment_methods = payment_methods.filter(name__icontains=request.GET['name'])
+
+    # Paginacja
+    paginator = Paginator(payment_methods, 50)  # Wyświetlaj 50 elementów na stronę
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'inventory/payment_methods_list.html', {
+        'payment_methods': page_obj,
+    })
+
 def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
@@ -233,7 +251,7 @@ def administration(request):
     supplier_form = SupplierForm()
     category_form = ItemCategoryForm()
     unit_form = ItemUnitForm()
-
+    payment_method_form = PaymentMethodForm()
 
     if request.method == 'POST' and 'add_supplier' in request.POST:
         supplier_form = SupplierForm(request.POST)
@@ -265,10 +283,19 @@ def administration(request):
             messages.error(request, "Wystąpił błąd podczas dodawania jednostki miary.")
 
 
+    elif request.method == 'POST' and 'add_payment_method' in request.POST:
+        payment_method_form = PaymentMethodForm(request.POST)
+        if payment_method_form.is_valid():
+            payment_method_form.save()  # Nie podawaj 'id', Django ustawi je automatycznie
+            messages.success(request, "Metoda płatności została pomyślnie dodana.")
+            return redirect('administration')
+
     return render(request, 'inventory/administration.html', {
         'supplier_form': supplier_form,
         'category_form': category_form,
         'unit_form': unit_form,
+        'payment_method_form': payment_method_form,
+
     })
 
 def notifications(request):

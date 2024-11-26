@@ -48,55 +48,65 @@
     </form>
     {% endif %}
 
-    <!-- Produkty w zamówieniu -->
-    <h2 class="my-4">Produkty w zamówieniu:</h2>
-    {% if cached_items %}
-    <ul class="list-group">
-        {% for item in cached_items %}
-        <li class="list-group-item">
-            <form method="POST" class="form-inline">
-                {% csrf_token %}
-                {% if item.edit_mode %}
-                    <div class="form-group mr-2">
-                        <label for="new_quantity_{{ item.product.id }}">Nowa ilość:</label>
-                        <input type="number" id="new_quantity_{{ item.product.id }}" name="new_quantity" class="form-control ml-2" value="{{ item.quantity }}" min="1" required>
-                    </div>
-                    <button type="submit" name="save_item" value="{{ item.product.id }}" class="btn btn-success btn-sm">Zapisz</button>
-                {% else %}
-                    {{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN
-                    <button type="submit" name="edit_item" value="{{ item.product.id }}" class="btn btn-warning btn-sm float-right">Edytuj</button>
-                    <button type="submit" name="remove_item" value="{{ item.product.id }}" class="btn btn-danger btn-sm float-right mr-2">Usuń</button>
+<!-- Produkty w zamówieniu -->
+<h2 class="my-4">Produkty w zamówieniu:</h2>
+{% if cached_items %}
+<ul class="list-group">
+    {% for item in cached_items %}
+    <li class="list-group-item">
+        <form method="POST" class="form-inline">
+            {% csrf_token %}
+            {% if not order_created and item.edit_mode %}
+                <div class="form-group mr-2">
+                    <label for="new_quantity_{{ item.product.id }}">Nowa ilość:</label>
+                    <input type="number" id="new_quantity_{{ item.product.id }}" name="new_quantity"
+                           class="form-control ml-2" value="{{ item.quantity }}" min="1" required>
+                </div>
+                <button type="submit" name="save_item" value="{{ item.product.id }}"
+                        class="btn btn-success btn-sm">Zapisz</button>
+            {% else %}
+                {{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN
+                {% if not item.edit_mode %}
+                <!-- Edytuj i usuń tylko jeśli nie jest w trybie edycji -->
+                <button type="submit" name="edit_item" value="{{ item.product.id }}"
+                        class="btn btn-warning btn-sm float-right"
+                        {% if order_created %}disabled{% endif %}>Edytuj</button>
+                <button type="submit" name="remove_item" value="{{ item.product.id }}"
+                        class="btn btn-danger btn-sm float-right mr-2"
+                        {% if order_created %}disabled{% endif %}>Usuń</button>
                 {% endif %}
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-        <p>Brak produktów w zamówieniu.</p>
-    {% endif %}
-
-    <h3 class="mt-4">Łączna cena: {{ total_price }} PLN</h3>
-
+            {% endif %}
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Brak produktów w zamówieniu.</p>
+{% endif %}
 
 
-    <!-- Utworzenie zamówienia -->
-    {% if not order_created %}
-    <form method="POST" class="mt-4">
-        {% csrf_token %}
-        <button type="submit" name="create_order" class="btn btn-primary">Utwórz Zamówienie</button>
-    </form>
-    {% else %}
-    <div class="alert alert-success mt-4">
-        <h3>Zamówienie zostało utworzone!</h3>
-        <p>Numer Zamówienia: {{ order_number }}</p>
+<h3 class="mt-4">Łączna cena: {{ total_price }} PLN</h3>
 
-    <!-- Dodanie przycisku edycji zamówienia -->
-    <form method="POST" class="mt-4">
-        {% csrf_token %}
-        <button type="submit" name="edit_order" class="btn btn-warning">Edytuj Zamówienie</button>
-    </form>
+<!-- Utworzenie zamówienia -->
+{% if not order_created %}
+<form method="POST" class="mt-4">
+    {% csrf_token %}
+    <button type="submit" name="create_order" class="btn btn-primary" {% if not cached_items %}disabled{% endif %}>
+        Utwórz Zamówienie
+    </button>
+</form>
+{% else %}
+<div class="alert alert-success mt-4">
+    <h3>Zamówienie zostało utworzone!</h3>
+    <p>Numer Zamówienia: {{ order_number }}</p>
 
-    </div>
-    {% endif %}
+<!-- Dodanie przycisku edycji zamówienia -->
+<form method="POST" class="mt-4">
+    {% csrf_token %}
+    <button type="submit" name="edit_order" class="btn btn-warning">Edytuj Zamówienie</button>
+</form>
+
+</div>
+{% endif %}
 </div>
 {% endblock %}

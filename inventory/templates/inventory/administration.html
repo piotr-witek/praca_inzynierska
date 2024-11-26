@@ -11,7 +11,6 @@
     <div class="container">
         <h1>Zarządzanie</h1>
 
-
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -20,7 +19,6 @@
             </div>
         {% endif %}
 
-
         <h2>Dodaj Dostawcę</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
@@ -28,25 +26,27 @@
             <button type="submit" name="add_supplier">Dodaj Dostawcę</button>
         </form>
 
-
         <h2>Dodaj Kategorię Towaru</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ category_form.as_p }}
             <button type="submit" name="add_category">Dodaj Kategorię</button>
         </form>
-    </div>
 
-
-
-        <h2>Dodaj Jednostke miary</h2>
+        <h2>Dodaj Jednostkę Miary</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
-            {{ category_form.as_p }}
-            <button type="submit" name="add_unit">Dodaj Jednostke Miary</button>
+            {{ unit_form.as_p }}
+            <button type="submit" name="add_unit">Dodaj Jednostkę Miary</button>
+        </form>
+
+        <h2>Dodaj Metodę Płatności</h2>
+        <form method="post" action="{% url 'administration' %}" class="form">
+            {% csrf_token %}
+            {{ payment_method_form.as_p }}
+            <button type="submit" name="add_payment_method">Dodaj Metodę Płatności</button>
         </form>
     </div>
-
 </body>
 </html>
 {% endblock content %}

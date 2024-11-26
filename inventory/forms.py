@@ -4,6 +4,7 @@ from django import forms
 from .models import (Consumption, InventoryItem, ItemCategory, Purchase,
                      Supplier, UnitOfMeasurement)
 
+from dashboard.models import PaymentMethod
 
 class PurchaseForm(forms.ModelForm):
     class Meta:
@@ -88,3 +89,9 @@ class ItemUnitForm(forms.ModelForm):
         }
 
 
+class PaymentMethodForm(forms.ModelForm):
+    class Meta:
+        model = PaymentMethod
+        fields = ['name']
+        labels = {'name': 'Nazwa Metody Płatności'}
+        widgets = {'name': forms.TextInput(attrs={'class': 'form-control'})}

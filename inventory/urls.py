@@ -20,4 +20,5 @@ urlpatterns = [
     path('inventory/data_visualization/', views.data_visualization, name='data_visualization'),
     path('inventory/download-price-chart/', views.download_price_chart, name='download_price_chart'),
     path('inventory/download-purchase-sum-by-category/', views.download_purchase_sum_by_category,name='download_purchase_sum_by_category'),
+    path('inventory/payment/', views.payment_methods_list,name='payment_methods_list'),
 ]
