@@ -126,6 +126,23 @@
 
                 </ul>
               </li>
+                <!-- Transakcje Section -->
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionTransaction" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionTransaction">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Transakcje</span>
+                  </div>
+                </a>
+
+                <ul class="nav collapse" id="sectionTransaction">
+                  <li class="nav-item"><a class="nav-link" href="{% url 'transaction_list' %}">Podgląd</a></li>
+                </ul>
+                <ul class="nav collapse" id="sectionTransaction">
+                  <li class="nav-item"><a class="nav-link" href="{% url 'reports_transactions' %}">Zestawienia</a></li>
+                </ul>
+              </li>
+
             </ul>
 
             <!-- parent pages--><a class="nav-link" href="app/calendar.html" role="button">

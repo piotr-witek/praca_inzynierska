@@ -1,0 +1,64 @@
+/* Ogólne style dla szczegółów */
+.container_details {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Nagłówki */
+.product-header {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Informacje o produkcie */
+.product-info {
+    font-size: 1.2rem;
+    margin: 15px 0;
+}
+
+.product-info strong {
+    color: #2c3e50;
+}
+
+/* Link do powrotu */
+.return-link {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.return-link:hover {
+    background-color: #2980b9;
+}
+
+.return-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5);
+}
+
+/* Responsywność */
+@media screen and (max-width: 768px) {
+    .container_details {
+        width: 95%;
+    }
+
+    .product-header {
+        font-size: 2rem;
+    }
+
+    .product-info {
+        font-size: 1rem;
+    }
+}

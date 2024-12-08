@@ -1,10 +1,17 @@
+import csv
+from datetime import datetime
+
+from django.http import JsonResponse, Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.cache import cache
+from pyexpat.errors import messages
+
 from .models import Table, OrderedProduct, PaymentMethod, SalesTransactionItem, SalesTransaction
 from inventory.models import ItemCategory, InventoryItem
 from decimal import Decimal
 from django.utils import timezone
-
+from django.core.paginator import Paginator
+from .reports_transactions import generate_transaction_xls, generate_transaction_csv, generate_inventory_xls, generate_inventory_csv
 
 def dashboard(request):
     tables = Table.objects.all()
@@ -258,3 +265,112 @@ def create_transaction(request, table_id, order_id):
         'payment_methods': payment_methods,
     })
 
+def transaction_list(request):
+    transactions = SalesTransaction.objects.all()
+    payment_methods = PaymentMethod.objects.all()
+
+    if 'transaction_id' in request.GET and request.GET['transaction_id']:
+        transactions = transactions.filter(transaction_id__icontains=request.GET['transaction_id'])
+
+    if 'transaction_date_start' in request.GET and request.GET['transaction_date_start']:
+        transactions = transactions.filter(transaction_date__gte=request.GET['transaction_date_start'])
+
+    if 'transaction_date_end' in request.GET and request.GET['transaction_date_end']:
+        transactions = transactions.filter(transaction_date__lte=request.GET['transaction_date_end'])
+
+    if 'payment_method' in request.GET and request.GET['payment_method']:
+        transactions = transactions.filter(payment_method__id=request.GET['payment_method'])
+
+    if 'table_id' in request.GET and request.GET['table_id']:
+        transactions = transactions.filter(table_id=request.GET['table_id'])
+
+    if 'is_completed' in request.GET:
+        if request.GET['is_completed'] == 'true':
+            transactions = transactions.filter(is_completed=True)
+        elif request.GET['is_completed'] == 'false':
+            transactions = transactions.filter(is_completed=False)
+
+    paginator = Paginator(transactions, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'dashboard/transaction_list.html', {
+        'transactions': page_obj,
+        'payment_methods': payment_methods,
+    })
+
+def transaction_details(request, transaction_id):
+    try:
+        transaction = SalesTransaction.objects.get(id=transaction_id)
+        items = transaction.items.all()
+
+        return render(request, 'dashboard/transaction_details.html', {
+            'transaction': transaction,
+            'items': items,
+        })
+    except SalesTransaction.DoesNotExist:
+        return render(request, '404.html', {'error': 'Transakcja nie istnieje.'})
+
+
+def transaction_item_details(request, item_id):
+    try:
+        # Pobierz szczegóły produktu na podstawie jego ID
+        item = SalesTransactionItem.objects.get(id=item_id)
+        return render(request, 'dashboard/transaction_item_details.html', {'item': item})
+    except SalesTransactionItem.DoesNotExist:
+        raise Http404("Produkt nie istnieje.")
+
+
+def reports_transactions(request):
+    if request.method == 'POST':
+        report_type = request.POST.get('report_type')
+        file_format = request.POST.get('file_format')
+        data_od = request.POST.get('data_od')
+        data_do = request.POST.get('data_do')
+        date_filter = request.POST.get('date_filter')
+
+        # Konwersja dat
+        date_from = datetime.strptime(data_od, '%Y-%m-%d') if data_od else None
+        date_to = datetime.strptime(data_do, '%Y-%m-%d') if data_do else None
+
+        # Sprawdzenie, czy istnieją dane pasujące do filtru
+        if report_type == 'transactions':
+            # Proper filtering for date range
+            if date_from and date_to:
+                transactions = SalesTransaction.objects.filter(transaction_date__range=[date_from, date_to])
+            else:
+                transactions = SalesTransaction.objects.all()
+
+            if not transactions:
+                messages.error(request, "Brak danych do wygenerowania raportu.")
+                return redirect('reports_transactions')
+
+            # Generowanie raportu w zależności od formatu
+            if file_format == 'xls':
+                return generate_transaction_xls(transactions)
+            elif file_format == 'csv':
+                return generate_transaction_csv(transactions)
+
+        elif report_type == 'inventory':
+            # Proper filtering for date range on SalesTransactionItem
+            if date_from and date_to:
+                inventory = SalesTransactionItem.objects.filter(
+                    sales_transaction__transaction_date__range=[date_from, date_to])
+            else:
+                inventory = SalesTransactionItem.objects.all()
+
+            if not inventory:
+                messages.error(request, "Brak danych do wygenerowania raportu.")
+                return redirect('reports_transactions')
+
+            # Generowanie raportu w zależności od formatu
+            if file_format == 'xls':
+                return generate_inventory_xls(inventory)
+            elif file_format == 'csv':
+                return generate_inventory_csv(inventory)
+
+        # Jeśli typ raportu lub format jest nieznany
+        messages.error(request, "Nieznany typ raportu lub format pliku.")
+        return redirect('reports_transactions')
+
+    return render(request, 'dashboard/reports_transactions.html')

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/transaction_item_details.css' %}">
+    <script src="{% static 'js/transaction.js' %}" defer></script>
+</head>
+<body>
+
+    <div class="container_details">
+        <h3 class="product-header">Szczegóły Produktu: {{ item.product_name }}</h3>
+
+        <div class="product-info">
+            <p><strong>Nazwa produktu:</strong> {{ item.product_name }}</p>
+            <p><strong>Kategoria:</strong> {{ item.product_category }}</p>
+            <p><strong>Jednostka miary:</strong> {{ item.product_unit }}</p>
+            <p><strong>Cena zakupu:</strong> {{ item.product_purchase_price }} PLN</p>
+            <p><strong>Ilość:</strong> {{ item.quantity }}</p>
+            <p><strong>Cena całkowita:</strong> {{ item.total_price }} PLN</p>
+            <p><strong>Dostawca:</strong> {{ item.product_supplier }}</p>
+        </div>
+
+        <a href="javascript:history.back()" class="return-link">Powrót do transakcji</a>
+    </div>
+
+</body>
+</html>
+{% endblock content %}

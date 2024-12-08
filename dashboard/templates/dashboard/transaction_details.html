@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/transaction_details.css' %}">
+    <script src="{% static 'js/transaction.js' %}" defer></script>
+</head>
+<body>
+    <div class="container_details">
+        <h1 class="transaction-header">Szczegóły Transakcji: {{ transaction.transaction_id }}</h1>
+
+        <p class="transaction-info"><strong>Numer transakcji:</strong> {{ transaction.transaction_id }}</p>
+        <p class="transaction-info"><strong>Data:</strong> {{ transaction.transaction_date|date:"d.m.Y H:i" }}</p>
+        <p class="transaction-info"><strong>Kwota:</strong> {{ transaction.total_amount }} PLN</p>
+        <p class="transaction-info"><strong>Metoda płatności:</strong> {{ transaction.payment_method.name }}</p>
+        <p class="transaction-info"><strong>Numer zamówienia:</strong> {{ transaction.order_id }}</p>
+        <p class="transaction-info"><strong>Numer stolika:</strong> {{ transaction.table_id }}</p>
+        <p class="transaction-info"><strong>Status:</strong> {% if transaction.is_completed %}Zakończona{% else %}Niezakończona{% endif %}</p>
+
+        <h3 class="transaction-details-title">Produkty</h3>
+        <ul class="products-list">
+            {% for item in items %}
+                <li class="product-item" onclick="itemDetail({{ item.id }})">
+                    {{ item.product_name }} ({{ item.quantity }} {{ item.product_unit }}) - {{ item.total_price }} PLN
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'transaction_list' %}" class="return-link">Powrót do listy transakcji</a>
+
+        <!-- Sekcja szczegółów produktu (będzie pokazywana po kliknięciu) -->
+        <div id="product-details" style="display: none;">
+            <div id="product-details-content">
+                <h3>Szczegóły Produktu</h3>
+                <p><strong>Nazwa produktu:</strong> <span id="product-name"></span></p>
+                <p><strong>Kategoria:</strong> <span id="product-category"></span></p>
+                <p><strong>Jednostka miary:</strong> <span id="product-unit"></span></p>
+                <p><strong>Cena zakupu:</strong> <span id="product-purchase-price"></span> PLN</p>
+                <p><strong>Ilość:</strong> <span id="product-quantity"></span></p>
+                <p><strong>Cena całkowita:</strong> <span id="product-total-price"></span> PLN</p>
+                <p><strong>Dostawca:</strong> <span id="product-supplier"></span></p>
+            </div>
+            <button onclick="closeProductDetails()">Zamknij</button>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}
