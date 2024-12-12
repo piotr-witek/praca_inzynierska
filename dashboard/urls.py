@@ -12,4 +12,9 @@ urlpatterns = [
     path('transaction_details/<int:transaction_id>/', views.transaction_details, name='transaction_details'),
     path('transaction_item_details/<int:item_id>/', views.transaction_item_details, name='transaction_item_details'),
     path('reports_transactions/', views.reports_transactions, name='reports_transactions'),
+    path('data_visualization_transaction/', views.data_visualization_transaction, name='data_visualization_transaction'),
+    path('download_average_transaction_per_table/', views.download_average_transaction_per_table, name='download_average_transaction_per_table'),
+    path('download_average_transaction_per_payment_method/', views.download_average_transaction_per_payment_method, name='download_average_transaction_per_payment_method'),
+    path('download_total_transaction_per_table/', views.download_total_transaction_per_table,name='download_total_transaction_per_table'),
+    path('download_total_transaction_per_payment_method/', views.download_total_transaction_per_payment_method,name='download_total_transaction_per_payment_method'),
 ]

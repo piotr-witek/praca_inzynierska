@@ -11,7 +11,18 @@ from inventory.models import ItemCategory, InventoryItem
 from decimal import Decimal
 from django.utils import timezone
 from django.core.paginator import Paginator
-from .reports_transactions import generate_transaction_xls, generate_transaction_csv, generate_inventory_xls, generate_inventory_csv
+from .reports_transactions import generate_sales_transactions_csv,generate_sales_transactions_xls, generate_transaction_items_csv, generate_transaction_items_xls
+
+import io
+import pandas as pd
+import matplotlib.pyplot as plt
+from django.http import HttpResponse
+from dashboard.models import SalesTransaction
+
+from collections import Counter
+import pandas as pd
+import io
+import matplotlib.pyplot as plt
 
 def dashboard(request):
     tables = Table.objects.all()
@@ -327,50 +338,229 @@ def reports_transactions(request):
         file_format = request.POST.get('file_format')
         data_od = request.POST.get('data_od')
         data_do = request.POST.get('data_do')
-        date_filter = request.POST.get('date_filter')
 
-        # Konwersja dat
         date_from = datetime.strptime(data_od, '%Y-%m-%d') if data_od else None
         date_to = datetime.strptime(data_do, '%Y-%m-%d') if data_do else None
 
-        # Sprawdzenie, czy istnieją dane pasujące do filtru
-        if report_type == 'transactions':
-            # Proper filtering for date range
-            if date_from and date_to:
-                transactions = SalesTransaction.objects.filter(transaction_date__range=[date_from, date_to])
-            else:
-                transactions = SalesTransaction.objects.all()
-
-            if not transactions:
-                messages.error(request, "Brak danych do wygenerowania raportu.")
-                return redirect('reports_transactions')
-
-            # Generowanie raportu w zależności od formatu
+        if report_type == 'sales_transactions':
             if file_format == 'xls':
-                return generate_transaction_xls(transactions)
+                return generate_sales_transactions_xls(request, date_from, date_to)
             elif file_format == 'csv':
-                return generate_transaction_csv(transactions)
-
-        elif report_type == 'inventory':
-            # Proper filtering for date range on SalesTransactionItem
-            if date_from and date_to:
-                inventory = SalesTransactionItem.objects.filter(
-                    sales_transaction__transaction_date__range=[date_from, date_to])
-            else:
-                inventory = SalesTransactionItem.objects.all()
-
-            if not inventory:
-                messages.error(request, "Brak danych do wygenerowania raportu.")
-                return redirect('reports_transactions')
-
-            # Generowanie raportu w zależności od formatu
+                return generate_sales_transactions_csv(request, date_from, date_to)
+        elif report_type == 'transaction_items':
             if file_format == 'xls':
-                return generate_inventory_xls(inventory)
+                return generate_transaction_items_xls(request, date_from, date_to)
             elif file_format == 'csv':
-                return generate_inventory_csv(inventory)
+                return generate_transaction_items_csv(request, date_from, date_to)
 
-        # Jeśli typ raportu lub format jest nieznany
         messages.error(request, "Nieznany typ raportu lub format pliku.")
         return redirect('reports_transactions')
 
     return render(request, 'dashboard/reports_transactions.html')
+
+
+def data_visualization_transaction(request):
+
+    return render(request, 'dashboard/data_visualization_transaction.html')
+
+def generate_average_transaction_per_table():
+
+    data = []
+    transactions = SalesTransaction.objects.all()
+
+    for transaction in transactions:
+        data.append({
+            'table_id': f"Stolik {transaction.table_id}",  # Numer stolika jako tekst
+            'total_amount': transaction.total_amount
+        })
+
+    df = pd.DataFrame(data)
+
+    if df.empty:
+        return None, "Brak danych do wygenerowania wykresu."
+
+    chart_data = df.groupby('table_id')['total_amount'].mean().reset_index()
+
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(chart_data['table_id'], chart_data['total_amount'], color='skyblue', edgecolor='black')
+
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, f"{round(yval, 2)} PLN", ha='center', va='bottom', fontsize=10)
+
+    plt.xlabel('Stoliki', fontsize=14)
+    plt.ylabel('Średnia Kwota Transakcji (PLN)', fontsize=14)
+    plt.title('Średnia Kwota Transakcji na Stolik', fontsize=16)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    plt.close()
+
+    return buf, None
+
+def generate_average_transaction_per_payment_method():
+
+    data = []
+    transactions = SalesTransaction.objects.select_related('payment_method').all()
+
+    for transaction in transactions:
+        data.append({
+            'payment_method': transaction.payment_method.name,
+            'total_amount': transaction.total_amount
+        })
+
+    df = pd.DataFrame(data)
+
+    if df.empty:
+        return None, "Brak danych do wygenerowania wykresu."
+
+    chart_data = df.groupby('payment_method')['total_amount'].mean().reset_index()
+
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(chart_data['payment_method'], chart_data['total_amount'], color='lightgreen', edgecolor='black')
+
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
+
+    plt.xlabel('Metody Płatności', fontsize=14)
+    plt.ylabel('Średnia Kwota Transakcji (PLN)', fontsize=14)
+    plt.title('Średnia Kwota Transakcji na Metodę Płatności', fontsize=16)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    plt.close()
+
+    return buf, None
+
+def generate_total_transaction_per_table():
+
+    data = []
+    transactions = SalesTransaction.objects.all()
+
+    for transaction in transactions:
+        data.append({
+            'table_id': f"Stolik {transaction.table_id}",
+            'total_amount': transaction.total_amount
+        })
+
+    df = pd.DataFrame(data)
+
+    if df.empty:
+        return None, "Brak danych do wygenerowania wykresu."
+
+    chart_data = df.groupby('table_id')['total_amount'].sum().reset_index()
+
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(chart_data['table_id'], chart_data['total_amount'], color='lightcoral', edgecolor='black')
+
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, f"{round(yval, 2)} PLN", ha='center', va='bottom', fontsize=10)
+
+    plt.xlabel('Stoliki', fontsize=14)
+    plt.ylabel('Suma Kwoty Transakcji (PLN)', fontsize=14)
+    plt.title('Suma Kwoty Transakcji na Stolik', fontsize=16)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    plt.close()
+
+    return buf, None
+
+def generate_total_transaction_per_payment_method():
+
+    data = []
+    transactions = SalesTransaction.objects.select_related('payment_method').all()
+
+    for transaction in transactions:
+        data.append({
+            'payment_method': transaction.payment_method.name,
+            'total_amount': transaction.total_amount
+        })
+
+    df = pd.DataFrame(data)
+
+    if df.empty:
+        return None, "Brak danych do wygenerowania wykresu."
+
+    chart_data = df.groupby('payment_method')['total_amount'].sum().reset_index()
+
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(chart_data['payment_method'], chart_data['total_amount'], color='lightgreen', edgecolor='black')
+
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, f"{round(yval, 2)} PLN", ha='center', va='bottom', fontsize=10)
+
+    plt.xlabel('Metody Płatności', fontsize=14)
+    plt.ylabel('Suma Kwoty Transakcji (PLN)', fontsize=14)
+    plt.title('Suma Kwoty Transakcji na Metodę Płatności', fontsize=16)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    plt.close()
+
+    return buf, None
+
+
+
+def download_average_transaction_per_table(request):
+
+    buf, error_message = generate_average_transaction_per_table()
+    if buf is None:
+        return HttpResponse(error_message, status=404)
+
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    response['Content-Disposition'] = 'attachment; filename="srednia_kwota_transakcji_na_stolik.png"'
+    return response
+
+
+def download_average_transaction_per_payment_method(request):
+
+    buf, error_message = generate_average_transaction_per_payment_method()
+    if buf is None:
+        return HttpResponse(error_message, status=404)
+
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    response['Content-Disposition'] = 'attachment; filename="srednia_kwota_transakcji_na_metode_platnosci.png"'
+    return response
+
+def download_total_transaction_per_table(request):
+
+    buf, error_message = generate_total_transaction_per_table()
+    if buf is None:
+        return HttpResponse(error_message, status=404)
+
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    response['Content-Disposition'] = 'attachment; filename="suma_kwoty_transakcji_na_stolik.png"'
+    return response
+
+
+def download_total_transaction_per_payment_method(request):
+
+    buf, error_message = generate_total_transaction_per_payment_method()
+    if buf is None:
+        return HttpResponse(error_message, status=404)
+
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    response['Content-Disposition'] = 'attachment; filename="suma_kwoty_transakcji_na_metode_platnosci.png"'
+    return response
+
+

@@ -64,6 +64,7 @@
           </div>
         </a>
 
+
         <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
           <div class="navbar-vertical-content scrollbar">
             <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
@@ -80,52 +81,31 @@
                 <ul class="nav collapse" id="sectionMagazyn">
                   <li class="nav-item"><a class="nav-link" href="{% url 'stock_status' %}">Stan</a></li>
                   <li class="nav-item"><a class="nav-link" href="{% url 'notifications' %}">Powiadomienia</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'reports' %}">Zestawienia</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'data_visualization' %}">Wizualizacja</a></li>
 
-                  <!-- Towary Section -->
-                  <li class="nav-item">
-                    <a class="nav-link dropdown-indicator" href="#sectionTowary" data-bs-toggle="collapse"
-                      aria-expanded="false" aria-controls="sectionTowary">Towary</a>
+
+
+
+                </ul>
+              </li>
+
+              <!-- Towary Section -->
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionTowary" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionTowary">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Towary</span>
+                  </div>
+                </a>
+
                     <ul class="nav collapse" id="sectionTowary">
                       <li class="nav-item"><a class="nav-link" href="{% url 'add_product' %}">Dodaj</a></li>
                       <li class="nav-item"><a class="nav-link" href="{% url 'edit_product' %}">Modyfikuj</a></li>
                       <li class="nav-item"><a class="nav-link" href="{% url 'delete_product' %}">Usuń</a></li>
                     </ul>
-                  </li>
 
-                  <!-- Słowniki -->
-                  <li class="nav-item">
-                    <a class="nav-link dropdown-indicator" href="#sectionSlowniki" role="button"
-                      data-bs-toggle="collapse" aria-expanded="false" aria-controls="sectionSlowniki">
-                      <div class="d-flex align-items-center">
-                        <span class="nav-link-text ps-1">Słowniki</span>
-                      </div>
-                    </a>
-                    <ul class="nav collapse" id="sectionSlowniki">
-                      <li class="nav-item"><a class="nav-link" href="{% url 'supplier_list' %}">Dostawcy</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{% url 'unit_list' %}">Jednostki</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{% url 'category_list' %}">Kategorie</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{% url 'payment_methods_list' %}">Formy płatnosci</a></li>
-                    </ul>
-                  </li>
 
-                  <!-- Administracja -->
-                  <li class="nav-item">
-                    <a class="nav-link dropdown-indicator" href="#sectionAdministracja" role="button"
-                      data-bs-toggle="collapse" aria-expanded="false" aria-controls="sectionAdministracja">
-                      <div class="d-flex align-items-center">
-                        <span class="nav-link-text ps-1">Administracja</span>
-                      </div>
-                    </a>
-                    <ul class="nav collapse" id="sectionAdministracja">
-                      <li class="nav-item"><a class="nav-link" href="{% url 'administration' %}">Zarządzanie</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{% url 'reports' %}">Zestawienia</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{% url 'data_visualization' %}">Wizualizacja
-                          danych</a></li>
-                    </ul>
-                  </li>
-
-                </ul>
-              </li>
                 <!-- Transakcje Section -->
               <li class="nav-item">
                 <a class="nav-link dropdown-indicator" href="#sectionTransaction" data-bs-toggle="collapse"
@@ -141,6 +121,42 @@
                 <ul class="nav collapse" id="sectionTransaction">
                   <li class="nav-item"><a class="nav-link" href="{% url 'reports_transactions' %}">Zestawienia</a></li>
                 </ul>
+                <ul class="nav collapse" id="sectionTransaction">
+                  <li class="nav-item"><a class="nav-link" href="{% url 'data_visualization_transaction' %}">Wizualizacje</a></li>
+                </ul>
+              </li>
+
+
+                <!-- Administracja  Section -->
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionAdministracja" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionAdministracja">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Administracja</span>
+                  </div>
+                </a>
+
+                    <ul class="nav collapse" id="sectionAdministracja">
+                      <li class="nav-item"><a class="nav-link" href="{% url 'administration' %}">Zarządzanie</a></li>
+
+                    </ul>
+              </li>
+
+                <!-- Słowniki  Section -->
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionSlowniki" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionSlowniki">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Słowniki</span>
+                  </div>
+                </a>
+                    <ul class="nav collapse" id="sectionSlowniki">
+                      <li class="nav-item"><a class="nav-link" href="{% url 'supplier_list' %}">Dostawcy</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'unit_list' %}">Jednostki</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'category_list' %}">Kategorie</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'payment_methods_list' %}">Formy płatnosci</a></li>
+
+                    </ul>
               </li>
 
             </ul>

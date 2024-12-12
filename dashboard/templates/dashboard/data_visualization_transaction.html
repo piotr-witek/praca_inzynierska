@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+{% block content %}
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizualizacja danych</title>
+    <link rel="stylesheet" href="{% static 'css/data_visualization.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Wizualizacja danych</h1>
+
+
+        <section class="form-section">
+            <h2>Średnia kwota transakcji per stolik</h2>
+            <form method="post" action="{% url 'download_average_transaction_per_table' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">Pobierz wykres</button>
+            </form>
+        </section>
+
+
+        <section class="form-section">
+            <h2>Średnia kwota transakcji per metoda płatności</h2>
+            <form method="post" action="{% url 'download_average_transaction_per_payment_method' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">Pobierz wykres</button>
+            </form>
+        </section>
+
+
+        <section class="form-section">
+            <h2>Suma kwoty transakcji per stolik</h2>
+            <form method="post" action="{% url 'download_total_transaction_per_table' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">Pobierz wykres</button>
+            </form>
+        </section>
+
+
+        <section class="form-section">
+            <h2>Suma kwoty transakcji per metoda płatności</h2>
+            <form method="post" action="{% url 'download_total_transaction_per_payment_method' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">Pobierz wykres</button>
+            </form>
+        </section>
+
+
+    </div>
+</body>
+</html>
+{% endblock content %}
