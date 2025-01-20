@@ -34,8 +34,8 @@ h1 {
 
 /* Stylizacja dla każdego stolika */
 .table {
-    width: 220px;
-    height: 220px;
+    width: 250px;
+    height: 250px;
     padding: 20px;
     border-radius: 50%;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Mocniejszy cień */
@@ -60,6 +60,12 @@ h1 {
 .table.green {
     background-color: #4CAF50; /* Jaśniejszy odcień zieleni */
     color: white;
+}
+
+/* Stoliki podświetlone na żółto (dla zarezerwowanych) */
+.table.yellow {
+    background-color: yellow; /* Jaśniejszy odcień zieleni */
+    color: black;
 }
 
 /* Efekt podświetlenia dla stolika po najechaniu */
@@ -191,3 +197,34 @@ h1 {
     color: #28a745; /* Kolor zielony dla kwoty zamówienia */
 }
 
+
+
+
+
+/* Stoliki podświetlone na żółto (dla zarezerwowanych) */
+.table.yellow {
+    background-color: yellow; /* Kolor żółty dla zarezerwowanego stolika */
+    color: black;
+}
+
+/* Stylizacja dla przycisku "Zarezerwuj" */
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Stylizacja formularza */
+input[type="datetime-local"] {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-top: 10px;
+}

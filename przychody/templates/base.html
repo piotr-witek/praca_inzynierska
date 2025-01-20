@@ -118,9 +118,9 @@
                 <ul class="nav collapse" id="sectionTransaction">
                   <li class="nav-item"><a class="nav-link" href="{% url 'transaction_list' %}">Podgląd</a></li>
                 </ul>
-                <ul class="nav collapse" id="sectionTransaction">
+                {% comment %} <ul class="nav collapse" id="sectionTransaction">
                   <li class="nav-item"><a class="nav-link" href="{% url 'reports_transactions' %}">Zestawienia</a></li>
-                </ul>
+                </ul> {% endcomment %}
                 <ul class="nav collapse" id="sectionTransaction">
                   <li class="nav-item"><a class="nav-link" href="{% url 'data_visualization_transaction' %}">Wizualizacje</a></li>
                 </ul>

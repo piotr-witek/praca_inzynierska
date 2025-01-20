@@ -3,7 +3,7 @@
 <head>
     <title>Zarządzanie</title>
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Dodajemy jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 {% block content %}
 <style>
@@ -15,10 +15,9 @@
     }
 
     .table {
-        width: 200px;
-        height: 200px;
+        width: 330px;
+        height: 330px;
         border-radius: 50%;
-        background-color: #4CAF50;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -69,6 +68,12 @@
         font-size: 1em;
         text-decoration: underline;
     }
+
+    .btn-disabled {
+        background-color: gray !important;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
 </style>
 
 <script>
@@ -83,47 +88,73 @@
     <h1>Dashboard Restauracji - Zarządzanie Stolikami</h1>
     <div class="dashboard" id="dashboard">
         {% for table in tables %}
-            <!-- Kolorowanie stolika zależnie od tego, czy ma niezrealizowane zamówienie -->
-            <div class="table" id="table-{{ table.id }}" style="background-color: {% if table.has_unprocessed_orders %}red{% else %}green{% endif %};">
-                <p>Stolik {{ table.table_number }}</p>
+        <div class="table" id="table-{{ table.id }}" 
+             style="background-color: 
+                {% if table.has_unprocessed_orders %}
+                    red
+                {% elif table.is_reserved %}
+                    #b39700
+                {% else %}
+                    green
+                {% endif %};">
+            <p>Stolik {{ table.table_number }}</p>
 
-{% if table.has_unprocessed_orders %}
-    <div class="order-details" id="order-details-{{ table.id }}">
-        <p>Numer zamówienia: {{ table.unprocessed_order_id }}</p>
-        <p>Kwota zamówienia: {{ table.unprocessed_order_total_price }}</p>
-    </div>
+            {% if table.is_reserved %}
+                <p>Rezerwacja:</p>
+                <p>{{ table.reserved_for|date:"d-m-Y H:i" }}</p>
+                <a href="{% url 'cancel_reservation' table.id %}" class="btn btn-danger">Anuluj Rezerwację</a>
+            {% else %}
+                <form method="POST" action="{% url 'reserve_table' table.id %}">
+                    {% csrf_token %}
+                    {% if show_date_form %}
+                        <label for="reservation_date">Data rezerwacji:</label>
+                        <input type="datetime-local" id="reservation_date" name="reservation_date" min="{{ current_datetime }}">
+                        <button type="submit" name="reserve" 
+                                class="btn btn-primary 
+                                {% if table.has_unprocessed_orders %}btn-disabled{% endif %}">
+                                Zarezerwuj
+                        </button>
+                    {% else %}
+                        <button type="submit" name="show_form" 
+                                class="btn btn-primary 
+                                {% if table.has_unprocessed_orders %}btn-disabled{% endif %}">
+                                Zarezerwuj
+                        </button>
+                    {% endif %}
+                </form>
+            {% endif %}
 
-    <!-- Przycisk do podglądu zamówienia -->
-    <a href="http://127.0.0.1:8000/dashboard/add_order/{{ table.table_number }}/{{ table.unprocessed_order_id }}"
-       class="btn btn-secondary">Podgląd Zamówienia</a>
-
-    <!-- Przycisk do utworzenia transakcji -->
-    <a href="http://127.0.0.1:8000/dashboard/create_transaction/{{ table.table_number }}/{{ table.unprocessed_order_id }}"
-       class="btn btn-warning">Utwórz Transakcję</a>
-{% else %}
-    <a href="{% url 'add_order' table.id %}" class="btn btn-primary">Dodaj Zamówienie</a>
-{% endif %}
-
-
-
-
-
-                <!-- Ukryte szczegóły zamówienia -->
-                <div class="order-info" id="order-info-{{ table.id }}" style="display: none;">
-                    <h5>Zamówienia:</h5>
-                    <ul>
-                        {% for order in table.orders_details %}
-                            <li>Numer zamówienia: {{ order.order_id }} | Kwota zamówienia: {{ order.total_price }}</li>
-                        {% endfor %}
-                    </ul>
+            {% if table.has_unprocessed_orders %}
+                <div class="order-details" id="order-details-{{ table.id }}">
+                    <p>Numer zamówienia: {{ table.unprocessed_order_id }}</p>
+                    <p>Kwota zamówienia: {{ table.unprocessed_order_total_price }}</p>
                 </div>
+
+                <a href="http://127.0.0.1:8000/dashboard/add_order/{{ table.table_number }}/{{ table.unprocessed_order_id }}"
+                   class="btn btn-secondary">Podgląd Zamówienia</a>
+
+                <a href="http://127.0.0.1:8000/dashboard/create_transaction/{{ table.table_number }}/{{ table.unprocessed_order_id }}"
+                   class="btn btn-warning">Utwórz Transakcję</a>
+            {% else %}
+                <a href="{% url 'add_order' table.id %}" 
+                   class="btn btn-primary 
+                   {% if table.is_reserved %}disabled{% endif %}" 
+                   {% if table.is_reserved %}aria-disabled="true" tabindex="-1"{% endif %}>
+                   Dodaj Zamówienie
+                </a>
+            {% endif %}
+
+            <div class="order-info" id="order-info-{{ table.id }}" style="display: none;">
+                <h5>Zamówienia:</h5>
+                <ul>
+                    {% for order in table.orders_details %}
+                        <li>Numer zamówienia: {{ order.order_id }} | Kwota zamówienia: {{ order.total_price }}</li>
+                    {% endfor %}
+                </ul>
             </div>
+        </div>
         {% endfor %}
     </div>
 </div>
-<<<<<<< HEAD
 
-
-=======
->>>>>>> feature/tables_functionality
 {% endblock %}

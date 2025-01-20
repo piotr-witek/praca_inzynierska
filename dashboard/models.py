@@ -6,6 +6,8 @@ from inventory.models import InventoryItem
 
 class Table(models.Model):
     table_number = models.PositiveIntegerField(unique=True, blank=True, null=True)
+    is_reserved = models.BooleanField(default=False)  # Dodanie pola rezerwacji
+    reserved_for = models.DateTimeField(null=True, blank=True)  # Data i godzina rezerwacji
 
     # Relacja do zamówień
     orders = models.ManyToManyField('OrderedProduct', related_name='tables', blank=True)

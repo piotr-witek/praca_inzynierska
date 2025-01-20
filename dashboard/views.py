@@ -45,6 +45,57 @@ def dashboard(request):
 
     return render(request, 'dashboard/dashboard.html', {'tables': tables})
 
+def reserve_table(request, table_id):
+    table = Table.objects.get(id=table_id)
+    error_message = None  # Zmienna na komunikat o błędzie
+
+    # Jeśli metoda to POST, rezerwujemy stolik
+    if request.method == "POST":
+        if 'show_form' in request.POST:  # Jeśli kliknięto przycisk, aby pokazać formularz
+            return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': True, 'error_message': error_message})
+        
+        if 'reserve' in request.POST:  # Jeśli kliknięto rezerwację
+            reservation_date_str = request.POST.get('reservation_date')
+
+            # Sprawdzamy, czy data jest przekazywana
+            if reservation_date_str:
+                try:
+                    # Próbujemy przekonwertować datę
+                    reservation_date = datetime.strptime(reservation_date_str, '%Y-%m-%dT%H:%M')
+
+                    # Zabezpieczenie, żeby nie można było wybrać daty z przeszłości
+                    if reservation_date < datetime.now():
+                        error_message = "Błąd: Data nie może być wcześniejsza niż aktualny czas."
+                        return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': True, 'error_message': error_message})
+
+                    # Rezerwujemy stolik
+                    table.is_reserved = True
+                    table.fo = reservation_date
+                    table.save()
+
+                    return redirect('dashboard')  # Przekierowanie na stronę główną po udanej rezerwacji
+
+                except ValueError:
+                    error_message = "Błąd: Niepoprawny format daty."
+                    return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': True, 'error_message': error_message})
+            else:
+                error_message = "Błąd: Brak daty rezerwacji."
+                return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': True, 'error_message': error_message})
+
+    # Jeśli metoda to GET, wyświetlamy formularz rezerwacji
+    return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': False, 'error_message': error_message})
+
+
+# Widok do anulowania rezerwacji
+def cancel_reservation(request, table_id):
+    table = Table.objects.get(id=table_id)
+    if table.is_reserved:
+        table.is_reserved = False
+        table.reservation_date = None
+        table.save()
+        return redirect('dashboard')  # Przekierowanie na stronę główną po anulowaniu rezerwacji
+    else:
+        return HttpResponse("Błąd: Stolik nie jest zarezerwowany.", status=400)
 
 def add_order(request, table_id, order_id=None):
     table = Table.objects.get(id=table_id)
@@ -360,13 +411,11 @@ def reports_transactions(request):
 
 
 def data_visualization_transaction(request):
-
     return render(request, 'dashboard/data_visualization_transaction.html')
 
-def generate_average_transaction_per_table():
-
+def generate_average_transaction_per_table(start_date, end_date):
     data = []
-    transactions = SalesTransaction.objects.all()
+    transactions = SalesTransaction.objects.filter(transaction_date__range=[start_date, end_date])
 
     for transaction in transactions:
         data.append({
@@ -402,10 +451,9 @@ def generate_average_transaction_per_table():
 
     return buf, None
 
-def generate_average_transaction_per_payment_method():
-
+def generate_average_transaction_per_payment_method(start_date, end_date):
     data = []
-    transactions = SalesTransaction.objects.select_related('payment_method').all()
+    transactions = SalesTransaction.objects.filter(transaction_date__range=[start_date, end_date]).select_related('payment_method')
 
     for transaction in transactions:
         data.append({
@@ -441,10 +489,9 @@ def generate_average_transaction_per_payment_method():
 
     return buf, None
 
-def generate_total_transaction_per_table():
-
+def generate_total_transaction_per_table(start_date, end_date):
     data = []
-    transactions = SalesTransaction.objects.all()
+    transactions = SalesTransaction.objects.filter(transaction_date__range=[start_date, end_date])
 
     for transaction in transactions:
         data.append({
@@ -480,10 +527,9 @@ def generate_total_transaction_per_table():
 
     return buf, None
 
-def generate_total_transaction_per_payment_method():
-
+def generate_total_transaction_per_payment_method(start_date, end_date):
     data = []
-    transactions = SalesTransaction.objects.select_related('payment_method').all()
+    transactions = SalesTransaction.objects.filter(transaction_date__range=[start_date, end_date]).select_related('payment_method')
 
     for transaction in transactions:
         data.append({
@@ -519,11 +565,17 @@ def generate_total_transaction_per_payment_method():
 
     return buf, None
 
-
-
 def download_average_transaction_per_table(request):
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
 
-    buf, error_message = generate_average_transaction_per_table()
+    try:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    except ValueError:
+        return HttpResponse("Nieprawidłowy format daty.", status=400)
+
+    buf, error_message = generate_average_transaction_per_table(start_date, end_date)
     if buf is None:
         return HttpResponse(error_message, status=404)
 
@@ -531,10 +583,17 @@ def download_average_transaction_per_table(request):
     response['Content-Disposition'] = 'attachment; filename="srednia_kwota_transakcji_na_stolik.png"'
     return response
 
-
 def download_average_transaction_per_payment_method(request):
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
 
-    buf, error_message = generate_average_transaction_per_payment_method()
+    try:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    except ValueError:
+        return HttpResponse("Nieprawidłowy format daty.", status=400)
+
+    buf, error_message = generate_average_transaction_per_payment_method(start_date, end_date)
     if buf is None:
         return HttpResponse(error_message, status=404)
 
@@ -543,8 +602,16 @@ def download_average_transaction_per_payment_method(request):
     return response
 
 def download_total_transaction_per_table(request):
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
 
-    buf, error_message = generate_total_transaction_per_table()
+    try:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    except ValueError:
+        return HttpResponse("Nieprawidłowy format daty.", status=400)
+
+    buf, error_message = generate_total_transaction_per_table(start_date, end_date)
     if buf is None:
         return HttpResponse(error_message, status=404)
 
@@ -552,15 +619,20 @@ def download_total_transaction_per_table(request):
     response['Content-Disposition'] = 'attachment; filename="suma_kwoty_transakcji_na_stolik.png"'
     return response
 
-
 def download_total_transaction_per_payment_method(request):
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
 
-    buf, error_message = generate_total_transaction_per_payment_method()
+    try:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    except ValueError:
+        return HttpResponse("Nieprawidłowy format daty.", status=400)
+
+    buf, error_message = generate_total_transaction_per_payment_method(start_date, end_date)
     if buf is None:
         return HttpResponse(error_message, status=404)
 
     response = HttpResponse(buf.getvalue(), content_type='image/png')
     response['Content-Disposition'] = 'attachment; filename="suma_kwoty_transakcji_na_metode_platnosci.png"'
     return response
-
-

@@ -17,4 +17,6 @@ urlpatterns = [
     path('download_average_transaction_per_payment_method/', views.download_average_transaction_per_payment_method, name='download_average_transaction_per_payment_method'),
     path('download_total_transaction_per_table/', views.download_total_transaction_per_table,name='download_total_transaction_per_table'),
     path('download_total_transaction_per_payment_method/', views.download_total_transaction_per_payment_method,name='download_total_transaction_per_payment_method'),
+    path('reserve_table/<int:table_id>/', views.reserve_table, name='reserve_table'),
+    path('cancel_reservation/<int:table_id>/', views.cancel_reservation, name='cancel_reservation'),
 ]

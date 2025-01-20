@@ -24,3 +24,5 @@ class ProductForm(forms.ModelForm):
             self.fields['product'].queryset = InventoryItem.objects.filter(category_id=category_id)
         else:
             self.fields['product'].queryset = InventoryItem.objects.none()
+ 
+            
