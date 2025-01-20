@@ -22,7 +22,7 @@ class ProductForm(forms.ModelForm):
         model = InventoryItem
         fields = [
             'name', 'category', 'quantity', 'unit',
-            'reorder_level', 'expiration_date', 'purchase_price', 'supplier'
+            'reorder_level', 'expiration_date', 'purchase_price','sales_price', 'supplier'
         ]
         labels = {
             'name': 'Nazwa produktu',
@@ -32,6 +32,7 @@ class ProductForm(forms.ModelForm):
             'reorder_level': 'Minimalna ilosc na stanie',
             'expiration_date': 'Termin ważnosci',
             'purchase_price': 'Cena zakupu',
+            'sales_price': 'Cena sprzedaży',
             'supplier': 'Dostawca',
         }
         widgets = {
@@ -44,7 +45,7 @@ class ProductFormEdit(forms.ModelForm):
         model = InventoryItem
         fields = [
             'name', 'category', 'quantity', 'unit',
-            'reorder_level', 'expiration_date', 'purchase_price', 'supplier'
+            'reorder_level', 'expiration_date', 'purchase_price', 'sales_price', 'supplier'
         ]
         labels = {
             'name': 'Nazwa produktu',
@@ -54,6 +55,7 @@ class ProductFormEdit(forms.ModelForm):
             'reorder_level': 'Minimalna ilosc na stanie',
             'expiration_date': 'Termin ważnosci',
             'purchase_price': 'Cena zakupu',
+            'sales_price': 'Cena sprzedaży',
             'supplier': 'Dostawca',
         }
 

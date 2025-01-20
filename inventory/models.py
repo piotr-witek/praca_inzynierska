@@ -43,6 +43,7 @@ class InventoryItem(models.Model):
     expiration_date = models.DateField(default='1000-01-01', null=False)
     last_restock_date = models.DateTimeField(null=True) #Data modyfikacji
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    sales_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, null=False)
     created_at = models.DateTimeField(auto_now_add=True, null=False) #
 

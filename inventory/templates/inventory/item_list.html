@@ -93,6 +93,7 @@
                 <th>Min. na stanie</th>
                 <th>Jednostka</th>
                 <th>Cena zakupu</th>
+                <th>Cena sprzedaży</th>
                 <th>Dostawca</th>
                 <th>Data ważności</th>
             </tr>
@@ -107,6 +108,7 @@
                     <td>{{ item.reorder_level }}</td>
                     <td>{{ item.unit }}</td>
                     <td>{{ item.purchase_price }}</td>
+                    <td>{{ item.sales_price }}</td>
                     <td>{{ item.supplier }}</td>
                     <td>{{ item.expiration_date|date:"d.m.Y" }}</td>
                 </tr>

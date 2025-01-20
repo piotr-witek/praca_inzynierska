@@ -33,7 +33,7 @@
                 <option value="">Wybierz produkt</option>
                 {% for item in inventory_items %}
                     <option value="{{ item.id }}">
-                        {{ item.name }} - {{ item.quantity }} {{ item.unit }} ({{ item.purchase_price }} PLN)
+                        {{ item.name }} - {{ item.quantity }} {{ item.unit }} ({{ item.sales_price }} PLN)
                     </option>
                 {% endfor %}
             </select>

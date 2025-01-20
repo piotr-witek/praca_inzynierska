@@ -20,9 +20,9 @@ from django.http import HttpResponse
 from dashboard.models import SalesTransaction
 
 from collections import Counter
-import pandas as pd
-import io
-import matplotlib.pyplot as plt
+
+
+
 
 def dashboard(request):
     tables = Table.objects.all()
@@ -134,7 +134,7 @@ def add_order(request, table_id, order_id=None):
                         product_name=item['product'].name,
                         product_category=item['product'].category.name,
                         product_unit=item['product'].unit.name,
-                        product_purchase_price=item['product'].purchase_price,
+                        product_purchase_price=item['product'].sales_price,
                         product_supplier=item['product'].supplier.name
                     )
 
@@ -160,11 +160,13 @@ def add_order(request, table_id, order_id=None):
             if item_id and quantity:
                 inventory_item = InventoryItem.objects.get(id=item_id)
                 quantity = Decimal(quantity)
-                total_item_price = inventory_item.purchase_price * quantity
+                total_item_price = inventory_item.sales_price * quantity
+                print(total_item_price)
+
                 existing_item = next((item for item in cached_items if item['product'].id == inventory_item.id), None)
                 if existing_item:
                     existing_item['quantity'] += quantity
-                    existing_item['total_price'] = inventory_item.purchase_price * existing_item['quantity']
+                    existing_item['total_price'] = inventory_item.sales_price * existing_item['quantity']
                 else:
                     cached_items.append({
                         'product': inventory_item,
@@ -174,7 +176,7 @@ def add_order(request, table_id, order_id=None):
                 cache.set(f'order_{table_id}', cached_items, timeout=None)
 
         total_price = sum(item['total_price'] for item in cached_items)
-
+        
 
         if 'save_item' in request.POST:
             product_id = request.POST.get('save_item')
@@ -183,7 +185,7 @@ def add_order(request, table_id, order_id=None):
                 if str(item['product'].id) == product_id:
                     # Zaktualizuj ilość i cenę
                     item['quantity'] = new_quantity
-                    item['total_price'] = new_quantity * item['product'].purchase_price
+                    item['total_price'] = new_quantity * item['product'].sales_price
                     item['edit_mode'] = False  # Wyłącz tryb edycji
                     break
 
@@ -249,7 +251,7 @@ def edit_order(request, table_id, order_id):
             new_quantity = request.POST.get(f'quantity_{item.id}')
             if new_quantity:
                 item.quantity = Decimal(new_quantity)
-                item.total_price = item.product.purchase_price * item.quantity
+                item.total_price = item.product_purchase_price * item.quantity
                 item.save()
 
 
@@ -312,6 +314,8 @@ def create_transaction(request, table_id, order_id):
                 total_price=item.total_price,
                 product_supplier=item.product_supplier
             )
+            
+
 
 
         order_items.update(is_processed=1)

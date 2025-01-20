@@ -46,7 +46,7 @@ class OrderedProduct(models.Model):
             self.product_name = inventory_item.name
             self.product_category = inventory_item.category.name
             self.product_unit = inventory_item.unit.name
-            self.product_purchase_price = inventory_item.purchase_price
+            self.product_purchase_price = inventory_item.sales_price
             self.product_supplier = inventory_item.supplier.name  # Przypisanie dostawcy
         super().save(*args, **kwargs)
 

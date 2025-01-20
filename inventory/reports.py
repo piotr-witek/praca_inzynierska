@@ -21,7 +21,7 @@ def generate_inventory_xls(request, date_from=None, date_to=None, date_filter='c
 
     headers = [
         "Id", "Nazwa", "Kategoria", "Ilość", "Min. na stanie", "Jednostka",
-        "Cena zakupu", "Dostawca", "Data ważności", "Data modyfikacji", "Data utworzenia"
+        "Cena zakupu", "Cena sprzedaży", "Dostawca", "Data ważności", "Data modyfikacji", "Data utworzenia"
     ]
     for col_num, header in enumerate(headers):
         worksheet.write(0, col_num, header)
@@ -63,10 +63,11 @@ def generate_inventory_xls(request, date_from=None, date_to=None, date_filter='c
         worksheet.write(row_num, 4, item.reorder_level if item.reorder_level else '')
         worksheet.write(row_num, 5, item.unit.name)
         worksheet.write(row_num, 6, item.purchase_price if item.purchase_price else '')
-        worksheet.write(row_num, 7, item.supplier.name)
-        worksheet.write(row_num, 8, str(item.expiration_date))
-        worksheet.write(row_num, 9, format_datetime(item.last_restock_date))
-        worksheet.write(row_num, 10, format_datetime(item.created_at))
+        worksheet.write(row_num, 7, item.sales_price if item.sales_price else '')
+        worksheet.write(row_num, 8, item.supplier.name)
+        worksheet.write(row_num, 9, str(item.expiration_date))
+        worksheet.write(row_num, 10, format_datetime(item.last_restock_date))
+        worksheet.write(row_num, 11, format_datetime(item.created_at))
 
     workbook.save(response)
     return response
@@ -77,7 +78,7 @@ def generate_inventory_csv(request, date_from=None, date_to=None, date_filter='c
 
     writer = csv.writer(response)
     writer.writerow(["Id", "Nazwa", "Kategoria", "Ilosc", "Min. na stanie", "Jednostka",
-                     "Cena zakupu", "Dostawca", "Data waznosci", "Data modyfikacji", "Data utworzenia"])
+                     "Cena zakupu","Cena sprzedaży", "Dostawca", "Data waznosci", "Data modyfikacji", "Data utworzenia"])
 
 
     items = InventoryItem.objects.all()
@@ -111,7 +112,7 @@ def generate_inventory_csv(request, date_from=None, date_to=None, date_filter='c
     for item in items:
         writer.writerow([
             item.id, item.name, item.category.name, item.quantity,
-            item.reorder_level, item.unit.name, item.purchase_price,
+            item.reorder_level, item.unit.name, item.purchase_price,item.sales_price,
             item.supplier.name, item.expiration_date, format_datetime(item.last_restock_date), format_datetime(item.created_at)
         ])
 
@@ -124,7 +125,7 @@ def generate_expired_inventory_xls(request):
     workbook = xlwt.Workbook()
     worksheet = workbook.add_sheet("Expired Inventory")
 
-    headers = ["Id", "Nazwa", "Kategoria", "Ilosc", "Min. na stanie", "Jednostka","Cena zakupu", "Dostawca", "Data wazności", "Data modyfikacji", "Data utworzenia"]
+    headers = ["Id", "Nazwa", "Kategoria", "Ilosc", "Min. na stanie", "Jednostka","Cena zakupu","Cena sprzedaży",  "Dostawca", "Data wazności", "Data modyfikacji", "Data utworzenia"]
     for col_num, header in enumerate(headers):
         worksheet.write(0, col_num, header)
 
@@ -143,10 +144,11 @@ def generate_expired_inventory_xls(request):
             worksheet.write(row_num, 4, item.reorder_level if item.reorder_level else '')
             worksheet.write(row_num, 5, item.unit.name)
             worksheet.write(row_num, 6, item.purchase_price if item.purchase_price else '')
-            worksheet.write(row_num, 7, item.supplier.name)
-            worksheet.write(row_num, 8, str(item.expiration_date))
-            worksheet.write(row_num, 9, format_datetime(item.last_restock_date))
-            worksheet.write(row_num, 10, format_datetime(item.created_at))
+            worksheet.write(row_num, 7, item.sales_price if item.sales_price else '')
+            worksheet.write(row_num, 8, item.supplier.name)
+            worksheet.write(row_num, 9, str(item.expiration_date))
+            worksheet.write(row_num, 10, format_datetime(item.last_restock_date))
+            worksheet.write(row_num, 11, format_datetime(item.created_at))
 
     workbook.save(response)
     return response
@@ -158,7 +160,7 @@ def generate_expired_inventory_csv(request):
 
     writer = csv.writer(response)
     writer.writerow(["Id", "Nazwa", "Kategoria", "Ilośs", "Min. na stanie", "Jednostka",
-                     "Cena zakupu", "Dostawca", "Data waznosci", "Data modyfikacji", "Data utworzenia"])
+                     "Cena zakupu","Cena sprzedaży", "Dostawca", "Data waznosci", "Data modyfikacji", "Data utworzenia"])
 
 
     items = InventoryItem.objects.filter(expiration_date__lt=datetime.now())
@@ -172,6 +174,7 @@ def generate_expired_inventory_csv(request):
             item.id, item.name, item.category.name, item.quantity,
             item.reorder_level if item.reorder_level else '',
             item.unit.name, item.purchase_price if item.purchase_price else '',
+            item.sales_price if item.sales_price else '',
             item.supplier.name, str(item.expiration_date),
             format_datetime(item.last_restock_date),
             format_datetime(item.created_at)
@@ -187,7 +190,7 @@ def generate_expiring_inventory_xls(request):
     workbook = xlwt.Workbook()
     worksheet = workbook.add_sheet("Expiring Inventory")
 
-    headers = ["Id", "Nazwa", "Kategoria", "Ilosc", "Min. na stanie", "Jednostka", "Cena zakupu", "Dostawca", "Data wazności", "Data modyfikacji", "Data utworzenia"]
+    headers = ["Id", "Nazwa", "Kategoria", "Ilosc", "Min. na stanie", "Jednostka", "Cena zakupu","Cena sprzedaży", "Dostawca", "Data wazności", "Data modyfikacji", "Data utworzenia"]
     for col_num, header in enumerate(headers):
         worksheet.write(0, col_num, header)
 
@@ -213,10 +216,11 @@ def generate_expiring_inventory_xls(request):
         worksheet.write(row_num, 4, item.reorder_level if item.reorder_level else '')
         worksheet.write(row_num, 5, item.unit.name)
         worksheet.write(row_num, 6, item.purchase_price if item.purchase_price else '')
-        worksheet.write(row_num, 7, item.supplier.name)
-        worksheet.write(row_num, 8, str(item.expiration_date))
-        worksheet.write(row_num, 9, format_datetime(item.last_restock_date))
-        worksheet.write(row_num, 10, format_datetime(item.created_at))
+        worksheet.write(row_num, 7, item.sales_price if item.sales_price else '')
+        worksheet.write(row_num, 8, item.supplier.name)
+        worksheet.write(row_num, 9, str(item.expiration_date))
+        worksheet.write(row_num, 10, format_datetime(item.last_restock_date))
+        worksheet.write(row_num, 11, format_datetime(item.created_at))
 
     workbook.save(response)
     return response
@@ -227,7 +231,7 @@ def generate_expiring_inventory_csv(request):
     response['Content-Disposition'] = 'attachment; filename="towary_bliskie_przeterminowaniu.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(["Id", "Nazwa", "Kategoria", "Ilosc", "Min. na stanie", "Jednostka", "Cena zakupu", "Dostawca", "Data wazności", "Data modyfikacji", "Data utworzenia"])
+    writer.writerow(["Id", "Nazwa", "Kategoria", "Ilosc", "Min. na stanie", "Jednostka", "Cena zakupu", "Cena sprzedaży", "Dostawca", "Data wazności", "Data modyfikacji", "Data utworzenia"])
 
 
     current_date = datetime.now().date()
@@ -248,6 +252,7 @@ def generate_expiring_inventory_csv(request):
             item.id, item.name, item.category.name, item.quantity,
             item.reorder_level if item.reorder_level else '',
             item.unit.name, item.purchase_price if item.purchase_price else '',
+            item.sales_price if item.sales_price else '',
             item.supplier.name, str(item.expiration_date),
             format_datetime(item.last_restock_date),
             format_datetime(item.created_at)
@@ -285,10 +290,11 @@ def generate_low_stock_inventory_xls(request):
         worksheet.write(row_num, 4, item.reorder_level if item.reorder_level else '')
         worksheet.write(row_num, 5, item.unit.name)
         worksheet.write(row_num, 6, item.purchase_price if item.purchase_price else '')
-        worksheet.write(row_num, 7, item.supplier.name)
-        worksheet.write(row_num, 8, str(item.expiration_date))
-        worksheet.write(row_num, 9, format_datetime(item.last_restock_date))
-        worksheet.write(row_num, 10, format_datetime(item.created_at))
+        worksheet.write(row_num, 7, item.sales_price if item.sales_price else '')
+        worksheet.write(row_num, 8, item.supplier.name)
+        worksheet.write(row_num, 9, str(item.expiration_date))
+        worksheet.write(row_num, 10, format_datetime(item.last_restock_date))
+        worksheet.write(row_num, 11, format_datetime(item.created_at))
 
     workbook.save(response)
     return response
@@ -301,7 +307,7 @@ def generate_low_stock_inventory_csv(request):
     writer = csv.writer(response)
     writer.writerow([
         "Id", "Nazwa", "Kategoria", "Ilosc", "Min. na stanie", "Jednostka",
-        "Cena zakupu", "Dostawca", "Data wazności", "Data modyfikacji", "Data utworzenia"
+        "Cena zakupu", "Cena sprzedaży", "Dostawca", "Data wazności", "Data modyfikacji", "Data utworzenia"
     ])
 
 
@@ -316,6 +322,7 @@ def generate_low_stock_inventory_csv(request):
             item.id, item.name, item.category.name, item.quantity,
             item.reorder_level if item.reorder_level else '',
             item.unit.name, item.purchase_price if item.purchase_price else '',
+            item.sales_price if item.sales_price else '',
             item.supplier.name, str(item.expiration_date),
             format_datetime(item.last_restock_date), format_datetime(item.created_at)
         ])
