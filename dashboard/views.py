@@ -217,6 +217,7 @@ def add_order(request, table_id, order_id=None):
             product_id = request.POST.get('remove_item')
             cached_items = [item for item in cached_items if str(item['product'].id) != product_id]
             cache.set(f'order_{table_id}', cached_items, timeout=None)
+            total_price = sum(item['total_price'] for item in cached_items)
 
 
         if 'edit_item' in request.POST and not order_created:
