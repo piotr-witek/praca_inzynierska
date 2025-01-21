@@ -1,6 +1,6 @@
 
 from django import forms
-
+from django.utils import timezone
 from .models import (Consumption, InventoryItem, ItemCategory, Purchase,
                      Supplier, UnitOfMeasurement)
 
@@ -39,6 +39,11 @@ class ProductForm(forms.ModelForm):
             'expiration_date': forms.DateInput(attrs={'type': 'date'}),
             'last_restock_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ustawienie bieżącej daty jako domyślnej wartości dla expiration_date
+        self.fields['expiration_date'].initial = timezone.now().date()
 
 class ProductFormEdit(forms.ModelForm):
     class Meta:

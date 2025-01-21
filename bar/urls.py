@@ -23,7 +23,7 @@ import dashboard.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', przychody.views.index, name='index'),
+    path('', dashboard.views.dashboard, name='index'),
     path('accounts/', include('accounts.urls')),
     path('inventory/', include('inventory.urls')),
     path("dashboard/", include("dashboard.urls")),

@@ -11,37 +11,39 @@
 </head>
 <body>
     <div class="container">
-
         <h1>Wizualizacja danych</h1>
 
         {% if messages %}
         <div class="messages">
             {% for message in messages %}
-            <div>
-                {{ message }}
-            </div>
+            <div>{{ message }}</div>
             {% endfor %}
         </div>
         {% endif %}
 
         <section class="form-section">
             <h2>Dostawcy</h2>
-
             <form method="post" action="{% url 'download_price_chart' %}" class="form">
                 {% csrf_token %}
+                <label for="start_date">Data początkowa:</label>
+                <input type="date" id="start_date" name="start_date" required>
+                <label for="end_date">Data końcowa:</label>
+                <input type="date" id="end_date" name="end_date" required>
                 <button type="submit" class="btn-secondary">Średnia cen zakupu</button>
             </form>
         </section>
 
         <section class="form-section">
             <h2>Kategoria</h2>
-
             <form method="post" action="{% url 'download_purchase_sum_by_category' %}" class="form">
                 {% csrf_token %}
+                <label for="start_date">Data początkowa:</label>
+                <input type="date" id="start_date" name="start_date" required>
+                <label for="end_date">Data końcowa:</label>
+                <input type="date" id="end_date" name="end_date" required>
                 <button type="submit" class="btn-secondary">Suma cen zakupów</button>
             </form>
         </section>
-
     </div>
 </body>
 </html>

@@ -379,10 +379,19 @@ def data_visualization(request):
     return render(request, 'inventory/data_visualization.html')
 
 def download_price_chart(request):
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
 
-    data = []
     items = InventoryItem.objects.all()
 
+    if start_date and end_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        items = items.filter(created_at__range=(start_date, end_date))
+    else:
+        return HttpResponse("Proszę wybrać przedział czasowy.", status=400)
+
+    data = []
     for item in items:
         if item.purchase_price is not None:
             data.append({
@@ -390,48 +399,51 @@ def download_price_chart(request):
                 'purchase_price': item.purchase_price
             })
 
-
     df = pd.DataFrame(data)
-
     if df.empty:
         return HttpResponse("Brak danych do wykresu.", status=404)
 
-
     chart_data = df.groupby('supplier')['purchase_price'].mean().reset_index()
-
 
     plt.figure(figsize=(12, 6))
     bars = plt.bar(chart_data['supplier'], chart_data['purchase_price'], color='skyblue', edgecolor='black')
 
-
     for bar in bars:
         yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
 
-
+    # Dodanie przedziału czasowego do tytułu
+    date_range = f"({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})"
     plt.xlabel('Dostawcy', fontsize=14)
     plt.ylabel('Średnia Cena Zakupu (PLN)', fontsize=14)
-    plt.title('Średnia Cena Zakupu według Dostawców', fontsize=16)
+    plt.title(f'Średnia Cena Zakupu według Dostawców {date_range}', fontsize=16)
     plt.xticks(rotation=45, ha='right', fontsize=12)
     plt.yticks(fontsize=12)
     plt.grid(axis='y', linestyle='--', alpha=0.7)
-
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
     plt.close()
 
-
     response = HttpResponse(buf.getvalue(), content_type='image/png')
     response['Content-Disposition'] = 'attachment; filename="srednia_cen_zakupu.png"'
     return response
 
 def download_purchase_sum_by_category(request):
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
 
-    data = []
     items = InventoryItem.objects.all()
 
+    if start_date and end_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        items = items.filter(created_at__range=(start_date, end_date))
+    else:
+        return HttpResponse("Proszę wybrać przedział czasowy.", status=400)
+
+    data = []
     for item in items:
         if item.purchase_price is not None:
             data.append({
@@ -439,42 +451,37 @@ def download_purchase_sum_by_category(request):
                 'purchase_price': item.purchase_price
             })
 
-
     df = pd.DataFrame(data)
-
     if df.empty:
         return HttpResponse("Brak danych do wykresu.", status=404)
 
-
     chart_data = df.groupby('category')['purchase_price'].sum().reset_index()
-
 
     plt.figure(figsize=(12, 6))
     bars = plt.bar(chart_data['category'], chart_data['purchase_price'], color='lightgreen', edgecolor='black')
 
-
     for bar in bars:
         yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
 
-
+    # Dodanie przedziału czasowego do tytułu
+    date_range = f"({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})"
     plt.xlabel('Kategorie', fontsize=14)
     plt.ylabel('Suma Cen Zakupu (PLN)', fontsize=14)
-    plt.title('Suma Cen Zakupu według Kategorii', fontsize=16)
+    plt.title(f'Suma Cen Zakupu według Kategorii {date_range}', fontsize=16)
     plt.xticks(rotation=45, ha='right', fontsize=12)
     plt.yticks(fontsize=12)
     plt.grid(axis='y', linestyle='--', alpha=0.7)
-
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
     plt.close()
 
-
     response = HttpResponse(buf.getvalue(), content_type='image/png')
-    response['Content-Disposition'] = 'attachment; filename="suma_cen_zakpupów_wg_kategorii.png"'
+    response['Content-Disposition'] = 'attachment; filename="suma_cen_zakupów_wg_kategorii.png"'
     return response
+
 
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')
