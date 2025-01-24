@@ -42,7 +42,6 @@ class ProductForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Ustawienie bieżącej daty jako domyślnej wartości dla expiration_date
         self.fields['expiration_date'].initial = timezone.now().date()
 
 class ProductFormEdit(forms.ModelForm):

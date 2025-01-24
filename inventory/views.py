@@ -68,13 +68,13 @@ def item_list(request):
         items = items.filter(name__icontains=request.GET['name'])
 
     if 'category' in request.GET and request.GET['category']:
-        items = items.filter(category__id=request.GET['category'])  # Zmiana na kategorię ID
+        items = items.filter(category__id=request.GET['category']) 
 
     if 'supplier' in request.GET and request.GET['supplier']:
-        items = items.filter(supplier__id=request.GET['supplier'])  # Zmiana na dostawcę ID
+        items = items.filter(supplier__id=request.GET['supplier'])  
 
     if 'unit' in request.GET and request.GET['unit']:
-        items = items.filter(unit__id=request.GET['unit'])  # Dodano filtrację jednostki
+        items = items.filter(unit__id=request.GET['unit'])  
 
     if 'expiration_date_start' in request.GET and request.GET['expiration_date_start']:
         items = items.filter(expiration_date__gte=request.GET['expiration_date_start'])
@@ -103,9 +103,9 @@ def category_list(request):
         categories = categories.filter(name__icontains=request.GET['name'])
 
 
-    paginator = Paginator(categories, 50)  # 50 kategorii na stronę
-    page_number = request.GET.get('page')  # Pobierz numer strony z parametrów URL
-    page_obj = paginator.get_page(page_number)  # Pobierz obiekt strony
+    paginator = Paginator(categories, 50)  
+    page_number = request.GET.get('page')  
+    page_obj = paginator.get_page(page_number) 
 
     return render(request, 'inventory/category_list.html', {
         'categories': page_obj,
@@ -149,12 +149,12 @@ def unit_list(request):
 def payment_methods_list(request):
     payment_methods = PaymentMethod.objects.all()
 
-    # Filtrowanie po nazwie, jeśli parametr jest przekazany
+   
     if 'name' in request.GET and request.GET['name']:
         payment_methods = payment_methods.filter(name__icontains=request.GET['name'])
 
-    # Paginacja
-    paginator = Paginator(payment_methods, 50)  # Wyświetlaj 50 elementów na stronę
+    
+    paginator = Paginator(payment_methods, 50)  
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -181,7 +181,7 @@ def edit_product(request):
     product = None
     form = None
 
-    # Obsługa wyszukiwania
+   
     if 'search' in request.GET:
         query = request.GET.get('search').strip()
         try:
@@ -205,7 +205,7 @@ def edit_product(request):
 
             product.last_restock_date = timezone.now()
 
-            form.save()  # Zapisz zmodyfikowany produkt
+            form.save()  
             messages.success(request, "Produkt został zaktualizowany pomyślnie!")
             return redirect('edit_product')
         else:
@@ -286,7 +286,7 @@ def administration(request):
     elif request.method == 'POST' and 'add_payment_method' in request.POST:
         payment_method_form = PaymentMethodForm(request.POST)
         if payment_method_form.is_valid():
-            payment_method_form.save()  # Nie podawaj 'id', Django ustawi je automatycznie
+            payment_method_form.save()  
             messages.success(request, "Metoda płatności została pomyślnie dodana.")
             return redirect('administration')
 
@@ -401,8 +401,8 @@ def download_price_chart(request):
 
     df = pd.DataFrame(data)
     if df.empty:
-        return HttpResponse("Brak danych do wykresu.", status=404)
-
+       return HttpResponse("Brak danych do wykresu.", status=404)
+   
     chart_data = df.groupby('supplier')['purchase_price'].mean().reset_index()
 
     plt.figure(figsize=(12, 6))
@@ -412,7 +412,7 @@ def download_price_chart(request):
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width() / 2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
 
-    # Dodanie przedziału czasowego do tytułu
+   
     date_range = f"({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})"
     plt.xlabel('Dostawcy', fontsize=14)
     plt.ylabel('Średnia Cena Zakupu (PLN)', fontsize=14)
@@ -427,7 +427,7 @@ def download_price_chart(request):
     plt.close()
 
     response = HttpResponse(buf.getvalue(), content_type='image/png')
-    response['Content-Disposition'] = 'attachment; filename="srednia_cen_zakupu.png"'
+    response['Content-Disposition'] = 'attachment; filename="srednia_cen_zakupu_wg_dostawcow.png"'
     return response
 
 def download_purchase_sum_by_category(request):
@@ -464,7 +464,7 @@ def download_purchase_sum_by_category(request):
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width() / 2, yval, round(yval, 2), ha='center', va='bottom', fontsize=10)
 
-    # Dodanie przedziału czasowego do tytułu
+    
     date_range = f"({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})"
     plt.xlabel('Kategorie', fontsize=14)
     plt.ylabel('Suma Cen Zakupu (PLN)', fontsize=14)

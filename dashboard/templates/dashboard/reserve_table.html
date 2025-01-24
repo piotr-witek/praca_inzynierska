@@ -17,17 +17,17 @@
                 <form method="POST" action="{% url 'reserve_table' table.id %}">
                     {% csrf_token %}
                     {% if show_date_form %}
-                        <!-- Formularz do wprowadzenia daty rezerwacji -->
+                     
                         <label for="reservation_date">Data rezerwacji:</label>
                         <input type="datetime-local" id="reservation_date" name="reservation_date" min="{{ current_datetime }}">
                         <button type="submit" name="reserve" class="btn btn-primary">Zarezerwuj</button>
                     {% else %}
-                        <!-- Przycisk, który po kliknięciu pokazuje formularz -->
+                    
                         <button type="submit" name="show_form" class="btn btn-primary">Zarezerwuj</button>
                     {% endif %}
                 </form>
 
-                <!-- Wyświetlanie komunikatów o błędach -->
+              
                 {% if error_message %}
                     <div class="alert alert-danger" role="alert">
                         {{ error_message }}

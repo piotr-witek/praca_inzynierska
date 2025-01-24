@@ -52,7 +52,7 @@ def generate_inventory_xls(request, date_from=None, date_to=None, date_filter='c
             items = items.filter(last_restock_date__lte=date_to)
 
     if not items.exists():
-        messages.error(request, "Brak danych do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect(reverse('reports'))
 
     for row_num, item in enumerate(items, start=1):
@@ -97,7 +97,7 @@ def generate_inventory_csv(request, date_from=None, date_to=None, date_filter='c
             items = items.filter(expiration_date__gte=date_from)
         elif date_to:
             items = items.filter(expiration_date__lte=date_to)
-    else:  # 'last_restock_date'
+    else:  
         if date_from and date_to:
             items = items.filter(last_restock_date__range=(date_from, date_to))
         elif date_from:
@@ -106,7 +106,7 @@ def generate_inventory_csv(request, date_from=None, date_to=None, date_filter='c
             items = items.filter(last_restock_date__lte=date_to)
 
     if not items.exists():
-        messages.error(request, "Brak danych do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect(reverse('reports'))
 
     for item in items:
@@ -133,7 +133,7 @@ def generate_expired_inventory_xls(request):
     expired_items = InventoryItem.objects.filter(expiration_date__lt=datetime.now())
 
     if not expired_items.exists():
-        messages.error(request, "Brak przeterminowanych towarów do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect('reports')
 
     for row_num, item in enumerate(expired_items, start=1):
@@ -166,7 +166,7 @@ def generate_expired_inventory_csv(request):
     items = InventoryItem.objects.filter(expiration_date__lt=datetime.now())
 
     if not items.exists():
-        messages.error(request, "Brak przeterminowanych towarów do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect(reverse('reports'))
 
     for item in items:
@@ -194,18 +194,18 @@ def generate_expiring_inventory_xls(request):
     for col_num, header in enumerate(headers):
         worksheet.write(0, col_num, header)
 
-
+  
     current_date = datetime.now().date()
-    expiration_date_limit = current_date + timedelta(days=7)
+    expiration_date_limit = current_date + timedelta(days=7 )
 
 
     expiring_items = InventoryItem.objects.filter(
         expiration_date__gte=current_date,
-        expiration_date__lte=expiration_date_limit
+        expiration_date__lt=expiration_date_limit
     )
 
     if not expiring_items.exists():
-        messages.error(request, "Brak towarów bliskich przeterminowaniu do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect('reports')
 
     for row_num, item in enumerate(expiring_items, start=1):
@@ -244,7 +244,7 @@ def generate_expiring_inventory_csv(request):
     )
 
     if not expiring_items.exists():
-        messages.error(request, "Brak towarów bliskich przeterminowaniu do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect(reverse('reports'))
 
     for item in expiring_items:
@@ -279,7 +279,7 @@ def generate_low_stock_inventory_xls(request):
     low_stock_items = [item for item in InventoryItem.objects.all() if item.quantity < item.reorder_level]
 
     if not low_stock_items:
-        messages.error(request, "Brak towarów z niskim stanem magazynowym do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect('reports')
 
     for row_num, item in enumerate(low_stock_items, start=1):
@@ -314,7 +314,7 @@ def generate_low_stock_inventory_csv(request):
     low_stock_items = [item for item in InventoryItem.objects.all() if item.quantity < item.reorder_level]
 
     if not low_stock_items:
-        messages.error(request, "Brak towarów z niskim stanem magazynowym do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect('reports')
 
     for item in low_stock_items:
@@ -346,7 +346,7 @@ def generate_suppliers_xls(request, date_from=None, date_to=None):
         suppliers = suppliers.filter(created_at__range=(date_from, date_to))
 
     if not suppliers.exists():
-        messages.error(request, "Brak danych do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect(reverse('reports'))
 
     for row_num, supplier in enumerate(suppliers, start=1):
@@ -355,7 +355,7 @@ def generate_suppliers_xls(request, date_from=None, date_to=None):
         worksheet.write(row_num, 2, supplier.email)
         worksheet.write(row_num, 3, supplier.phone)
         worksheet.write(row_num, 4, supplier.address)
-        worksheet.write(row_num, 5, format_datetime(supplier.last_restock_date))  # Nowa kolumna
+        worksheet.write(row_num, 5, format_datetime(supplier.last_restock_date)) 
         worksheet.write(row_num, 6, format_datetime(supplier.created_at))
 
     workbook.save(response)
@@ -375,7 +375,7 @@ def generate_suppliers_csv(request, date_from=None, date_to=None):
         suppliers = suppliers.filter(created_at__range=(date_from, date_to))
 
     if not suppliers.exists():
-        messages.error(request, "Brak danych do wygenerowania raportu.")
+        messages.error(request, "Brak danych")
         return redirect(reverse('reports'))
 
     for supplier in suppliers:

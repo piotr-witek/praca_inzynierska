@@ -32,7 +32,7 @@ tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
-/* Stylizacja wiersza po najechaniu myszką */
+
 tr:hover {
     background-color: #d1e7dd;
 }

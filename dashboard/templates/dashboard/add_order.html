@@ -4,7 +4,7 @@
 <div class="container">
     <h1 class="text-center my-4">Dodaj Zamówienie - Stolik {{ table.table_number }}</h1>
 
-    <!-- Wybór kategorii -->
+
     <form method="POST" class="mb-3">
         {% csrf_token %}
         <h2>Wybierz Kategorię:</h2>
@@ -23,7 +23,7 @@
     </form>
 
     {% if selected_category %}
-    <!-- Wybór produktu -->
+
     <form method="POST" class="mt-3" {% if order_created %}disabled{% endif %}>
         {% csrf_token %}
         <h2>Wybierz Produkt:</h2>
@@ -48,7 +48,7 @@
     </form>
     {% endif %}
 
-<!-- Produkty w zamówieniu -->
+
 <h2 class="my-4">Produkty w zamówieniu:</h2>
 {% if cached_items %}
 <ul class="list-group">
@@ -67,7 +67,7 @@
             {% else %}
                 {{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN
                 {% if not item.edit_mode %}
-                <!-- Edytuj i usuń tylko jeśli nie jest w trybie edycji -->
+
                 <button type="submit" name="edit_item" value="{{ item.product.id }}"
                         class="btn btn-warning btn-sm float-right"
                         {% if order_created %}disabled{% endif %}>Edytuj</button>
@@ -88,7 +88,7 @@
 
 <h3 class="mt-4">Łączna cena: {{ total_price }} PLN</h3>
 
-<!-- Utworzenie zamówienia -->
+
 {% if not order_created %}
 <form method="POST" class="mt-4">
     {% csrf_token %}
@@ -101,7 +101,7 @@
     <h3>Zamówienie zostało utworzone!</h3>
     <p>Numer Zamówienia: {{ order_number }}</p>
 
-<!-- Dodanie przycisku edycji zamówienia -->
+
 <form method="POST" class="mt-4">
     {% csrf_token %}
     <button type="submit" name="edit_order" class="btn btn-warning">Edytuj Zamówienie</button>

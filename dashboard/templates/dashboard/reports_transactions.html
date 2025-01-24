@@ -16,17 +16,17 @@
             const dateFilterSection = document.getElementById('date_filter_section');
             const expirationDateOption = document.getElementById('expiration_date_option');
 
-            // Ukrywanie lub pokazywanie sekcji filtru daty w zależności od typu raportu
+
             if (reportType === 'transactions') {
-                dateFilterSection.style.display = 'block';  // Włączamy daty dla transakcji
+                dateFilterSection.style.display = 'block';  
             } else if (reportType === 'inventory') {
-                dateFilterSection.style.display = 'block';  // Włączamy daty dla zapasów
+                dateFilterSection.style.display = 'block'; 
             } else {
-                dateFilterSection.style.display = 'none';  // Ukrywamy dla innych typów
+                dateFilterSection.style.display = 'none'; 
             }
         }
 
-        window.onload = toggleDateFilter;  // Ładowanie początkowe filtru daty
+        window.onload = toggleDateFilter;  
     </script>
 </head>
 <body>
@@ -46,21 +46,21 @@
             <form method="post" action="{% url 'reports_transactions' %}" class="form">
                 {% csrf_token %}
 
-                <!-- Wybór typu raportu -->
+        
                 <label for="report_type">Typ zestawienia:</label>
                 <select name="report_type" id="report_type" onchange="toggleDateFilter()">
                     <option value="transactions">Transakcje sprzedaży</option>
                     <option value="inventory">Zestawienie towarów w transakcjach</option>
                 </select>
 
-                <!-- Wybór formatu pliku -->
+          
                 <label for="file_format">Format pliku:</label>
                 <select name="file_format" id="file_format">
                     <option value="xls">XLS</option>
                     <option value="csv">CSV</option>
                 </select>
 
-                <!-- Sekcja filtrów daty (widoczna tylko dla niektórych raportów) -->
+              
                 <section id="date_filter_section">
                     <label for="date_filter">Filtruj według daty:</label>
                     <select name="date_filter" id="date_filter">
@@ -74,7 +74,7 @@
                     <input type="date" name="data_do" id="data_do">
                 </section>
 
-                <!-- Przycisk generowania raportu -->
+              
                 <button type="submit">Generuj raport</button>
             </form>
         </section>

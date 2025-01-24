@@ -30,7 +30,7 @@ def dashboard(request):
     for table in tables:
 
         unprocessed_order = OrderedProduct.objects.filter(table=table, is_processed=0).first()
-        table.has_unprocessed_orders = bool(unprocessed_order)  # Ustawienie zmiennej, czy są niezrealizowane zamówienia
+        table.has_unprocessed_orders = bool(unprocessed_order)  
         table.unprocessed_order_id = unprocessed_order.order_id if unprocessed_order else None
         table.unprocessed_order_total_price = unprocessed_order.total_price if unprocessed_order else None
 
@@ -47,33 +47,33 @@ def dashboard(request):
 
 def reserve_table(request, table_id):
     table = Table.objects.get(id=table_id)
-    error_message = None  # Zmienna na komunikat o błędzie
+    error_message = None  
 
-    # Jeśli metoda to POST, rezerwujemy stolik
+    
     if request.method == "POST":
-        if 'show_form' in request.POST:  # Jeśli kliknięto przycisk, aby pokazać formularz
+        if 'show_form' in request.POST:  
             return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': True, 'error_message': error_message})
         
-        if 'reserve' in request.POST:  # Jeśli kliknięto rezerwację
+        if 'reserve' in request.POST: 
             reservation_date_str = request.POST.get('reservation_date')
 
-            # Sprawdzamy, czy data jest przekazywana
+            
             if reservation_date_str:
                 try:
-                    # Próbujemy przekonwertować datę
+                    
                     reservation_date = datetime.strptime(reservation_date_str, '%Y-%m-%dT%H:%M')
 
-                    # Zabezpieczenie, żeby nie można było wybrać daty z przeszłości
+                    
                     if reservation_date < datetime.now():
                         error_message = "Błąd: Data nie może być wcześniejsza niż aktualny czas."
                         return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': True, 'error_message': error_message})
 
-                    # Rezerwujemy stolik
+                  
                     table.is_reserved = True
                     table.fo = reservation_date
                     table.save()
 
-                    return redirect('dashboard')  # Przekierowanie na stronę główną po udanej rezerwacji
+                    return redirect('dashboard')  
 
                 except ValueError:
                     error_message = "Błąd: Niepoprawny format daty."
@@ -82,18 +82,18 @@ def reserve_table(request, table_id):
                 error_message = "Błąd: Brak daty rezerwacji."
                 return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': True, 'error_message': error_message})
 
-    # Jeśli metoda to GET, wyświetlamy formularz rezerwacji
+    
     return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': False, 'error_message': error_message})
 
 
-# Widok do anulowania rezerwacji
+
 def cancel_reservation(request, table_id):
     table = Table.objects.get(id=table_id)
     if table.is_reserved:
         table.is_reserved = False
         table.reservation_date = None
         table.save()
-        return redirect('dashboard')  # Przekierowanie na stronę główną po anulowaniu rezerwacji
+        return redirect('dashboard')  
     else:
         return HttpResponse("Błąd: Stolik nie jest zarezerwowany.", status=400)
 
@@ -129,8 +129,7 @@ def add_order(request, table_id, order_id=None):
                         quantity=item['quantity'],
                         total_price=item['total_price'],
                         created_at=timezone.now(),
-                        is_processed=0,  # Flaga ustawiona na False
-                        # Snapshot danych z inventory
+                        is_processed=0,  
                         product_name=item['product'].name,
                         product_category=item['product'].category.name,
                         product_unit=item['product'].unit.name,
@@ -183,10 +182,9 @@ def add_order(request, table_id, order_id=None):
             new_quantity = Decimal(request.POST.get('new_quantity'))
             for item in cached_items:
                 if str(item['product'].id) == product_id:
-                    # Zaktualizuj ilość i cenę
                     item['quantity'] = new_quantity
                     item['total_price'] = new_quantity * item['product'].sales_price
-                    item['edit_mode'] = False  # Wyłącz tryb edycji
+                    item['edit_mode'] = False  
                     break
 
 
@@ -224,7 +222,7 @@ def add_order(request, table_id, order_id=None):
             product_id = request.POST.get('edit_item')
             for item in cached_items:
                 if str(item['product'].id) == product_id:
-                    item['edit_mode'] = True  # Zmieniamy stan, aby umożliwić edycję ilości
+                    item['edit_mode'] = True  
             cache.set(f'order_{table_id}', cached_items, timeout=None)
 
     return render(
@@ -259,7 +257,7 @@ def edit_order(request, table_id, order_id):
         remove_item_id = request.POST.get('remove_item')
         if remove_item_id:
             item_to_remove = get_object_or_404(OrderedProduct, id=remove_item_id, order_id=order_id, table=table)
-            item_to_remove.delete()  # Usuwamy produkt z zamówienia
+            item_to_remove.delete()  
 
         return redirect('edit_order', table_id=table_id, order_id=order_id)
 
@@ -381,7 +379,7 @@ def transaction_details(request, transaction_id):
 
 def transaction_item_details(request, item_id):
     try:
-        # Pobierz szczegóły produktu na podstawie jego ID
+        
         item = SalesTransactionItem.objects.get(id=item_id)
         return render(request, 'dashboard/transaction_item_details.html', {'item': item})
     except SalesTransactionItem.DoesNotExist:
@@ -424,7 +422,7 @@ def generate_average_transaction_per_table(start_date, end_date):
 
     for transaction in transactions:
         data.append({
-            'table_id': f"Stolik {transaction.table_id}",  # Numer stolika jako tekst
+            'table_id': f"Stolik {transaction.table_id}",  
             'total_amount': transaction.total_amount
         })
 

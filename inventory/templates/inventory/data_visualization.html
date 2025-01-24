@@ -22,26 +22,26 @@
         {% endif %}
 
         <section class="form-section">
-            <h2>Dostawcy</h2>
+            <h2>Dostawcy - średnia cen zakupu</h2>
             <form method="post" action="{% url 'download_price_chart' %}" class="form">
                 {% csrf_token %}
                 <label for="start_date">Data początkowa:</label>
                 <input type="date" id="start_date" name="start_date" required>
                 <label for="end_date">Data końcowa:</label>
                 <input type="date" id="end_date" name="end_date" required>
-                <button type="submit" class="btn-secondary">Średnia cen zakupu</button>
+                <button type="submit" class="btn-secondary">Wykonaj</button>
             </form>
         </section>
 
         <section class="form-section">
-            <h2>Kategoria</h2>
+            <h2>Kategoria - suma cen zakupów</h2>
             <form method="post" action="{% url 'download_purchase_sum_by_category' %}" class="form">
                 {% csrf_token %}
                 <label for="start_date">Data początkowa:</label>
                 <input type="date" id="start_date" name="start_date" required>
                 <label for="end_date">Data końcowa:</label>
                 <input type="date" id="end_date" name="end_date" required>
-                <button type="submit" class="btn-secondary">Suma cen zakupów</button>
+                <button type="submit" class="btn-secondary">Wykonaj</button>
             </form>
         </section>
     </div>

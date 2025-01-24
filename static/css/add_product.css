@@ -85,9 +85,9 @@ h1 {
 }
 
 .message.success {
-    background-color: #4CAF50; /* Zielony dla sukcesu */
+    background-color: #4CAF50; 
 }
 
 .message.error {
-    background-color: #f44336; /* Czerwony dla błędu */
+    background-color: #f44336; 
 }

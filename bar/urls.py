@@ -20,12 +20,13 @@ from django.urls import include, path
 import inventory.views
 import przychody.views
 import dashboard.views
+import accounts.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', dashboard.views.dashboard, name='index'),
+    path('', accounts.views.loginaccount, name='index'),
     path('accounts/', include('accounts.urls')),
     path('inventory/', include('inventory.urls')),
     path("dashboard/", include("dashboard.urls")),
-    #path('inventory/add/', include('inventory.urls')),
+ 
 ]

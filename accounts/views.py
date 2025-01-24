@@ -1,28 +1,33 @@
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
-from django.shortcuts import redirect, render
-
-# Create your views here.
-
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from .forms import CustomAuthenticationForm
+from django.contrib import messages
+from django.http import HttpResponse
 
 def loginaccount(request):
-    if request.method == 'GET':
-        return render(request, 'loginaccount.html',
-                      {'form': AuthenticationForm})
-    else:
-        user = authenticate(request,
-                            username=request.POST['username'],
-                            password=request.POST['password'])
-        if user is None:
-            return render(request, 'loginaccount.html', 
-                          {'form': AuthenticationForm(), 'error': 'Użytkownik i hasło nie pasują do siebie'})
+    if request.method == 'POST':
+        form = CustomAuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Zalogowano pomyślnie.")
+                return redirect('dashboard')  
+            else:
+                messages.error(request, "Niepoprawna nazwa użytkownika lub hasło.")
         else:
-            login(request, user)
-            return redirect('index')
-        
-def logoutaccount(request):
+            messages.error(request, "Błędne dane logowania.")
 
-    if request.method == "GET":
-        logout(request)
-        return render(request, "logoutaccount.html")
+    else:
+        form = CustomAuthenticationForm()
+
+    return render(request, 'loginaccount.html', {'form': form})
+
+def logoutaccount(request):
+    from django.contrib.auth import logout
+    logout(request)
+    messages.success(request, "Wylogowano pomyślnie.")
+    return redirect('loginaccount')

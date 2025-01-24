@@ -32,14 +32,14 @@
             {% for item in order_items %}
             <li class="list-group-item">
                 {{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN
-                <!-- Formularz do usuwania produktu -->
+
                 <button type="submit" name="remove_item" value="{{ item.id }}" class="btn btn-danger btn-sm float-right ml-2">Usuń</button>
             </li>
             {% endfor %}
         </ul>
     </form>
     <h3 class="mt-4">Łączna cena: {{ total_price }} PLN</h3>
-    <!-- Przyciski powrotu zależne od obecności towarów -->
+
     {% if order_items %}
         <a href="{% url 'add_order' table_id=table.id order_id=order_id %}" class="btn btn-secondary mt-4">Powrót do zamówienia</a>
     {% else %}
