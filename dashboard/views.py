@@ -20,9 +20,10 @@ from django.http import HttpResponse
 from dashboard.models import SalesTransaction
 
 from collections import Counter
+from django.contrib.auth.decorators import login_required
 
 
-
+@login_required
 
 def dashboard(request):
     tables = Table.objects.all()
@@ -44,6 +45,8 @@ def dashboard(request):
             table.orders_details.append(order_details)
 
     return render(request, 'dashboard/dashboard.html', {'tables': tables})
+
+@login_required
 
 def reserve_table(request, table_id):
     table = Table.objects.get(id=table_id)
@@ -85,8 +88,7 @@ def reserve_table(request, table_id):
     
     return render(request, 'dashboard/reserve_table.html', {'table': table, 'show_date_form': False, 'error_message': error_message})
 
-
-
+@login_required
 def cancel_reservation(request, table_id):
     table = Table.objects.get(id=table_id)
     if table.is_reserved:
@@ -97,6 +99,7 @@ def cancel_reservation(request, table_id):
     else:
         return HttpResponse("Błąd: Stolik nie jest zarezerwowany.", status=400)
 
+@login_required
 def add_order(request, table_id, order_id=None):
     table = Table.objects.get(id=table_id)
     categories = ItemCategory.objects.all()
@@ -239,6 +242,8 @@ def add_order(request, table_id, order_id=None):
             'order_number': order_id if order_created else None
         }
     )
+
+@login_required
 def edit_order(request, table_id, order_id):
     table = Table.objects.get(id=table_id)
     order_items = OrderedProduct.objects.filter(order_id=order_id, table=table)
@@ -268,7 +273,7 @@ def edit_order(request, table_id, order_id):
         'order_id': order_id
     })
 
-
+@login_required
 def create_transaction(request, table_id, order_id):
 
     order_items = OrderedProduct.objects.filter(order_id=order_id, table__table_number=table_id, is_processed=0)
@@ -330,6 +335,7 @@ def create_transaction(request, table_id, order_id):
         'payment_methods': payment_methods,
     })
 
+@login_required
 def transaction_list(request):
     transactions = SalesTransaction.objects.all()
     payment_methods = PaymentMethod.objects.all()
@@ -364,6 +370,7 @@ def transaction_list(request):
         'payment_methods': payment_methods,
     })
 
+@login_required
 def transaction_details(request, transaction_id):
     try:
         transaction = SalesTransaction.objects.get(id=transaction_id)
@@ -376,7 +383,7 @@ def transaction_details(request, transaction_id):
     except SalesTransaction.DoesNotExist:
         return render(request, '404.html', {'error': 'Transakcja nie istnieje.'})
 
-
+@login_required
 def transaction_item_details(request, item_id):
     try:
         
@@ -385,7 +392,7 @@ def transaction_item_details(request, item_id):
     except SalesTransactionItem.DoesNotExist:
         raise Http404("Produkt nie istnieje.")
 
-
+@login_required
 def reports_transactions(request):
     if request.method == 'POST':
         report_type = request.POST.get('report_type')
@@ -412,10 +419,11 @@ def reports_transactions(request):
 
     return render(request, 'dashboard/reports_transactions.html')
 
-
+@login_required
 def data_visualization_transaction(request):
     return render(request, 'dashboard/data_visualization_transaction.html')
 
+@login_required
 def generate_average_transaction_per_table(start_date, end_date):
     data = []
     transactions = SalesTransaction.objects.filter(transaction_date__range=[start_date, end_date])
@@ -454,6 +462,7 @@ def generate_average_transaction_per_table(start_date, end_date):
 
     return buf, None
 
+@login_required
 def generate_average_transaction_per_payment_method(start_date, end_date):
     data = []
     transactions = SalesTransaction.objects.filter(transaction_date__range=[start_date, end_date]).select_related('payment_method')
@@ -492,6 +501,8 @@ def generate_average_transaction_per_payment_method(start_date, end_date):
 
     return buf, None
 
+
+@login_required
 def generate_total_transaction_per_table(start_date, end_date):
     data = []
     transactions = SalesTransaction.objects.filter(transaction_date__range=[start_date, end_date])
@@ -530,6 +541,7 @@ def generate_total_transaction_per_table(start_date, end_date):
 
     return buf, None
 
+@login_required
 def generate_total_transaction_per_payment_method(start_date, end_date):
     data = []
     transactions = SalesTransaction.objects.filter(transaction_date__range=[start_date, end_date]).select_related('payment_method')
@@ -568,6 +580,7 @@ def generate_total_transaction_per_payment_method(start_date, end_date):
 
     return buf, None
 
+@login_required
 def download_average_transaction_per_table(request):
     start_date = request.POST.get('start_date')
     end_date = request.POST.get('end_date')
@@ -586,6 +599,7 @@ def download_average_transaction_per_table(request):
     response['Content-Disposition'] = 'attachment; filename="srednia_kwota_transakcji_na_stolik.png"'
     return response
 
+@login_required
 def download_average_transaction_per_payment_method(request):
     start_date = request.POST.get('start_date')
     end_date = request.POST.get('end_date')
@@ -604,6 +618,7 @@ def download_average_transaction_per_payment_method(request):
     response['Content-Disposition'] = 'attachment; filename="srednia_kwota_transakcji_na_metode_platnosci.png"'
     return response
 
+@login_required
 def download_total_transaction_per_table(request):
     start_date = request.POST.get('start_date')
     end_date = request.POST.get('end_date')
@@ -622,6 +637,7 @@ def download_total_transaction_per_table(request):
     response['Content-Disposition'] = 'attachment; filename="suma_kwoty_transakcji_na_stolik.png"'
     return response
 
+@login_required
 def download_total_transaction_per_payment_method(request):
     start_date = request.POST.get('start_date')
     end_date = request.POST.get('end_date')

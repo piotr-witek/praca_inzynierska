@@ -21,7 +21,11 @@ import pandas as pd
 from django.http import HttpResponse
 from django.shortcuts import render
 from dashboard.models import PaymentMethod
+from django.contrib.auth.decorators import login_required
 
+
+
+@login_required
 def add_purchase(request):
     if request.method == 'POST':
         form = PurchaseForm(request.POST)
@@ -36,7 +40,7 @@ def add_purchase(request):
         form = PurchaseForm()
     return render(request, 'inventory/add_purchase.html', {'form': form})
 
-
+@login_required
 def add_consumption(request):
     if request.method == 'POST':
         form = ConsumptionForm(request.POST)
@@ -53,7 +57,7 @@ def add_consumption(request):
         form = ConsumptionForm()
     return render(request, 'inventory/add_consumption.html', {'form': form})
 
-
+@login_required
 def item_list(request):
 
     items = InventoryItem.objects.all()
@@ -94,6 +98,7 @@ def item_list(request):
         'units': units,
     })
 
+@login_required
 def category_list(request):
 
     categories = ItemCategory.objects.all()
@@ -111,6 +116,7 @@ def category_list(request):
         'categories': page_obj,
     })
 
+@login_required
 def supplier_list(request):
 
     suppliers = Supplier.objects.all()
@@ -128,6 +134,7 @@ def supplier_list(request):
         'suppliers': page_obj,
     })
 
+@login_required
 def unit_list(request):
 
     UnitOfMeasurements = UnitOfMeasurement.objects.all()
@@ -146,6 +153,7 @@ def unit_list(request):
     })
 
 
+@login_required
 def payment_methods_list(request):
     payment_methods = PaymentMethod.objects.all()
 
@@ -162,6 +170,7 @@ def payment_methods_list(request):
         'payment_methods': page_obj,
     })
 
+@login_required
 def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
@@ -176,7 +185,7 @@ def add_product(request):
 
     return render(request, 'inventory/add_product.html', {'form': form})
 
-
+@login_required
 def edit_product(request):
     product = None
     form = None
@@ -217,6 +226,7 @@ def edit_product(request):
 
     return render(request, 'inventory/edit_product.html', {'form': form, 'searched': False})
 
+@login_required
 def delete_product(request):
     product = None
 
@@ -245,7 +255,7 @@ def delete_product(request):
 
     return render(request, 'inventory/delete_product.html', {'product': product})
 
-
+@login_required
 def administration(request):
 
     supplier_form = SupplierForm()
@@ -298,6 +308,7 @@ def administration(request):
 
     })
 
+@login_required
 def notifications(request):
 
     current_date = timezone.now().date()
@@ -329,6 +340,7 @@ def notifications(request):
 
 from datetime import datetime
 
+@login_required
 def reports(request):
     if request.method == 'POST':
         report_type = request.POST.get('report_type')
@@ -375,9 +387,11 @@ def reports(request):
 
     return render(request, 'inventory/reports.html')
 
+@login_required
 def data_visualization(request):
     return render(request, 'inventory/data_visualization.html')
 
+@login_required
 def download_price_chart(request):
     start_date = request.POST.get('start_date')
     end_date = request.POST.get('end_date')
@@ -430,6 +444,7 @@ def download_price_chart(request):
     response['Content-Disposition'] = 'attachment; filename="srednia_cen_zakupu_wg_dostawcow.png"'
     return response
 
+@login_required
 def download_purchase_sum_by_category(request):
     start_date = request.POST.get('start_date')
     end_date = request.POST.get('end_date')
@@ -482,7 +497,7 @@ def download_purchase_sum_by_category(request):
     response['Content-Disposition'] = 'attachment; filename="suma_cen_zakupów_wg_kategorii.png"'
     return response
 
-
+@login_required
 def inventory_management_page(request):
     return render(request, 'inventory/inventory_management.html')
 

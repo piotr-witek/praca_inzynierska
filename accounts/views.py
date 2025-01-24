@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from .forms import CustomAuthenticationForm
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 def loginaccount(request):
     if request.method == 'POST':
@@ -14,20 +15,14 @@ def loginaccount(request):
             
             if user is not None:
                 login(request, user)
-                messages.success(request, "Zalogowano pomyślnie.")
-                return redirect('dashboard')  
-            else:
-                messages.error(request, "Niepoprawna nazwa użytkownika lub hasło.")
-        else:
-            messages.error(request, "Błędne dane logowania.")
-
+                return redirect('dashboard')
     else:
         form = CustomAuthenticationForm()
 
     return render(request, 'loginaccount.html', {'form': form})
 
+@login_required
 def logoutaccount(request):
     from django.contrib.auth import logout
     logout(request)
-    messages.success(request, "Wylogowano pomyślnie.")
     return redirect('loginaccount')
