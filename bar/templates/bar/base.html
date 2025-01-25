@@ -197,27 +197,16 @@
                   <button class="dropdown-item" value="light" data-theme-control="theme">Jasny</button>
                   <button class="dropdown-item" value="dark" data-theme-control="theme">Ciemny</button>
                   <button class="dropdown-item" value="auto" data-theme-control="theme">Auto</button>
+                  {% if user.is_authenticated %}
+                  <a class="dropdown-item" href="{% url 'logoutaccount' %}">Wyloguj</a>
+                  {% else %}
+                  <a class="dropdown-item" href="{% url 'loginaccount' %}">Zaloguj</a>
+                  {% endif %}
                 </div>
               </div>
             </li>
 
-            <li class="nav-item dropdown">
-              <a class="nav-link" id="navbarDropdownUser" data-bs-toggle="dropdown">
-                <div class="avatar avatar-xl">
-                  <img class="rounded-circle" src="{% static 'img/team/3-thumb.png' %}" alt="User Avatar" />
-                </div>
-              </a>
-              <div class="dropdown-menu dropdown-menu-end">
-                {% comment %} <a class="dropdown-item" href="#!">Uwagi do apki</a> {% endcomment %}
-                <div class="dropdown-divider"></div>
-                {% comment %} <a class="dropdown-item" href="pages/user/settings.html">Ustawienia</a> {% endcomment %}
-                {% if user.is_authenticated %}
-                <a class="dropdown-item" href="{% url 'logoutaccount' %}">Wyloguj</a>
-                {% else %}
-                <a class="dropdown-item" href="{% url 'loginaccount' %}">Zaloguj</a>
-                {% endif %}
-              </div>
-            </li>
+
           </ul>
         </nav>
 
