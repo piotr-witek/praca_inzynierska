@@ -8,7 +8,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Falcon | Dashboard &amp; Web App Template</title>
+  <title>RestroBar Hub | Dashboard &amp; Web App Template</title>
 
  
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicons/apple-touch-icon.png' %}">
@@ -52,8 +52,7 @@
     <div class="container" data-layout="container">
       <nav class="navbar navbar-light navbar-vertical navbar-expand-xl">
         <div class="d-flex align-items-center py-3">
-          <img class="me-2" src="{% static 'img/icons/spot-illustrations/falcon.png' %}" alt="Logo" width="40" />
-          <span class="font-sans-serif text-primary">falcon</span>
+          <a href="{% url 'dashboard' %}"><img class="me-2" src="{% static 'img/icons/spot-illustrations/main_logo.png' %}" alt="Logo" width="200" /></a>
         </div>
 
         
@@ -69,7 +68,6 @@
           <div class="navbar-vertical-content scrollbar">
             <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
 
-            
               <li class="nav-item">
                 <a class="nav-link dropdown-indicator" href="#sectionMagazyn" data-bs-toggle="collapse"
                   aria-expanded="false" aria-controls="sectionMagazyn">
@@ -89,6 +87,7 @@
 
                 </ul>
               </li>
+
 
       
               <li class="nav-item">
@@ -214,13 +213,15 @@
 
         <footer class="footer">
           <div class="row g-0 justify-content-between fs-10 mt-4 mb-3">
-            <div class="col-12 col-sm-auto text-center">Bar-Man | 2024</div>
-            <div class="col-12 col-sm-auto text-center">v1.01.0</div>
+            <div class="col-12 col-sm-auto text-center">RestroBar Hub | 2025</div>
+            <div class="col-12 col-sm-auto text-center">v2.00.0</div>
           </div>
         </footer>
       </div>
     </div>
   </main>
+
+
 
 
   <script src="{% static 'vendors/popper/popper.min.js' %}"></script>
