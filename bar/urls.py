@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 import inventory.views
-import przychody.views
 import dashboard.views
 import accounts.views
 

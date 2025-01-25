@@ -1,0 +1,249 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en-US" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Falcon | Dashboard &amp; Web App Template</title>
+
+ 
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicons/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicons/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicons/favicon-16x16.png' %}">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicons/favicon.ico' %}">
+  <link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
+  <meta name="msapplication-TileImage" content="{% static 'img/favicons/mstile-150x150.png' %}">
+  <meta name="theme-color" content="#ffffff">
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap"
+    rel="stylesheet">
+  <link href="{% static 'vendors/simplebar/simplebar.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/theme-rtl.css' %}" rel="stylesheet" id="style-rtl">
+  <link href="{% static 'css/theme.css' %}" rel="stylesheet" id="style-default">
+  <link href="{% static 'css/user-rtl.css' %}" rel="stylesheet" id="user-style-rtl">
+  <link href="{% static 'css/user.css' %}" rel="stylesheet" id="user-style-default">
+
+  
+  <script src="{% static 'js/config.js' %}"></script>
+  <script src="{% static 'vendors/simplebar/simplebar.min.js' %}"></script>
+
+  <script>
+    var isRTL = JSON.parse(localStorage.getItem('isRTL'));
+    if (isRTL) {
+      document.getElementById('style-default').setAttribute('disabled', true);
+      document.getElementById('user-style-default').setAttribute('disabled', true);
+      document.documentElement.setAttribute('dir', 'rtl');
+    } else {
+      document.getElementById('style-rtl').setAttribute('disabled', true);
+      document.getElementById('user-style-rtl').setAttribute('disabled', true);
+    }
+  </script>
+</head>
+
+<body>
+  <main class="main" id="top">
+    <div class="container" data-layout="container">
+      <nav class="navbar navbar-light navbar-vertical navbar-expand-xl">
+        <div class="d-flex align-items-center py-3">
+          <img class="me-2" src="{% static 'img/icons/spot-illustrations/falcon.png' %}" alt="Logo" width="40" />
+          <span class="font-sans-serif text-primary">falcon</span>
+        </div>
+
+        
+        <a class="nav-link" href="{% url 'dashboard' %}">
+          <div class="d-flex align-items-center">
+            <span class="nav-link-icon fas fa-calendar-alt"></span>
+            <span class="nav-link-text ps-1">Pulpit</span>
+          </div>
+        </a>
+
+
+        <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
+          <div class="navbar-vertical-content scrollbar">
+            <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
+
+            
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionMagazyn" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionMagazyn">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Magazyn</span>
+                  </div>
+                </a>
+
+                <ul class="nav collapse" id="sectionMagazyn">
+                  <li class="nav-item"><a class="nav-link" href="{% url 'stock_status' %}">Stan</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{% url 'notifications' %}">Powiadomienia</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'reports' %}">Zestawienia</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'data_visualization' %}">Wizualizacja</a></li>
+
+
+
+
+                </ul>
+              </li>
+
+      
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionTowary" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionTowary">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Towary</span>
+                  </div>
+                </a>
+
+                    <ul class="nav collapse" id="sectionTowary">
+                      <li class="nav-item"><a class="nav-link" href="{% url 'add_product' %}">Dodaj</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'edit_product' %}">Modyfikuj</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'delete_product' %}">Usuń</a></li>
+                    </ul>
+
+
+    
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionTransaction" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionTransaction">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Transakcje</span>
+                  </div>
+                </a>
+
+                <ul class="nav collapse" id="sectionTransaction">
+                  <li class="nav-item"><a class="nav-link" href="{% url 'transaction_list' %}">Podgląd</a></li>
+                </ul>
+
+                <ul class="nav collapse" id="sectionTransaction">
+                  <li class="nav-item"><a class="nav-link" href="{% url 'data_visualization_transaction' %}">Wizualizacje</a></li>
+                </ul>
+              </li>
+
+
+          
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionAdministracja" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionAdministracja">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Administracja</span>
+                  </div>
+                </a>
+
+                    <ul class="nav collapse" id="sectionAdministracja">
+                      <li class="nav-item"><a class="nav-link" href="{% url 'administration' %}">Zarządzanie</a></li>
+
+                    </ul>
+              </li>
+
+          
+              <li class="nav-item">
+                <a class="nav-link dropdown-indicator" href="#sectionSlowniki" data-bs-toggle="collapse"
+                  aria-expanded="false" aria-controls="sectionSlowniki">
+                  <div class="d-flex align-items-center">
+                    <span class="nav-link-text ps-1">Słowniki</span>
+                  </div>
+                </a>
+                    <ul class="nav collapse" id="sectionSlowniki">
+                      <li class="nav-item"><a class="nav-link" href="{% url 'supplier_list' %}">Dostawcy</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'unit_list' %}">Jednostki</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'category_list' %}">Kategorie</a></li>
+                      <li class="nav-item"><a class="nav-link" href="{% url 'payment_methods_list' %}">Formy płatnosci</a></li>
+
+                    </ul>
+              </li>
+
+            </ul>
+
+            {% comment %} <!-- parent pages--><a class="nav-link" href="app/calendar.html" role="button">
+              <div class="d-flex align-items-center"><span class="nav-link-icon"><span
+                    class="fas fa-calendar-alt"></span></span><span class="nav-link-text ps-1">Dzienny Raport</span>
+              </div>
+            </a> {% endcomment %}
+            {% comment %} <!-- parent pages--><a class="nav-link" href="app/chat.html" role="button">
+              <div class="d-flex align-items-center"><span class="nav-link-icon"><span
+                    class="fas fa-shopping-cart"></span></span><span class="nav-link-text ps-1">Koszty</span>
+              </div>
+            </a> {% endcomment %}
+
+
+
+            </ul>
+
+            {% comment %} <!-- parent pages--><a class="nav-link" href="{% url 'dashboard' %}" role="button">
+              <div class="d-flex align-items-center"><span class="nav-link-icon"><span
+                    class="fab fa-trello"></span></span><span class="nav-link-text ps-1">Inne</span>
+              </div>
+            </a> {% endcomment %}
+
+            </ul>
+
+          </div>
+        </div>
+      </nav>
+
+      <div class="content">
+        <nav class="navbar navbar-light navbar-glass navbar-top navbar-expand">
+          <ul class="navbar-nav navbar-nav-icons ms-auto flex-row align-items-center">
+            <li class="nav-item">
+              <div class="dropdown theme-control-dropdown">
+                <a class="nav-link dropdown-toggle" id="themeSwitchDropdown" data-bs-toggle="dropdown"><span
+                    class="fas fa-sun"></span></a>
+                <div class="dropdown-menu dropdown-menu-end">
+                  <button class="dropdown-item" value="light" data-theme-control="theme">Jasny</button>
+                  <button class="dropdown-item" value="dark" data-theme-control="theme">Ciemny</button>
+                  <button class="dropdown-item" value="auto" data-theme-control="theme">Auto</button>
+                </div>
+              </div>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link" id="navbarDropdownUser" data-bs-toggle="dropdown">
+                <div class="avatar avatar-xl">
+                  <img class="rounded-circle" src="{% static 'img/team/3-thumb.png' %}" alt="User Avatar" />
+                </div>
+              </a>
+              <div class="dropdown-menu dropdown-menu-end">
+                {% comment %} <a class="dropdown-item" href="#!">Uwagi do apki</a> {% endcomment %}
+                <div class="dropdown-divider"></div>
+                {% comment %} <a class="dropdown-item" href="pages/user/settings.html">Ustawienia</a> {% endcomment %}
+                {% if user.is_authenticated %}
+                <a class="dropdown-item" href="{% url 'logoutaccount' %}">Wyloguj</a>
+                {% else %}
+                <a class="dropdown-item" href="{% url 'loginaccount' %}">Zaloguj</a>
+                {% endif %}
+              </div>
+            </li>
+          </ul>
+        </nav>
+
+        {% block content %}{% endblock %}
+
+        <footer class="footer">
+          <div class="row g-0 justify-content-between fs-10 mt-4 mb-3">
+            <div class="col-12 col-sm-auto text-center">Bar-Man | 2024</div>
+            <div class="col-12 col-sm-auto text-center">v1.01.0</div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </main>
+
+
+  <script src="{% static 'vendors/popper/popper.min.js' %}"></script>
+  <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
+  <script src="{% static 'vendors/anchorjs/anchor.min.js' %}"></script>
+  <script src="{% static 'vendors/is/is.min.js' %}"></script>
+  <script src="{% static 'vendors/echarts/echarts.min.js' %}"></script>
+  <script src="{% static 'vendors/fontawesome/all.min.js' %}"></script>
+  <script src="{% static 'vendors/lodash/lodash.min.js' %}"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+  <script src="{% static 'vendors/list.js/list.min.js' %}"></script>
+  <script src="{% static 'js/theme.js' %}"></script>
+</body>
+
+</html>

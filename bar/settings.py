@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'przychody.apps.PrzychodyConfig',
     'accounts.apps.AccountsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -58,7 +57,7 @@ ROOT_URLCONF = 'bar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'bar/templates/bar/'],    
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
