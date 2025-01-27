@@ -8,11 +8,11 @@ class Przychod(models.Model):
     terminal = models.DecimalField(max_digits=10, decimal_places=2)
     gotowka = models.DecimalField(max_digits=10, decimal_places=2)
     raport = models.DecimalField(max_digits=10, decimal_places=2)
-    uwagi= models.TextField()
-    
+    uwagi = models.TextField()
+
     class Meta:
         verbose_name_plural = "Przychody"
         verbose_name = "Przychód"
-        
+
     def __str__(self):
         return f"{self.dzien} - {self.terminal + self.gotowka} pln."

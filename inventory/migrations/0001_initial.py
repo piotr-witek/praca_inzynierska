@@ -9,84 +9,165 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='InventoryItem',
+            name="InventoryItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('quantity', models.DecimalField(decimal_places=2, default=1, max_digits=10)),
-                ('reorder_level', models.DecimalField(decimal_places=2, max_digits=10, null=True)),
-                ('expiration_date', models.DateField(default='1000-01-01')),
-                ('last_restock_date', models.DateTimeField(null=True)),
-                ('purchase_price', models.DecimalField(decimal_places=2, max_digits=10, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                (
+                    "quantity",
+                    models.DecimalField(decimal_places=2, default=1, max_digits=10),
+                ),
+                (
+                    "reorder_level",
+                    models.DecimalField(decimal_places=2, max_digits=10, null=True),
+                ),
+                ("expiration_date", models.DateField(default="1000-01-01")),
+                ("last_restock_date", models.DateTimeField(null=True)),
+                (
+                    "purchase_price",
+                    models.DecimalField(decimal_places=2, max_digits=10, null=True),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='ItemCategory',
+            name="ItemCategory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=20, unique=True)),
-                ('last_restock_date', models.DateTimeField(default=django.utils.timezone.now, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=20, unique=True)),
+                (
+                    "last_restock_date",
+                    models.DateTimeField(default=django.utils.timezone.now, null=True),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Supplier',
+            name="Supplier",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('address', models.CharField(blank=True, max_length=255, null=True)),
-                ('phone', models.CharField(blank=True, max_length=15, null=True)),
-                ('email', models.EmailField(blank=True, max_length=100, null=True)),
-                ('last_restock_date', models.DateTimeField(null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("address", models.CharField(blank=True, max_length=255, null=True)),
+                ("phone", models.CharField(blank=True, max_length=15, null=True)),
+                ("email", models.EmailField(blank=True, max_length=100, null=True)),
+                ("last_restock_date", models.DateTimeField(null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='UnitOfMeasurement',
+            name="UnitOfMeasurement",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=20, unique=True)),
-                ('last_restock_date', models.DateTimeField(default=django.utils.timezone.now, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=20, unique=True)),
+                (
+                    "last_restock_date",
+                    models.DateTimeField(default=django.utils.timezone.now, null=True),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Consumption',
+            name="Consumption",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.IntegerField()),
-                ('date', models.DateField(auto_now_add=True)),
-                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventory.inventoryitem')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.IntegerField()),
+                ("date", models.DateField(auto_now_add=True)),
+                (
+                    "item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="inventory.inventoryitem",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='inventoryitem',
-            name='category',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='inventory.itemcategory'),
+            model_name="inventoryitem",
+            name="category",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, to="inventory.itemcategory"
+            ),
         ),
         migrations.CreateModel(
-            name='Purchase',
+            name="Purchase",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.IntegerField()),
-                ('date', models.DateField(auto_now_add=True)),
-                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventory.inventoryitem')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.IntegerField()),
+                ("date", models.DateField(auto_now_add=True)),
+                (
+                    "item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="inventory.inventoryitem",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='inventoryitem',
-            name='supplier',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='inventory.supplier'),
+            model_name="inventoryitem",
+            name="supplier",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, to="inventory.supplier"
+            ),
         ),
         migrations.AddField(
-            model_name='inventoryitem',
-            name='unit',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='inventory.unitofmeasurement'),
+            model_name="inventoryitem",
+            name="unit",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                to="inventory.unitofmeasurement",
+            ),
         ),
     ]

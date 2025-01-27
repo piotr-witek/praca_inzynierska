@@ -6,20 +6,33 @@ from decimal import Decimal
 
 def load_test_data(apps, schema_editor):
 
-    ItemCategory = apps.get_model('inventory', 'ItemCategory')
-    UnitOfMeasurement = apps.get_model('inventory', 'UnitOfMeasurement')
-    Supplier = apps.get_model('inventory', 'Supplier')
-    InventoryItem = apps.get_model('inventory', 'InventoryItem')
+    ItemCategory = apps.get_model("inventory", "ItemCategory")
+    UnitOfMeasurement = apps.get_model("inventory", "UnitOfMeasurement")
+    Supplier = apps.get_model("inventory", "Supplier")
+    InventoryItem = apps.get_model("inventory", "InventoryItem")
 
-    category_drinks = ItemCategory.objects.create(name="Napoje", last_restock_date=now())
-    category_starters = ItemCategory.objects.create(name="Przystawki", last_restock_date=now())
-    category_main_dishes = ItemCategory.objects.create(name="Dania główne", last_restock_date=now())
-    category_desserts = ItemCategory.objects.create(name="Desery", last_restock_date=now())
+    category_drinks = ItemCategory.objects.create(
+        name="Napoje", last_restock_date=now()
+    )
+    category_starters = ItemCategory.objects.create(
+        name="Przystawki", last_restock_date=now()
+    )
+    category_main_dishes = ItemCategory.objects.create(
+        name="Dania główne", last_restock_date=now()
+    )
+    category_desserts = ItemCategory.objects.create(
+        name="Desery", last_restock_date=now()
+    )
 
-
-    unit_pieces = UnitOfMeasurement.objects.create(name="sztuki", last_restock_date=now())
-    unit_liters = UnitOfMeasurement.objects.create(name="litry", last_restock_date=now())
-    unit_kilograms = UnitOfMeasurement.objects.create(name="kilogramy", last_restock_date=now())
+    unit_pieces = UnitOfMeasurement.objects.create(
+        name="sztuki", last_restock_date=now()
+    )
+    unit_liters = UnitOfMeasurement.objects.create(
+        name="litry", last_restock_date=now()
+    )
+    unit_kilograms = UnitOfMeasurement.objects.create(
+        name="kilogramy", last_restock_date=now()
+    )
 
     supplier_abc = Supplier.objects.create(
         name="Hurtownia ABC",
@@ -36,7 +49,6 @@ def load_test_data(apps, schema_editor):
         last_restock_date=now(),
     )
 
- 
     InventoryItem.objects.create(
         name="Coca-Cola 1L",
         category=category_drinks,
@@ -86,7 +98,7 @@ def load_test_data(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0001_initial'),
+        ("inventory", "0001_initial"),
     ]
 
     operations = [

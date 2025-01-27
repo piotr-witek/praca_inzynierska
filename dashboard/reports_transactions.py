@@ -4,12 +4,15 @@ from django.http import HttpResponse
 
 from dashboard.models import SalesTransaction, SalesTransactionItem
 
+
 def generate_sales_transactions_csv(request, date_from=None, date_to=None):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="sales_transactions.csv"'
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="sales_transactions.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID Transakcji', 'Data', 'Kwota', 'Metoda Płatności', 'Zamówienie', 'Stolik'])
+    writer.writerow(
+        ["ID Transakcji", "Data", "Kwota", "Metoda Płatności", "Zamówienie", "Stolik"]
+    )
 
     transactions = SalesTransaction.objects.all()
     if date_from and date_to:
@@ -20,25 +23,34 @@ def generate_sales_transactions_csv(request, date_from=None, date_to=None):
         transactions = transactions.filter(transaction_date__lte=date_to)
 
     for transaction in transactions:
-        writer.writerow([
-            transaction.transaction_id,
-            transaction.transaction_date.strftime('%Y-%m-%d %H:%M:%S'),
-            transaction.total_amount,
-            transaction.payment_method.name,
-            transaction.order_id,
-            transaction.table_id
-        ])
+        writer.writerow(
+            [
+                transaction.transaction_id,
+                transaction.transaction_date.strftime("%Y-%m-%d %H:%M:%S"),
+                transaction.total_amount,
+                transaction.payment_method.name,
+                transaction.order_id,
+                transaction.table_id,
+            ]
+        )
     return response
 
 
 def generate_sales_transactions_xls(request, date_from=None, date_to=None, xlwt=None):
-    response = HttpResponse(content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="sales_transactions.xls"'
+    response = HttpResponse(content_type="application/vnd.ms-excel")
+    response["Content-Disposition"] = 'attachment; filename="sales_transactions.xls"'
 
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet("Transakcje Sprzedaży")
 
-    headers = ['ID Transakcji', 'Data', 'Kwota', 'Metoda Płatności', 'Zamówienie', 'Stolik']
+    headers = [
+        "ID Transakcji",
+        "Data",
+        "Kwota",
+        "Metoda Płatności",
+        "Zamówienie",
+        "Stolik",
+    ]
     for col_num, header in enumerate(headers):
         sheet.write(0, col_num, header)
 
@@ -52,7 +64,9 @@ def generate_sales_transactions_xls(request, date_from=None, date_to=None, xlwt=
 
     for row_num, transaction in enumerate(transactions, start=1):
         sheet.write(row_num, 0, transaction.transaction_id)
-        sheet.write(row_num, 1, transaction.transaction_date.strftime('%Y-%m-%d %H:%M:%S'))
+        sheet.write(
+            row_num, 1, transaction.transaction_date.strftime("%Y-%m-%d %H:%M:%S")
+        )
         sheet.write(row_num, 2, str(transaction.total_amount))
         sheet.write(row_num, 3, transaction.payment_method.name)
         sheet.write(row_num, 4, transaction.order_id)
@@ -61,48 +75,73 @@ def generate_sales_transactions_xls(request, date_from=None, date_to=None, xlwt=
     workbook.save(response)
     return response
 
+
 def generate_transaction_items_csv(request, date_from=None, date_to=None):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="transaction_items.csv"'
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="transaction_items.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['ID Transakcji', 'Nazwa Produktu', 'Kategoria', 'Ilość', 'Cena Zakupu', 'Cena Całkowita', 'Dostawca'])
+    writer.writerow(
+        [
+            "ID Transakcji",
+            "Nazwa Produktu",
+            "Kategoria",
+            "Ilość",
+            "Cena Zakupu",
+            "Cena Całkowita",
+            "Dostawca",
+        ]
+    )
 
-    items = SalesTransactionItem.objects.select_related('sales_transaction').all()
+    items = SalesTransactionItem.objects.select_related("sales_transaction").all()
     if date_from and date_to:
-        items = items.filter(sales_transaction__transaction_date__range=(date_from, date_to))
+        items = items.filter(
+            sales_transaction__transaction_date__range=(date_from, date_to)
+        )
     elif date_from:
         items = items.filter(sales_transaction__transaction_date__gte=date_from)
     elif date_to:
         items = items.filter(sales_transaction__transaction_date__lte=date_to)
 
     for item in items:
-        writer.writerow([
-            item.sales_transaction.transaction_id,
-            item.product_name,
-            item.product_category,
-            item.quantity,
-            item.product_purchase_price,
-            item.total_price,
-            item.product_supplier
-        ])
+        writer.writerow(
+            [
+                item.sales_transaction.transaction_id,
+                item.product_name,
+                item.product_category,
+                item.quantity,
+                item.product_purchase_price,
+                item.total_price,
+                item.product_supplier,
+            ]
+        )
     return response
 
 
 def generate_transaction_items_xls(request, date_from=None, date_to=None, xlwt=None):
-    response = HttpResponse(content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="transaction_items.xls"'
+    response = HttpResponse(content_type="application/vnd.ms-excel")
+    response["Content-Disposition"] = 'attachment; filename="transaction_items.xls"'
 
     workbook = xlwt.Workbook()
     sheet = workbook.add_sheet("Towary w Transakcjach")
 
-    headers = ['ID Transakcji', 'Nazwa Produktu', 'Kategoria', 'Ilość', 'Cena Zakupu', 'Cena Całkowita', 'Dostawca']
+    headers = [
+        "ID Transakcji",
+        "Nazwa Produktu",
+        "Kategoria",
+        "Ilość",
+        "Cena Zakupu",
+        "Cena Całkowita",
+        "Dostawca",
+    ]
     for col_num, header in enumerate(headers):
         sheet.write(0, col_num, header)
 
-    items = SalesTransactionItem.objects.select_related('sales_transaction').all()
+    items = SalesTransactionItem.objects.select_related("sales_transaction").all()
     if date_from and date_to:
-        items = items.filter(sales_transaction__transaction_date__range=(date_from, date_to))
+        items = items.filter(
+            sales_transaction__transaction_date__range=(date_from, date_to)
+        )
     elif date_from:
         items = items.filter(sales_transaction__transaction_date__gte=date_from)
     elif date_to:

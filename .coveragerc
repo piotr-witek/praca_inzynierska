@@ -1,0 +1,16 @@
+[run]
+source = accounts, inventory, dashboard  
+
+[report]
+omit =
+    */__init__.py
+    */migrations/*
+    */tests/*
+    */settings.py
+    */wsgi.py
+    */asgi.py
+precision = 2
+show_missing = True 
+
+[html]
+directory = coverage_html 

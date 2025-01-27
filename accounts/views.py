@@ -5,24 +5,27 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
+
 def loginaccount(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
             user = authenticate(request, username=username, password=password)
-            
+
             if user is not None:
                 login(request, user)
-                return redirect('dashboard')
+                return redirect("dashboard")
     else:
         form = CustomAuthenticationForm()
 
-    return render(request, 'loginaccount.html', {'form': form})
+    return render(request, "loginaccount.html", {"form": form})
+
 
 @login_required
 def logoutaccount(request):
     from django.contrib.auth import logout
+
     logout(request)
-    return redirect('loginaccount')
+    return redirect("loginaccount")
