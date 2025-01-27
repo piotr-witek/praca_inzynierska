@@ -4,6 +4,13 @@
 <div class="container">
     <h1 class="text-center my-4">Dodaj Zamówienie - Stolik {{ table.table_number }}</h1>
 
+    {% if error_message %}
+    <div class="alert alert-danger">
+        <ul>
+            <li>{{ error_message }}</li>
+        </ul>
+    </div>
+    {% endif %}
 
     <form method="POST" class="mb-3">
         {% csrf_token %}

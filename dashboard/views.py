@@ -150,195 +150,243 @@ def cancel_reservation(request, table_id):
     else:
         return HttpResponse("Błąd: Stolik nie jest zarezerwowany.", status=400)
 
-
 @login_required
 def add_order(request, table_id, order_id=None):
     table = Table.objects.get(id=table_id)
     categories = ItemCategory.objects.all()
     selected_category = None
     inventory_items = []
-    total_price = Decimal("0.00")
+    total_price = Decimal('0.00')
     order_created = False
-    cached_items = cache.get(f"order_{table_id}", [])
+    cached_items = cache.get(f'order_{table_id}', [])
 
     if order_id:
         order = OrderedProduct.objects.filter(order_id=order_id, table=table)
-        cached_items = [
-            {
-                "product": item.product,
-                "quantity": item.quantity,
-                "total_price": item.total_price,
-            }
-            for item in order
-        ]
-        total_price = sum(item["total_price"] for item in cached_items)
+        cached_items = [{'product': item.product, 'quantity': item.quantity, 'total_price': item.total_price, 'edit_mode': False} for item in order]
+        total_price = sum(item['total_price'] for item in cached_items)
         order_created = True
 
-    if request.method == "POST":
-
-        if "create_order" in request.POST and not order_created:
+    if request.method == 'POST':
+        if 'create_order' in request.POST and not order_created:
             if cached_items:
-                last_order = OrderedProduct.objects.order_by("-order_id").first()
+                last_order = OrderedProduct.objects.order_by('-order_id').first()
                 order_number = (last_order.order_id if last_order else 0) + 1
 
                 for item in cached_items:
                     OrderedProduct.objects.create(
                         order_id=order_number,
                         table=table,
-                        product=item["product"],
-                        quantity=item["quantity"],
-                        total_price=item["total_price"],
+                        product=item['product'],
+                        quantity=item['quantity'],
+                        total_price=item['total_price'],
                         created_at=timezone.now(),
                         is_processed=0,
-                        product_name=item["product"].name,
-                        product_category=item["product"].category.name,
-                        product_unit=item["product"].unit.name,
-                        product_purchase_price=item["product"].sales_price,
-                        product_supplier=item["product"].supplier.name,
+                        product_name=item['product'].name,
+                        product_category=item['product'].category.name,
+                        product_unit=item['product'].unit.name,
+                        product_purchase_price=item['product'].sales_price,
+                        product_supplier=item['product'].supplier.name
                     )
+               
+                    inventory_item = item['product']
+                    inventory_item.quantity -= item['quantity']
+                    inventory_item.save()
 
-                cache.delete(f"order_{table_id}")
+                cache.delete(f'order_{table_id}')
                 order_created = True
 
-            return redirect("add_order", table_id=table_id, order_id=order_number)
+            return redirect('add_order', table_id=table_id, order_id=order_number)
 
-        if "edit_order" in request.POST and order_created:
-            return redirect("edit_order", table_id=table_id, order_id=order_id)
+        if 'edit_order' in request.POST and order_created:
+            return redirect('edit_order', table_id=table_id, order_id=order_id)
 
-        category_id = request.POST.get("category")
+        category_id = request.POST.get('category')
         if category_id:
             selected_category = ItemCategory.objects.get(id=category_id)
             inventory_items = InventoryItem.objects.filter(category=selected_category)
 
         if not order_created:
-            item_id = request.POST.get("inventory_item")
-            quantity = request.POST.get("quantity")
+            item_id = request.POST.get('inventory_item')
+            quantity = request.POST.get('quantity')
             if item_id and quantity:
                 inventory_item = InventoryItem.objects.get(id=item_id)
                 quantity = Decimal(quantity)
+
+               
+                if inventory_item.quantity < quantity:
+                    return render(request, 'dashboard/add_order.html', {
+                        'table': table,
+                        'categories': categories,
+                        'inventory_items': inventory_items,
+                        'selected_category': selected_category,
+                        'cached_items': cached_items,
+                        'total_price': total_price,
+                        'order_created': order_created,
+                        'order_number': order_id if order_created else None,
+                        'error_message': f'Nie ma wystarczającej ilości {inventory_item.name} w magazynie. Dostępna ilość: {inventory_item.quantity} {inventory_item.unit}.'
+                    })
+
+              
                 total_item_price = inventory_item.sales_price * quantity
-                print(total_item_price)
-
-                existing_item = next(
-                    (
-                        item
-                        for item in cached_items
-                        if item["product"].id == inventory_item.id
-                    ),
-                    None,
-                )
+                existing_item = next((item for item in cached_items if item['product'].id == inventory_item.id), None)
                 if existing_item:
-                    existing_item["quantity"] += quantity
-                    existing_item["total_price"] = (
-                        inventory_item.sales_price * existing_item["quantity"]
-                    )
+                  
+                    existing_item['quantity'] += quantity
+                    existing_item['total_price'] = inventory_item.sales_price * existing_item['quantity']
                 else:
-                    cached_items.append(
-                        {
-                            "product": inventory_item,
-                            "quantity": quantity,
-                            "total_price": total_item_price,
-                        }
-                    )
-                cache.set(f"order_{table_id}", cached_items, timeout=None)
+                
+                    cached_items.append({
+                        'product': inventory_item,
+                        'quantity': quantity,
+                        'total_price': total_item_price,
+                        'edit_mode': False  
+                    })
 
-        total_price = sum(item["total_price"] for item in cached_items)
+           
+                inventory_item.quantity -= quantity
+                inventory_item.save()
 
-        if "save_item" in request.POST:
-            product_id = request.POST.get("save_item")
-            new_quantity = Decimal(request.POST.get("new_quantity"))
+               
+                cache.set(f'order_{table_id}', cached_items, timeout=None)
+
+        total_price = sum(item['total_price'] for item in cached_items)
+
+        if 'remove_item' in request.POST:
+            product_id = request.POST.get('remove_item')
             for item in cached_items:
-                if str(item["product"].id) == product_id:
-                    item["quantity"] = new_quantity
-                    item["total_price"] = new_quantity * item["product"].sales_price
-                    item["edit_mode"] = False
-                    break
+                if str(item['product'].id) == product_id:
+                 
+                    inventory_item = item['product']
+                    inventory_item.quantity += item['quantity']
+                    inventory_item.save()
+            cached_items = [item for item in cached_items if str(item['product'].id) != product_id]
+            cache.set(f'order_{table_id}', cached_items, timeout=None)
+            total_price = sum(item['total_price'] for item in cached_items)
 
-            total_price = sum(item["total_price"] for item in cached_items)
-
-            cache.set(f"order_{table_id}", cached_items, timeout=None)
-
-            return render(
-                request,
-                "dashboard/add_order.html",
-                {
-                    "table": table,
-                    "categories": categories,
-                    "inventory_items": inventory_items,
-                    "selected_category": selected_category,
-                    "cached_items": cached_items,
-                    "total_price": total_price,
-                    "order_created": order_created,
-                    "order_number": order_id if order_created else None,
-                },
-            )
-
-        if "remove_item" in request.POST:
-            product_id = request.POST.get("remove_item")
-            cached_items = [
-                item for item in cached_items if str(item["product"].id) != product_id
-            ]
-            cache.set(f"order_{table_id}", cached_items, timeout=None)
-            total_price = sum(item["total_price"] for item in cached_items)
-
-        if "edit_item" in request.POST and not order_created:
-            product_id = request.POST.get("edit_item")
+        if 'edit_item' in request.POST:
+            product_id = request.POST.get('edit_item')
             for item in cached_items:
-                if str(item["product"].id) == product_id:
-                    item["edit_mode"] = True
-            cache.set(f"order_{table_id}", cached_items, timeout=None)
+                if str(item['product'].id) == product_id:
+                    item['edit_mode'] = True
+            cache.set(f'order_{table_id}', cached_items, timeout=None)
+
+        if 'save_item' in request.POST:
+            product_id = request.POST.get('save_item')
+            new_quantity = Decimal(request.POST.get('new_quantity'))
+
+          
+            inventory_item = next(item for item in cached_items if str(item['product'].id) == product_id)['product']
+            if new_quantity > inventory_item.quantity:
+                return render(request, 'dashboard/add_order.html', {
+                    'table': table,
+                    'categories': categories,
+                    'inventory_items': inventory_items,
+                    'selected_category': selected_category,
+                    'cached_items': cached_items,
+                    'total_price': total_price,
+                    'order_created': order_created,
+                    'order_number': order_id if order_created else None,
+                    'error_message': f'Nie ma wystarczającej ilości {inventory_item.name} w magazynie. Dostępna ilość: {inventory_item.quantity} {inventory_item.unit}.'
+                })
+
+          
+            for item in cached_items:
+                if str(item['product'].id) == product_id:
+                    old_quantity = item['quantity']
+                    item['quantity'] = new_quantity
+                    item['total_price'] = item['product'].sales_price * new_quantity
+                    item['edit_mode'] = False  
+
+                
+                    quantity_difference = new_quantity - old_quantity
+
+                   
+                    inventory_item.quantity -= quantity_difference 
+                    inventory_item.save()
+
+            
+            total_price = sum(item['total_price'] for item in cached_items)
+
+          
+            cache.set(f'order_{table_id}', cached_items, timeout=None)
 
     return render(
         request,
-        "dashboard/add_order.html",
+        'dashboard/add_order.html',
         {
-            "table": table,
-            "categories": categories,
-            "inventory_items": inventory_items,
-            "selected_category": selected_category,
-            "cached_items": cached_items,
-            "total_price": total_price,
-            "order_created": order_created,
-            "order_number": order_id if order_created else None,
-        },
+            'table': table,
+            'categories': categories,
+            'inventory_items': inventory_items,
+            'selected_category': selected_category,
+            'cached_items': cached_items,
+            'total_price': total_price,
+            'order_created': order_created,
+            'order_number': order_id if order_created else None
+        }
     )
-
-
 @login_required
 def edit_order(request, table_id, order_id):
     table = Table.objects.get(id=table_id)
     order_items = OrderedProduct.objects.filter(order_id=order_id, table=table)
     total_price = sum(item.total_price for item in order_items)
 
-    if request.method == "POST":
+    if request.method == 'POST':
+        error_messages = []  
 
         for item in order_items:
-            new_quantity = request.POST.get(f"quantity_{item.id}")
+            new_quantity = request.POST.get(f'quantity_{item.id}')
             if new_quantity:
-                item.quantity = Decimal(new_quantity)
-                item.total_price = item.product_purchase_price * item.quantity
+                new_quantity = Decimal(new_quantity)
+                inventory_item = item.product
+
+               
+                available_quantity = inventory_item.quantity + item.quantity  
+
+             
+                if new_quantity > available_quantity:
+                    error_messages.append(
+                        f'Nie ma wystarczającej ilości produktu: {inventory_item.name} w magazynie. '
+                        f'Aktualnie dostępna ilość: {available_quantity - item.quantity} {item.product_unit}.'
+                    )
+                    continue
+
+               
+                inventory_item.quantity += item.quantity 
+                inventory_item.quantity -= new_quantity 
+                inventory_item.save()
+
+              
+                item.quantity = new_quantity
+                item.total_price = inventory_item.sales_price * new_quantity
                 item.save()
 
-        remove_item_id = request.POST.get("remove_item")
+        remove_item_id = request.POST.get('remove_item')
         if remove_item_id:
-            item_to_remove = get_object_or_404(
-                OrderedProduct, id=remove_item_id, order_id=order_id, table=table
-            )
+            item_to_remove = get_object_or_404(OrderedProduct, id=remove_item_id, order_id=order_id, table=table)
+            inventory_item = item_to_remove.product
+
+           
+            inventory_item.quantity += item_to_remove.quantity
+            inventory_item.save()
             item_to_remove.delete()
 
-        return redirect("edit_order", table_id=table_id, order_id=order_id)
+        if error_messages:
+            return render(request, 'dashboard/edit_order.html', {
+                'table': table,
+                'order_items': order_items,
+                'total_price': total_price,
+                'order_id': order_id,
+                'error_messages': error_messages  
+            })
 
-    return render(
-        request,
-        "dashboard/edit_order.html",
-        {
-            "table": table,
-            "order_items": order_items,
-            "total_price": total_price,
-            "order_id": order_id,
-        },
-    )
+        return redirect('edit_order', table_id=table_id, order_id=order_id)
 
+    return render(request, 'dashboard/edit_order.html', {
+        'table': table,
+        'order_items': order_items,
+        'total_price': total_price,
+        'order_id': order_id
+    })
 
 @login_required
 def create_transaction(request, table_id, order_id):
