@@ -1,0 +1,171 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en-US" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>RestroBar Hub | Web App Template</title>
+
+  <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicons/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicons/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicons/favicon-16x16.png' %}">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicons/favicon.ico' %}">
+  <link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
+  <meta name="msapplication-TileImage" content="{% static 'img/favicons/mstile-150x150.png' %}">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Stylesheets -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap"
+    rel="stylesheet">
+  <link href="{% static 'vendors/simplebar/simplebar.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/theme-rtl.css' %}" rel="stylesheet" id="style-rtl">
+  <link href="{% static 'css/theme.css' %}" rel="stylesheet" id="style-default">
+  <link href="{% static 'css/user-rtl.css' %}" rel="stylesheet" id="user-style-rtl">
+  <link href="{% static 'css/user.css' %}" rel="stylesheet" id="user-style-default">
+
+  <style>
+  
+    .center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+  
+    .logo {
+      margin-bottom: 20px;
+    }
+  
+    .login-form {
+      width: 100%;
+      max-width: 500px; 
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background-color: #fff;
+      text-align: center;
+    }
+  
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: block;
+    }
+  
+    .form-control {
+      width: 100%; 
+      padding: 12px; 
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  
+    .invalid-feedback {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      white-space: normal; 
+    }
+  
+    .btn {
+      width: 100%;
+      padding: 12px; 
+      font-size: 16px;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  
+  </style>
+</head>
+
+<body>
+  <main class="main" id="top">
+    <div class="container" data-layout="container">
+      <div class="content center-container">
+
+        <img class="me-2 logo" src="{% static 'img/icons/spot-illustrations/main_logo.png' %}" alt="Logo" width="300" />
+
+
+        <form method="post" class="login-form">
+          {% csrf_token %}
+
+     
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              <ul>
+                {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+          
+     
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label">Nazwa użytkownika</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.username.errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+   
+          <div class="mb-3">
+            <label for="{{ form.password.id_for_label }}" class="form-label">Hasło</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.password.errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+       
+          <button type="submit" class="btn btn-primary w-100">Zaloguj się</button>
+        </form>
+
+        <footer class="footer mt-4">
+          <div class="row g-0 justify-content-between fs-10 mt-4 mb-3">
+            <div class="col-12 col-sm-auto text-center">RestroBar Hub | 2025</div>
+            <div class="col-12 col-sm-auto text-center">v2.00.0</div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </main>
+
+
+  <script src="{% static 'vendors/popper/popper.min.js' %}"></script>
+  <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
+  <script src="{% static 'vendors/anchorjs/anchor.min.js' %}"></script>
+  <script src="{% static 'vendors/is/is.min.js' %}"></script>
+  <script src="{% static 'vendors/echarts/echarts.min.js' %}"></script>
+  <script src="{% static 'vendors/fontawesome/all.min.js' %}"></script>
+  <script src="{% static 'vendors/lodash/lodash.min.js' %}"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+  <script src="{% static 'vendors/list.js/list.min.js' %}"></script>
+  <script src="{% static 'js/theme.js' %}"></script>
+</body>
+
+</html>
