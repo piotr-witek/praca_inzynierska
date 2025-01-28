@@ -1,35 +1,42 @@
 {% extends 'base.html' %}
 {% load static %}
-<head>
-    <title>Rezerwacja Stolika</title>
-</head>
+<!DOCTYPE html>
 {% block content %}
-<div class="container">
-    <h1>Rezerwacja Stolika {{ table.table_number }}</h1>
-    <div class="dashboard" id="dashboard">
-        <div class="table" id="table-{{ table.id }}">
-            <p>Stolik {{ table.table_number }}</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezerwacja stolika</title>
+    <link rel="stylesheet" href="{% static 'css/reserve_table.css' %}">
+</head>
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Rezerwacja stolika</h1>
+
+    <div class="dashboard d-flex justify-content-center">
+        <div class="table-card shadow-lg p-4 rounded" id="table-{{ table.id }}" style="width: 100%; max-width: 600px;">
+            <h4 class="mb-3">Stolik {{ table.table_number }}</h4>
 
             {% if table.is_reserved %}
-                <p>Rezerwacja: {{ table.reservation_date|date:"d-m-Y H:i" }}</p>
-                <a href="{% url 'cancel_reservation' table.id %}" class="btn btn-danger">Anuluj Rezerwację</a>
+                <div class="alert alert-info">
+                    <p>Rezerwacja: {{ table.reservation_date|date:"d-m-Y H:i" }}</p>
+                    <a href="{% url 'cancel_reservation' table.id %}" class="btn btn-danger btn-block">Anuluj Rezerwację</a>
+                </div>
             {% else %}
                 <form method="POST" action="{% url 'reserve_table' table.id %}">
                     {% csrf_token %}
                     {% if show_date_form %}
-                     
-                        <label for="reservation_date">Data rezerwacji:</label>
-                        <input type="datetime-local" id="reservation_date" name="reservation_date" min="{{ current_datetime }}">
-                        <button type="submit" name="reserve" class="btn btn-primary">Zarezerwuj</button>
+                        <div class="form-group">
+                            <label for="reservation_date">Data rezerwacji:</label>
+                            <input type="datetime-local" id="reservation_date" name="reservation_date" class="form-control" min="{{ current_datetime }}">
+                        </div>
+                        <button type="submit" name="reserve" class="btn btn-success btn-block">Zarezerwuj</button>
                     {% else %}
-                    
-                        <button type="submit" name="show_form" class="btn btn-primary">Zarezerwuj</button>
+                        <button type="submit" name="show_form" class="btn btn-primary btn-block">Zarezerwuj</button>
                     {% endif %}
                 </form>
 
-              
                 {% if error_message %}
-                    <div class="alert alert-danger" role="alert">
+                    <div class="alert alert-danger mt-3">
                         {{ error_message }}
                     </div>
                 {% endif %}
@@ -37,4 +44,6 @@
         </div>
     </div>
 </div>
+</body>
+</html>
 {% endblock %}

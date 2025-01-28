@@ -365,13 +365,6 @@ def create_transaction(request, table_id, order_id):
         order_id=order_id, table__table_number=table_id, is_processed=0
     )
 
-    if not order_items.exists():
-        return render(
-            request,
-            "error.html",
-            {"message": "Nie znaleziono zamówienia do przetworzenia."},
-        )
-
     if request.method == "POST":
 
         payment_method_id = request.POST.get("payment_method")
@@ -452,6 +445,9 @@ def transaction_list(request):
             payment_method__id=request.GET["payment_method"]
         )
 
+    if "order_id" in request.GET and request.GET["order_id"]:
+        transactions = transactions.filter(order_id=request.GET["order_id"])
+
     if "table_id" in request.GET and request.GET["table_id"]:
         transactions = transactions.filter(table_id=request.GET["table_id"])
 
@@ -461,7 +457,15 @@ def transaction_list(request):
         elif request.GET["is_completed"] == "false":
             transactions = transactions.filter(is_completed=False)
 
-    paginator = Paginator(transactions, 50)
+    sort_field = request.GET.get("sort", "transaction_id")
+    sort_order = request.GET.get("order", "desc")
+
+    if sort_order == "desc":
+        sort_field = "-" + sort_field
+
+    transactions = transactions.order_by(sort_field)
+
+    paginator = Paginator(transactions, 20)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -471,6 +475,8 @@ def transaction_list(request):
         {
             "transactions": page_obj,
             "payment_methods": payment_methods,
+            "current_sort_field": sort_field,
+            "current_sort_order": sort_order,
         },
     )
 
@@ -539,7 +545,16 @@ def data_visualization_transaction(request):
 
 
 @login_required
-def generate_average_transaction_per_table(start_date, end_date):
+def generate_average_transaction_per_table(request):
+    start_date = request.POST.get("start_date")
+    end_date = request.POST.get("end_date")
+
+    try:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return HttpResponse("Nieprawidłowy format daty.", status=400)
+
     data = []
     transactions = SalesTransaction.objects.filter(
         transaction_date__range=[start_date, end_date]
@@ -581,7 +596,10 @@ def generate_average_transaction_per_table(start_date, end_date):
 
     plt.xlabel("Stoliki", fontsize=14)
     plt.ylabel("Średnia Kwota Transakcji (PLN)", fontsize=14)
-    plt.title("Średnia Kwota Transakcji na Stolik", fontsize=16)
+    plt.title(
+        f"Średnia Kwota Transakcji na Stolik ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        fontsize=16,
+    )
     plt.xticks(rotation=45, ha="right", fontsize=12)
     plt.yticks(fontsize=12)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
@@ -595,7 +613,16 @@ def generate_average_transaction_per_table(start_date, end_date):
 
 
 @login_required
-def generate_average_transaction_per_payment_method(start_date, end_date):
+def generate_average_transaction_per_payment_method(request):
+    start_date = request.POST.get("start_date")
+    end_date = request.POST.get("end_date")
+
+    try:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return HttpResponse("Nieprawidłowy format daty.", status=400)
+
     data = []
     transactions = SalesTransaction.objects.filter(
         transaction_date__range=[start_date, end_date]
@@ -637,7 +664,10 @@ def generate_average_transaction_per_payment_method(start_date, end_date):
 
     plt.xlabel("Metody Płatności", fontsize=14)
     plt.ylabel("Średnia Kwota Transakcji (PLN)", fontsize=14)
-    plt.title("Średnia Kwota Transakcji na Metodę Płatności", fontsize=16)
+    plt.title(
+        f"Średnia Kwota Transakcji na Metodę Płatności ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        fontsize=16,
+    )
     plt.xticks(rotation=45, ha="right", fontsize=12)
     plt.yticks(fontsize=12)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
@@ -651,7 +681,16 @@ def generate_average_transaction_per_payment_method(start_date, end_date):
 
 
 @login_required
-def generate_total_transaction_per_table(start_date, end_date):
+def generate_total_transaction_per_table(request):
+    start_date = request.POST.get("start_date")
+    end_date = request.POST.get("end_date")
+
+    try:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return HttpResponse("Nieprawidłowy format daty.", status=400)
+
     data = []
     transactions = SalesTransaction.objects.filter(
         transaction_date__range=[start_date, end_date]
@@ -693,7 +732,10 @@ def generate_total_transaction_per_table(start_date, end_date):
 
     plt.xlabel("Stoliki", fontsize=14)
     plt.ylabel("Suma Kwoty Transakcji (PLN)", fontsize=14)
-    plt.title("Suma Kwoty Transakcji na Stolik", fontsize=16)
+    plt.title(
+        f"Suma Kwoty Transakcji na Stolik ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        fontsize=16,
+    )
     plt.xticks(rotation=45, ha="right", fontsize=12)
     plt.yticks(fontsize=12)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
@@ -707,7 +749,16 @@ def generate_total_transaction_per_table(start_date, end_date):
 
 
 @login_required
-def generate_total_transaction_per_payment_method(start_date, end_date):
+def generate_total_transaction_per_payment_method(request):
+    start_date = request.POST.get("start_date")
+    end_date = request.POST.get("end_date")
+
+    try:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return HttpResponse("Nieprawidłowy format daty.", status=400)
+
     data = []
     transactions = SalesTransaction.objects.filter(
         transaction_date__range=[start_date, end_date]
@@ -749,7 +800,10 @@ def generate_total_transaction_per_payment_method(start_date, end_date):
 
     plt.xlabel("Metody Płatności", fontsize=14)
     plt.ylabel("Suma Kwoty Transakcji (PLN)", fontsize=14)
-    plt.title("Suma Kwoty Transakcji na Metodę Płatności", fontsize=16)
+    plt.title(
+        f"Suma Kwoty Transakcji na Metodę Płatności ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        fontsize=16,
+    )
     plt.xticks(rotation=45, ha="right", fontsize=12)
     plt.yticks(fontsize=12)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
@@ -773,7 +827,7 @@ def download_average_transaction_per_table(request):
     except ValueError:
         return HttpResponse("Nieprawidłowy format daty.", status=400)
 
-    buf, error_message = generate_average_transaction_per_table(start_date, end_date)
+    buf, error_message = generate_average_transaction_per_table(request)
     if buf is None:
         return HttpResponse(error_message, status=404)
 
@@ -795,9 +849,7 @@ def download_average_transaction_per_payment_method(request):
     except ValueError:
         return HttpResponse("Nieprawidłowy format daty.", status=400)
 
-    buf, error_message = generate_average_transaction_per_payment_method(
-        start_date, end_date
-    )
+    buf, error_message = generate_average_transaction_per_payment_method(request)
     if buf is None:
         return HttpResponse(error_message, status=404)
 
@@ -819,7 +871,7 @@ def download_total_transaction_per_table(request):
     except ValueError:
         return HttpResponse("Nieprawidłowy format daty.", status=400)
 
-    buf, error_message = generate_total_transaction_per_table(start_date, end_date)
+    buf, error_message = generate_total_transaction_per_table(request)
     if buf is None:
         return HttpResponse(error_message, status=404)
 
@@ -841,9 +893,7 @@ def download_total_transaction_per_payment_method(request):
     except ValueError:
         return HttpResponse("Nieprawidłowy format daty.", status=400)
 
-    buf, error_message = generate_total_transaction_per_payment_method(
-        start_date, end_date
-    )
+    buf, error_message = generate_total_transaction_per_payment_method(request)
     if buf is None:
         return HttpResponse(error_message, status=404)
 

@@ -19,7 +19,6 @@
 
     <form method="GET" action="{% url 'transaction_list' %}">
         <div>
-            <!-- Przycisk do pokazywania/ukrywania filtrów -->
             <button type="button" onclick="toggleFilters()">Pokaż filtry</button>
         </div>
 
@@ -66,19 +65,16 @@
                 </select>
             </div>
 
-            <!-- Przyciski filtrów teraz wewnątrz .filter-container -->
             <button type="submit">Filtruj</button>
             <button type="button" onclick="clearFilters()">Usuń filtry</button>
         </div>
     </form>
 
     <script>
-        // Funkcja do przełączania widoczności filtrów
         function toggleFilters() {
             var filterContainer = document.querySelector('.filter-container');
             var button = document.querySelector('button[type="button"]');
 
-            // Przełącz widoczność filtrów
             if (filterContainer.style.display === 'none' || filterContainer.style.display === '') {
                 filterContainer.style.display = 'block';
                 button.textContent = 'Ukryj filtry';
@@ -88,7 +84,6 @@
             }
         }
 
-        // Funkcja do czyszczenia filtrów
         function clearFilters() {
             document.getElementById('transaction_id').value = '';
             document.getElementById('transaction_date_start').value = '';
@@ -99,28 +94,34 @@
             window.location.href = "{% url 'transaction_list' %}";
         }
 
-        // Funkcja do przejścia do szczegółów transakcji
         function goToTransactionDetails(transactionId) {
-            window.location.href = "{% url 'transaction_details' 0 %}".replace('0', transactionId);
+        
+            var queryParams = new URLSearchParams(window.location.search);
+            queryParams.set('transaction_id', transactionId);
+
+            
+            window.location.href = "{% url 'transaction_details' '0' %}".replace('0', transactionId) + '?' + queryParams.toString();
         }
     </script>
 
     <table id="transaction-table">
         <thead>
             <tr>
-                <th>Numer transakcji</th>
-                <th>Data Transakcji</th>
-                <th>Kwota</th>
-                <th>Płatności</th>
-                <th>Numer zamówienia</th>
-                <th>Numer stolika</th>
-                <th>Status</th>
+                <th><a href="?sort=transaction_id&order={% if current_sort_field == 'transaction_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer transakcji</a></th>
+                <th><a href="?sort=transaction_date&order={% if current_sort_field == 'transaction_date' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Data Transakcji</a></th>
+                <th><a href="?sort=total_amount&order={% if current_sort_field == 'total_amount' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Kwota</a></th>
+                <th><a href="?sort=payment_method__name&order={% if current_sort_field == 'payment_method__name' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Metoda płatności</a></th>
+                <th><a href="?sort=order_id&order={% if current_sort_field == 'order_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer zamówienia</a></th>
+                <th><a href="?sort=table_id&order={% if current_sort_field == 'table_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer stolika</a></th>
+                <th><a href="?sort=is_completed&order={% if current_sort_field == 'is_completed' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Status</a></th>
             </tr>
         </thead>
         <tbody>
             {% for transaction in transactions %}
-                <tr class="transaction-row" onclick="goToTransactionDetails({{ transaction.id }})">
-                    <td>{{ transaction.transaction_id }}</td>
+                <tr class="transaction-row" onclick="window.location.href='{% url 'transaction_details' transaction.id %}?{{ request.GET.urlencode }}'">
+                    <td>
+                        {{ transaction.transaction_id }}
+                    </td>
                     <td>{{ transaction.transaction_date|date:"d.m.Y H:i" }}</td>
                     <td>{{ transaction.total_amount }}</td>
                     <td>{{ transaction.payment_method.name }}</td>

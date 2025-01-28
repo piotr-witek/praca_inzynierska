@@ -1,0 +1,44 @@
+
+form {
+    margin-bottom: 30px;
+}
+
+.list-group-item {
+    font-size: 1.1rem;
+    padding: 15px;
+}
+
+.list-group-item .btn {
+    font-size: 0.9rem;
+}
+
+
+h2, h3 {
+    color: #333;
+    font-weight: bold;
+
+}
+
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+
+h3 strong {
+    color: #28a745;
+    font-size: 1.3rem;
+    
+}
+

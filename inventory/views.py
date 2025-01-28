@@ -83,7 +83,6 @@ def add_consumption(request):
 
 @login_required
 def item_list(request):
-
     items = InventoryItem.objects.all()
 
     categories = ItemCategory.objects.all()
@@ -108,7 +107,15 @@ def item_list(request):
     if "expiration_date_end" in request.GET and request.GET["expiration_date_end"]:
         items = items.filter(expiration_date__lte=request.GET["expiration_date_end"])
 
-    paginator = Paginator(items, 50)
+    sort_field = request.GET.get("sort", "id")
+    sort_order = request.GET.get("order", "desc")
+
+    if sort_order == "desc":
+        sort_field = "-" + sort_field
+
+    items = items.order_by(sort_field)
+
+    paginator = Paginator(items, 20)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -120,6 +127,8 @@ def item_list(request):
             "categories": categories,
             "suppliers": suppliers,
             "units": units,
+            "sort_field": sort_field,
+            "sort_order": sort_order,
         },
     )
 
@@ -251,14 +260,18 @@ def edit_product(request):
         form = ProductFormEdit(request.POST, instance=product)
 
         if form.is_valid():
-
             product.last_restock_date = timezone.now()
-
             form.save()
             messages.success(request, "Produkt został zaktualizowany pomyślnie!")
             return redirect("edit_product")
         else:
+
             messages.error(request, "Wystąpił błąd podczas aktualizacji produktu.")
+            return render(
+                request,
+                "inventory/edit_product.html",
+                {"form": form, "product": product, "searched": True},
+            )
 
     if form is None:
         form = ProductFormEdit()

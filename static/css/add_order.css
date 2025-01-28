@@ -1,0 +1,36 @@
+.container_add_order {
+    max-width: 900px;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.alert-danger {
+    border-left: 4px solid #dc3545;
+}
+
+.alert-success {
+    border-left: 4px solid #28a745;
+}
+
+.btn-lg {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}
+
+.list-group-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+}
+
+.list-group-item:hover {
+    background-color: #f1f1f1;
+}
+
+form-inline .form-group {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}

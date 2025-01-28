@@ -21,7 +21,6 @@
     margin-top: 30px;
 }
 
-/* Informacje o transakcji */
 .transaction-info {
     font-size: 1.1rem;
     margin: 10px 0;
@@ -31,7 +30,7 @@
     color: #2c3e50;
 }
 
-/* Produkty */
+
 .products-list {
     list-style-type: none;
     padding: 0;
@@ -47,14 +46,14 @@
     font-size: 1.1rem;
     color: #333;
     transition: background-color 0.3s ease;
-    cursor: pointer; /* Dodanie kursora ręki */
+    cursor: pointer; 
 }
 
 .product-item:hover {
     background-color: #dfe6e9;
 }
 
-/* Link do powrotu */
+
 .return-link {
     display: inline-block;
     margin-top: 30px;
@@ -76,7 +75,7 @@
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5);
 }
 
-/* Responsywność */
+
 @media screen and (max-width: 768px) {
     .container {
         width: 95%;

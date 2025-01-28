@@ -1,0 +1,30 @@
+.container_create_transaction {
+    max-width: 800px;
+    padding: 20px;
+}
+
+.alert-info {
+    background-color: #f0f8ff;
+    border-color: #cce7ff;
+}
+
+.list-group-item {
+    background-color: #f8f9fa;
+    border-color: #ddd;
+}
+
+.list-group-item:hover {
+    background-color: #f1f1f1;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 15px 30px;
+    font-size: 16px;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}

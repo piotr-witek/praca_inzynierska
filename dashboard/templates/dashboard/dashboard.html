@@ -1,17 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+{% block content %}
 <head>
     <title>Zarządzanie</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-{% block content %}
+
 <style>
     .dashboard {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         gap: 20px;
+        margin-top: 10%;
+
     }
 
     .table {
@@ -74,6 +77,10 @@
         cursor: not-allowed;
         pointer-events: none;
     }
+    h1 {
+        text-align:center;
+    }
+
 </style>
 
 <script>
@@ -84,8 +91,9 @@
     }
 </script>
 
+<body>
 <div class="container">
-    <h1>Zarządzanie Stolikami</h1>
+    <h1>Zarządzanie stolikami</h1>
     <div class="dashboard" id="dashboard">
         {% for table in tables %}
         <div class="table" id="table-{{ table.id }}" 
@@ -157,4 +165,8 @@
     </div>
 </div>
 
+</body>
+</html>
 {% endblock %}
+
+

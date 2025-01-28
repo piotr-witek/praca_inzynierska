@@ -27,7 +27,8 @@
             {% endfor %}
         </ul>
 
-        <a href="{% url 'transaction_list' %}" class="return-link">Powrót do listy transakcji</a>
+        <a href="{% url 'transaction_list' %}?{{ request.GET.urlencode }}" class="return-link">Powrót do listy transakcji</a>
+
 
       
         <div id="product-details" style="display: none;">

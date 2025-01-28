@@ -1,0 +1,45 @@
+
+.table-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.table-card:hover {
+    transform: translateY(-5px); 
+}
+
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+
+@media (max-width: 767px) {
+    .table-card {
+        padding: 15px;
+        margin-top: 10px;
+    }
+
+    .btn-block {
+        width: auto;
+    }
+}

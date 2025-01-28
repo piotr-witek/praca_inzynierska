@@ -1,4 +1,4 @@
-/* Ogólne style dla szczegółów */
+
 .container_details {
     width: 80%;
     margin: 0 auto;
@@ -8,7 +8,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Nagłówki */
+
 .product-header {
     font-size: 2.5rem;
     color: #2c3e50;
@@ -16,7 +16,7 @@
     text-align: center;
 }
 
-/* Informacje o produkcie */
+
 .product-info {
     font-size: 1.2rem;
     margin: 15px 0;
@@ -26,7 +26,7 @@
     color: #2c3e50;
 }
 
-/* Link do powrotu */
+
 .return-link {
     display: inline-block;
     margin-top: 30px;
@@ -48,7 +48,7 @@
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5);
 }
 
-/* Responsywność */
+
 @media screen and (max-width: 768px) {
     .container_details {
         width: 95%;

@@ -1,8 +1,17 @@
 {% extends 'base.html' %}
-
+{% load static %}
+<!DOCTYPE html>
 {% block content %}
-<div class="container">
-    <h1 class="text-center my-4">Edytuj Zamówienie - Stolik {{ table.table_number }}</h1>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edycja zamówienia</title>
+    <link rel="stylesheet" href="{% static 'css/edit_order.csss' %}">
+</head>
+
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Edycja zamówienia - stolik {{ table.table_number }}</h1>
 
     {% if error_messages %}
     <div class="alert alert-danger">
@@ -14,18 +23,20 @@
     </div>
     {% endif %}
 
-    <h2>Produkty w zamówieniu:</h2>
-    <form method="POST" class="mb-3">
+    <h2 class="my-4">Produkty w zamówieniu:</h2>
+    <form method="POST" class="mb-4">
         {% csrf_token %}
         <ul class="list-group">
             {% for item in order_items %}
-            <li class="list-group-item">
-                {{ item.product.name }} - 
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ item.product.name }}</span> - 
                 <form method="POST" class="d-inline">
                     {% csrf_token %}
-                    <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1" required> {{ item.product.unit }}
-                    <button type="submit" class="btn btn-primary btn-sm ml-2">Zapisz</button>
-                    <span class="text-muted">Dostępne w magazynie: {{ item.product.quantity }} {{ item.product.unit }}</span>
+                    <div class="d-flex align-items-center">
+                        <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1" required class="form-control w-auto mr-2" style="max-width: 100px;">
+                        <button type="submit" class="btn btn-primary btn-sm">Zapisz</button>
+                    </div>
+                    <span class="text-muted ml-3">Dostępne w magazynie: {{ item.product.quantity }} {{ item.product.unit }}</span>
                     <input type="hidden" name="edit_item_id" value="{{ item.id }}">
                 </form>
             </li>
@@ -33,25 +44,30 @@
         </ul>
     </form>
 
-    <h2 class="mt-4">Usuń Produkt</h2>
-    <form method="POST">
+    <h2 class="mt-5">Usuń produkt</h2>
+    <form method="POST" class="mb-4">
         {% csrf_token %}
         <ul class="list-group">
             {% for item in order_items %}
-            <li class="list-group-item">
-                {{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN
-
-                <button type="submit" name="remove_item" value="{{ item.id }}" class="btn btn-danger btn-sm float-right ml-2">Usuń</button>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN</span>
+                <button type="submit" name="remove_item" value="{{ item.id }}" class="btn btn-danger btn-sm">Usuń</button>
             </li>
             {% endfor %}
         </ul>
     </form>
-    <h3 class="mt-4">Łączna cena: {{ total_price }} PLN</h3>
 
-    {% if order_items %}
-        <a href="{% url 'add_order' table_id=table.id order_id=order_id %}" class="btn btn-secondary mt-4">Powrót do zamówienia</a>
-    {% else %}
-        <a href="{% url 'add_order' table_id=table.id %}" class="btn btn-secondary mt-4">Powrót do zamówienia</a>
-    {% endif %}
+    <h3 class="cost">Łączna cena: <strong>{{ total_price }} PLN</strong></h3>
+
+    <div class="cost">
+        {% if order_items %}
+        <a href="{% url 'add_order' table_id=table.id order_id=order_id %}" class="btn btn-secondary btn-lg">Powrót do zamówienia</a>
+        {% else %}
+        <a href="{% url 'add_order' table_id=table.id %}" class="btn btn-secondary btn-lg">Powrót do zamówienia</a>
+        {% endif %}
+    </div>
 </div>
+</body>
+</html>
 {% endblock %}
+

@@ -1,8 +1,19 @@
 {% extends 'base.html' %}
-
+{% load static %}
+<!DOCTYPE html>
 {% block content %}
-<div class="container">
-    <h1 class="text-center my-4">Dodaj Zamówienie - Stolik {{ table.table_number }}</h1>
+
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tworzenie zamówienia</title>
+    <link rel="stylesheet" href="{% static 'css/add_order.css' %}">
+</head>
+
+<body>
+<div class="container_add_order">
+    <h1 class="text-center my-4">Tworzenie zamówienia - stolik {{ table.table_number }}</h1>
 
     {% if error_message %}
     <div class="alert alert-danger">
@@ -12,11 +23,10 @@
     </div>
     {% endif %}
 
-    <form method="POST" class="mb-3">
+    <form method="POST" class="mb-4">
         {% csrf_token %}
-        <h2>Wybierz Kategorię:</h2>
+        <h2 class="text-center mb-3">Wybierz kategorię:</h2>
         <div class="form-group">
-            <label for="category">Wybierz kategorię:</label>
             <select id="category" name="category" class="form-control" required {% if order_created %}disabled{% endif %}>
                 <option value="">Wybierz kategorię</option>
                 {% for category in categories %}
@@ -26,16 +36,16 @@
                 {% endfor %}
             </select>
         </div>
-        <button type="submit" class="btn btn-primary mt-3" {% if order_created %}disabled{% endif %}>Pokaż Produkty</button>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary btn-lg mt-3" {% if order_created %}disabled{% endif %}>Pokaż produkty</button>
+        </div>
     </form>
 
     {% if selected_category %}
-
-    <form method="POST" class="mt-3" {% if order_created %}disabled{% endif %}>
+    <form method="POST" class="mt-4" {% if order_created %}disabled{% endif %}>
         {% csrf_token %}
-        <h2>Wybierz Produkt:</h2>
+        <h2 class="text-center mb-3">Wybierz Produkt:</h2>
         <div class="form-group">
-            <label for="inventory_item">Wybierz produkt:</label>
             <select id="inventory_item" name="inventory_item" class="form-control" required {% if order_created %}disabled{% endif %}>
                 <option value="">Wybierz produkt</option>
                 {% for item in inventory_items %}
@@ -47,70 +57,74 @@
         </div>
 
         <div class="form-group">
-            <label for="quantity">Wybierz ilość:</label>
+            <label for="quantity" class="form-label">Ilość:</label>
             <input type="number" id="quantity" name="quantity" class="form-control" min="1" required {% if order_created %}disabled{% endif %}>
         </div>
 
-        <button type="submit" class="btn btn-success mt-3" {% if order_created %}disabled{% endif %}>Dodaj do zamówienia</button>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-success btn-lg mt-3" {% if order_created %}disabled{% endif %}>Dodaj do zamówienia</button>
+        </div>
     </form>
     {% endif %}
 
-
-<h2 class="my-4">Produkty w zamówieniu:</h2>
-{% if cached_items %}
-<ul class="list-group">
-    {% for item in cached_items %}
-    <li class="list-group-item">
-        <form method="POST" class="form-inline">
-            {% csrf_token %}
-            {% if not order_created and item.edit_mode %}
-                <div class="form-group mr-2">
-                    <label for="new_quantity_{{ item.product.id }}">Nowa ilość:</label>
+    <h2 class="text-center my-4">Produkty w zamówieniu:</h2>
+    {% if cached_items %}
+    <ul class="list-group mb-4">
+        {% for item in cached_items %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <form method="POST" class="form-inline">
+                {% csrf_token %}
+                {% if not order_created and item.edit_mode %}
+                <div class="form-group mr-3">
+                    <label for="new_quantity_{{ item.product.id }}" class="form-label">Nowa ilość:</label>
                     <input type="number" id="new_quantity_{{ item.product.id }}" name="new_quantity"
                            class="form-control ml-2" value="{{ item.quantity }}" min="1" required>
                 </div>
                 <button type="submit" name="save_item" value="{{ item.product.id }}"
                         class="btn btn-success btn-sm">Zapisz</button>
-            {% else %}
-                {{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN
+                {% else %}
+                <span>{{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN</span>
                 {% if not item.edit_mode %}
                 <button type="submit" name="remove_item" value="{{ item.product.id }}"
-                        class="btn btn-danger btn-sm float-right mr-2"
+                        class="btn btn-danger btn-sm float-right ml-2"
                         {% if order_created %}disabled{% endif %}>Usuń</button>
-                        
                 {% endif %}
-            {% endif %}
+                {% endif %}
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-center">Brak produktów w zamówieniu.</p>
+    {% endif %}
+
+    <h3 class="text-center mt-4">Łączna cena: {{ total_price }} PLN</h3>
+
+    {% if not order_created %}
+    <form method="POST" class="mt-4 text-center">
+        {% csrf_token %}
+        <button type="submit" name="create_order" class="btn btn-primary btn-lg" {% if not cached_items %}disabled{% endif %}>
+            Utwórz Zamówienie
+        </button>
+    </form>
+    {% else %}
+    <div class="alert alert-success mt-4 text-center">
+        <h3>Zamówienie zostało utworzone!</h3>
+        <p>Numer zamówienia: {{ order_number }}</p>
+    
+        <form method="POST" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" name="edit_order" class="btn btn-warning btn-lg">Edytuj zamówienie</button>
         </form>
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>Brak produktów w zamówieniu.</p>
-{% endif %}
+        <br>
 
-
-<h3 class="mt-4">Łączna cena: {{ total_price }} PLN</h3>
-
-
-{% if not order_created %}
-<form method="POST" class="mt-4">
-    {% csrf_token %}
-    <button type="submit" name="create_order" class="btn btn-primary" {% if not cached_items %}disabled{% endif %}>
-        Utwórz Zamówienie
-    </button>
-</form>
-{% else %}
-<div class="alert alert-success mt-4">
-    <h3>Zamówienie zostało utworzone!</h3>
-    <p>Numer Zamówienia: {{ order_number }}</p>
-
-
-<form method="POST" class="mt-4">
-    {% csrf_token %}
-    <button type="submit" name="edit_order" class="btn btn-warning">Edytuj Zamówienie</button>
-</form>
-
+        <form method="GET" action="{% url 'dashboard' %}" class="mt-4">
+            <button type="submit" name="dashboard" class="btn btn-warning btn-lg">Powrót do pulpitu</button>
+        </form>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
-</div>
+</body>
+</html>
 {% endblock %}
+
