@@ -23,28 +23,28 @@
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ supplier_form.as_p }}
-            <button type="submit" name="add_supplier">Dodaj Dostawcę</button>
+            <button type="submit" name="add_supplier">Dodaj</button>
         </form>
 
         <h2>Dodaj Kategorię Towaru</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ category_form.as_p }}
-            <button type="submit" name="add_category">Dodaj Kategorię</button>
+            <button type="submit" name="add_category">Dodaj</button>
         </form>
 
         <h2>Dodaj Jednostkę Miary</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ unit_form.as_p }}
-            <button type="submit" name="add_unit">Dodaj Jednostkę Miary</button>
+            <button type="submit" name="add_unit">Dodaj</button>
         </form>
 
         <h2>Dodaj Metodę Płatności</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ payment_method_form.as_p }}
-            <button type="submit" name="add_payment_method">Dodaj Metodę Płatności</button>
+            <button type="submit" name="add_payment_method">Dodaj</button>
         </form>
     </div>
 </body>

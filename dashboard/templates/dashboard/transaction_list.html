@@ -8,11 +8,21 @@
     <title>Zestawienie Transakcji</title>
     <link rel="stylesheet" href="{% static 'css/transaction_list.css' %}">
     <script src="{% static 'js/transaction.js' %}" defer></script>
+    <style>
+        .filter-container {
+            display: none; /* Domyślnie filtry są ukryte */
+        }
+    </style>
 </head>
 <body>
     <h1>Zestawienie Transakcji</h1>
 
     <form method="GET" action="{% url 'transaction_list' %}">
+        <div>
+            <!-- Przycisk do pokazywania/ukrywania filtrów -->
+            <button type="button" onclick="toggleFilters()">Pokaż filtry</button>
+        </div>
+
         <div class="filter-container">
             <h2>Filtr</h2>
             <div>
@@ -55,12 +65,30 @@
                     <option value="false" {% if request.GET.is_completed == 'false' %}selected{% endif %}>Niezakończone</option>
                 </select>
             </div>
+
+            <!-- Przyciski filtrów teraz wewnątrz .filter-container -->
+            <button type="submit">Filtruj</button>
+            <button type="button" onclick="clearFilters()">Usuń filtry</button>
         </div>
-        <button type="submit">Filtruj</button>
-        <button type="button" onclick="clearFilters()">Usuń filtry</button>
     </form>
 
     <script>
+        // Funkcja do przełączania widoczności filtrów
+        function toggleFilters() {
+            var filterContainer = document.querySelector('.filter-container');
+            var button = document.querySelector('button[type="button"]');
+
+            // Przełącz widoczność filtrów
+            if (filterContainer.style.display === 'none' || filterContainer.style.display === '') {
+                filterContainer.style.display = 'block';
+                button.textContent = 'Ukryj filtry';
+            } else {
+                filterContainer.style.display = 'none';
+                button.textContent = 'Pokaż filtry';
+            }
+        }
+
+        // Funkcja do czyszczenia filtrów
         function clearFilters() {
             document.getElementById('transaction_id').value = '';
             document.getElementById('transaction_date_start').value = '';
@@ -71,6 +99,7 @@
             window.location.href = "{% url 'transaction_list' %}";
         }
 
+        // Funkcja do przejścia do szczegółów transakcji
         function goToTransactionDetails(transactionId) {
             window.location.href = "{% url 'transaction_details' 0 %}".replace('0', transactionId);
         }

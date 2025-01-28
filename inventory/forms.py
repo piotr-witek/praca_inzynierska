@@ -58,6 +58,46 @@ class ProductForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["expiration_date"].initial = timezone.now().date()
 
+    def clean(self):
+        cleaned_data = super().clean()
+        purchase_price = cleaned_data.get("purchase_price")
+        sales_price = cleaned_data.get("sales_price")
+        expiration_date = cleaned_data.get("expiration_date")
+
+        if purchase_price is not None:
+            if purchase_price < 0:
+                raise forms.ValidationError(
+                    {"purchase_price": "Cena zakupu nie może być mniejsza od zera."}
+                )
+            if purchase_price == 0:
+                raise forms.ValidationError(
+                    {"purchase_price": "Cena zakupu nie może być równa zero."}
+                )
+
+        if sales_price is not None:
+            if sales_price < 0:
+                raise forms.ValidationError(
+                    {"sales_price": "Cena sprzedaży nie może być mniejsza od zera."}
+                )
+            if sales_price == 0:
+                raise forms.ValidationError(
+                    {"sales_price": "Cena sprzedaży nie może być równa zero."}
+                )
+
+        if not purchase_price and not sales_price:
+            raise forms.ValidationError(
+                {"purchase_price": "Musisz podać cenę zakupu lub cenę sprzedaży."}
+            )
+
+        if expiration_date is not None and expiration_date < timezone.now().date():
+            raise forms.ValidationError(
+                {
+                    "expiration_date": "Termin ważności nie może być starszy niż bieżąca data."
+                }
+            )
+
+        return cleaned_data
+
 
 class ProductFormEdit(forms.ModelForm):
     class Meta:

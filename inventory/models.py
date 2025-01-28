@@ -1,5 +1,3 @@
-from email.policy import default
-
 from django.db import models
 from django.utils import timezone
 
@@ -44,7 +42,9 @@ class InventoryItem(models.Model):
     reorder_level = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     expiration_date = models.DateField(default="1000-01-01", null=False)
     last_restock_date = models.DateTimeField(null=True)
-    purchase_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    purchase_price = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
     sales_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
     )

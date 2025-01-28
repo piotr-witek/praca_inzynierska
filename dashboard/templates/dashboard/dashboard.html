@@ -85,7 +85,7 @@
 </script>
 
 <div class="container">
-    <h1>Dashboard Restauracji - Zarządzanie Stolikami</h1>
+    <h1>Zarządzanie Stolikami</h1>
     <div class="dashboard" id="dashboard">
         {% for table in tables %}
         <div class="table" id="table-{{ table.id }}" 
@@ -107,7 +107,7 @@
                 <form method="POST" action="{% url 'reserve_table' table.id %}">
                     {% csrf_token %}
                     {% if show_date_form %}
-                        <label for="reservation_date">Data rezerwacji:</label>
+                        <label for="reservation_date">Data rezerwacji: {{ table.reserved_for }} </label>
                         <input type="datetime-local" id="reservation_date" name="reservation_date" min="{{ current_datetime }}">
                         <button type="submit" name="reserve" 
                                 class="btn btn-primary 

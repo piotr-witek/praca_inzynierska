@@ -1,5 +1,5 @@
 from datetime import timedelta
-
+from datetime import datetime
 import matplotlib
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -30,15 +30,15 @@ from .reports import (
     generate_low_stock_inventory_xls,
 )
 
-matplotlib.use("Agg")
 import io
 
 import matplotlib.pyplot as plt
 import pandas as pd
 from django.http import HttpResponse
-from django.shortcuts import render
 from dashboard.models import PaymentMethod
 from django.contrib.auth.decorators import login_required
+
+matplotlib.use("Agg")
 
 
 @login_required
@@ -385,9 +385,6 @@ def notifications(request):
             "expired_items": expired_items,
         },
     )
-
-
-from datetime import datetime
 
 
 @login_required

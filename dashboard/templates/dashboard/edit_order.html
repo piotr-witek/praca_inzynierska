@@ -12,7 +12,7 @@
             {% endfor %}
         </ul>
     </div>
-{% endif %}
+    {% endif %}
 
     <h2>Produkty w zamówieniu:</h2>
     <form method="POST" class="mb-3">
@@ -20,20 +20,18 @@
         <ul class="list-group">
             {% for item in order_items %}
             <li class="list-group-item">
-                {{ item.product.name }} -
+                {{ item.product.name }} - 
                 <form method="POST" class="d-inline">
                     {% csrf_token %}
-                    <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1" required> sztuk
+                    <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1" required> {{ item.product.unit }}
                     <button type="submit" class="btn btn-primary btn-sm ml-2">Zapisz</button>
+                    <span class="text-muted">Dostępne w magazynie: {{ item.product.quantity }} {{ item.product.unit }}</span>
                     <input type="hidden" name="edit_item_id" value="{{ item.id }}">
                 </form>
-                
             </li>
             {% endfor %}
         </ul>
     </form>
-
-    
 
     <h2 class="mt-4">Usuń Produkt</h2>
     <form method="POST">

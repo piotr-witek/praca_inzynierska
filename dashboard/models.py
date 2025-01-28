@@ -1,7 +1,6 @@
 from django.utils import timezone
 from django.db import models
 from decimal import Decimal
-from inventory.models import InventoryItem
 
 
 class Table(models.Model):
