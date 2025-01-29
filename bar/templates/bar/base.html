@@ -69,24 +69,23 @@
             <ul class="navbar-nav flex-column mb-3" id="navbarVerticalNav">
 
               <li class="nav-item">
-                <a class="nav-link dropdown-indicator" href="#sectionMagazyn" data-bs-toggle="collapse"
-                  aria-expanded="false" aria-controls="sectionMagazyn">
+                <a class="nav-link dropdown-indicator" href="{% url 'stock_status' %}" 
+                   aria-expanded="false" 
+                   aria-controls="sectionMagazyn"
+                   onclick="toggleSection(event, 'sectionMagazyn', '{% url 'stock_status' %}')">
                   <div class="d-flex align-items-center">
                     <span class="nav-link-text ps-1">Magazyn</span>
                   </div>
                 </a>
-
+              
                 <ul class="nav collapse" id="sectionMagazyn">
                   <li class="nav-item"><a class="nav-link" href="{% url 'stock_status' %}">Stan</a></li>
                   <li class="nav-item"><a class="nav-link" href="{% url 'notifications' %}">Powiadomienia</a></li>
-                      <li class="nav-item"><a class="nav-link" href="{% url 'reports' %}">Zestawienia</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'data_visualization' %}">Wizualizacja</a></li>
-
-
-
-
+                  <li class="nav-item"><a class="nav-link" href="{% url 'reports' %}">Zestawienia</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{% url 'data_visualization' %}">Wizualizacja</a></li>
                 </ul>
               </li>
+              
 
 
       
@@ -220,9 +219,36 @@
     </div>
   </main>
 
-
-
-
+  <script>
+    function toggleSection(event, sectionId, url) {
+      event.preventDefault(); 
+      let section = document.getElementById(sectionId);
+      let isOpen = section.classList.contains('show');
+  
+      if (isOpen) {
+          section.classList.remove('show');
+          localStorage.removeItem(sectionId);
+      } 
+      else {
+          section.classList.add('show');
+          localStorage.setItem(sectionId, 'open');
+      }
+  
+      setTimeout(() => {
+          window.location.href = url; 
+      }, 300);
+  }
+  
+  // Przywróć stan rozwinięcia po odświeżeniu
+  document.addEventListener("DOMContentLoaded", function() {
+      let section = document.getElementById('sectionMagazyn');
+      if (localStorage.getItem('sectionMagazyn') === 'open') {
+          section.classList.add('show');
+      }
+  });
+  
+  
+</script>
   <script src="{% static 'vendors/popper/popper.min.js' %}"></script>
   <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
   <script src="{% static 'vendors/anchorjs/anchor.min.js' %}"></script>
