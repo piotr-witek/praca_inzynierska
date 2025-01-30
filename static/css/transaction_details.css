@@ -1,73 +1,87 @@
 .container_details {
-    width: 80%;
+    width: 85%;
     margin: 0 auto;
-    padding: 20px;
+    padding: 30px;
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
 }
 
-/* Nagłówki */
+
 .transaction-header {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     color: #2c3e50;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-align: center;
+    font-weight: bold;
 }
 
 .transaction-details-title {
     font-size: 1.8rem;
     color: #34495e;
-    margin-top: 30px;
+    margin-top: 40px;
+    font-weight: 600;
 }
+
 
 .transaction-info {
     font-size: 1.1rem;
-    margin: 10px 0;
+    margin: 15px 0;
 }
 
 .transaction-info strong {
     color: #2c3e50;
+    font-weight: bold;
+}
+
+.transaction-info p {
+    line-height: 1.6;
+    color: #7f8c8d;
 }
 
 
 .products-list {
     list-style-type: none;
     padding: 0;
-    margin: 10px 0;
+    margin: 15px 0;
 }
 
 .product-item {
     background-color: #ecf0f1;
     border: 1px solid #ddd;
     border-radius: 5px;
-    margin: 5px 0;
-    padding: 10px;
+    margin: 10px 0;
+    padding: 15px;
     font-size: 1.1rem;
     color: #333;
     transition: background-color 0.3s ease;
-    cursor: pointer; 
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .product-item:hover {
     background-color: #dfe6e9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 
 .return-link {
     display: inline-block;
-    margin-top: 30px;
-    padding: 10px 20px;
+    margin-top: 40px;
+    padding: 12px 25px;
     background-color: #3498db;
     color: white;
     text-decoration: none;
     font-weight: bold;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 1.2rem;
 }
 
 .return-link:hover {
     background-color: #2980b9;
+    transform: scale(1.05);
 }
 
 .return-link:focus {
@@ -76,20 +90,77 @@
 }
 
 
+#product-details {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1000;
+}
+
+#product-details-content h3 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+}
+
+#product-details-content p {
+    font-size: 1.2rem;
+    color: #34495e;
+    line-height: 1.6;
+}
+
+#product-details button {
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-size: 1.1rem;
+}
+
+#product-details button:hover {
+    background-color: #c0392b;
+}
+
+/* Responsywność */
 @media screen and (max-width: 768px) {
-    .container {
+    .container_details {
         width: 95%;
+        padding: 20px;
     }
 
     .transaction-header {
-        font-size: 2rem;
+        font-size: 2.2rem;
     }
 
     .transaction-details-title {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
     }
 
     .transaction-info {
         font-size: 1rem;
+    }
+
+    .product-item {
+        font-size: 1rem;
+    }
+
+    .return-link {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+
+    #product-details {
+        width: 90%;
+        padding: 20px;
     }
 }

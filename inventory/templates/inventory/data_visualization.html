@@ -16,35 +16,135 @@
         {% if messages %}
         <div class="messages">
             {% for message in messages %}
-            <div>{{ message }}</div>
+            <div class="message {{ message.tags }}">{{ message }}</div>
             {% endfor %}
         </div>
         {% endif %}
 
+        
         <section class="form-section">
             <h2>Dostawcy - średnia cen zakupu</h2>
-            <form method="post" action="{% url 'download_price_chart' %}" class="form">
+            <form method="post" action="{% url 'download_price_chart' %}" class="form" id="price-chart-form">
                 {% csrf_token %}
                 <label for="start_date">Data początkowa:</label>
                 <input type="date" id="start_date" name="start_date" required>
+
                 <label for="end_date">Data końcowa:</label>
                 <input type="date" id="end_date" name="end_date" required>
-                <button type="submit" class="btn-secondary">Wykonaj</button>
+
+                <button type="submit" class="btn-primary">Wykonaj</button>
             </form>
+
+            <div id="price-chart-container">
+                
+                <img id="price-chart-image" src="" alt="Wykres" style="display:none; max-width: 100%;" />
+                <button id="download-price-button" style="display:none;" class="btn-primary">Pobierz wykres</button>
+            </div>
         </section>
 
+        
         <section class="form-section">
             <h2>Kategoria - suma cen zakupów</h2>
-            <form method="post" action="{% url 'download_purchase_sum_by_category' %}" class="form">
+            <form method="post" action="{% url 'download_purchase_sum_by_category' %}" class="form" id="category-chart-form">
                 {% csrf_token %}
                 <label for="start_date">Data początkowa:</label>
-                <input type="date" id="start_date" name="start_date" required>
+                <input type="date" id="start_date_category" name="start_date" required>
+
                 <label for="end_date">Data końcowa:</label>
-                <input type="date" id="end_date" name="end_date" required>
-                <button type="submit" class="btn-secondary">Wykonaj</button>
+                <input type="date" id="end_date_category" name="end_date" required>
+
+                <button type="submit" class="btn-primary">Wykonaj</button>
             </form>
+
+            <div id="category-chart-container">
+                
+                <img id="category-chart-image" src="" alt="Wykres" style="display:none; max-width: 100%;" />
+                <button id="download-category-button" style="display:none;" class="btn-primary">Pobierz wykres</button>
+            </div>
         </section>
     </div>
+
+    <script>
+        
+        document.getElementById("price-chart-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+            const startDate = formData.get("start_date");
+            const endDate = formData.get("end_date");
+
+           
+            fetch("{% url 'download_price_chart' %}", {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('Nie udało się wygenerować wykresu');
+                }
+            })
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                const chartImage = document.getElementById("price-chart-image");
+                chartImage.src = imageUrl;
+                chartImage.style.display = "block";
+
+                const downloadButton = document.getElementById("download-price-button");
+                downloadButton.style.display = "block";
+                downloadButton.onclick = function() {
+                    const a = document.createElement("a");
+                    a.href = imageUrl;
+                    a.download = "srednia_cen_zakupu_wg_dostawcow.png";
+                    a.click();
+                };
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        });
+
+        
+        document.getElementById("category-chart-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+            const startDate = formData.get("start_date");
+            const endDate = formData.get("end_date");
+
+            
+            fetch("{% url 'download_purchase_sum_by_category' %}", {
+                method: "POST",
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('Nie udało się wygenerować wykresu');
+                }
+            })
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                const chartImage = document.getElementById("category-chart-image");
+                chartImage.src = imageUrl;
+                chartImage.style.display = "block";
+
+                const downloadButton = document.getElementById("download-category-button");
+                downloadButton.style.display = "block";
+                downloadButton.onclick = function() {
+                    const a = document.createElement("a");
+                    a.href = imageUrl;
+                    a.download = "suma_cen_zakupow_wg_kategorii.png";
+                    a.click();
+                };
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        });
+    </script>
 </body>
 </html>
 {% endblock content %}

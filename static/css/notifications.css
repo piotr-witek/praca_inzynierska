@@ -78,3 +78,39 @@
 .notification-section-expired .notification-item-name {
     color: #cc0000;
 }
+
+h1 {
+    text-align:center;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: #ef4100;
+    font-size: 18px;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+}
+
+.pagination a:hover {
+    background: #ef4100;
+    color: white;
+}
+
+.pagination .current {
+    margin: 0 5px;
+    padding: 8px 12px;
+    font-size: 18px;
+    font-weight: bold;
+    background: #ef4100;
+    color: white;
+    border-radius: 5px;
+    border: 1px solid #ef4100;
+}

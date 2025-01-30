@@ -2,43 +2,45 @@
 {% load static %}
 <!DOCTYPE html>
 {% block content %}
-<html>
+<html lang="pl">
 <head>
-    <title>Edytuj Produkt</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edycja produktu</title>
     <link rel="stylesheet" href="{% static 'css/edit_product.css' %}">
 </head>
 <body>
-    <div class="container">
-
-
+    <div class="container_edit_product">
         {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="message {{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-            </div>
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
         {% endif %}
 
-        <h1>Edytuj Produkt</h1>
+        <h1>Edycja produktu</h1>
 
-
-
-        <form action="{% url 'edit_product' %}" method="get" class="search-form">
-
-            <input type="text" name="search" id="search" placeholder="Wpisz identyfikator">
-            <button type="submit" class="search-btn">Szukaj</button>
-        </form>
+        <section class="search-section">
+            <form action="{% url 'edit_product' %}" method="get" class="search-form">
+                <div class="search-input-wrapper">
+                    <input type="text" name="search" id="search" placeholder="Wpisz identyfikator produktu" required>
+                    <button type="submit" class="search-btn">Szukaj</button>
+                </div>
+            </form>
+        </section>
 
         {% if searched %}
+        <section class="edit-product-section">
             <form action="{% url 'edit_product' %}" method="post" class="form-card">
                 {% csrf_token %}
+                <h2>Edycja szczegółów produktu</h2>
                 {{ form.as_p }}
                 <input type="hidden" name="product_id" value="{{ product.id }}">
                 <button type="submit" class="submit-btn">Zapisz zmiany</button>
             </form>
+        </section>
         {% endif %}
-
-
     </div>
 </body>
 </html>

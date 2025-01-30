@@ -3,9 +3,10 @@
 <!DOCTYPE html>
 
 {% block content %}
-<html>
+<html lang="pl">
 <head>
-    <title>Zestawienie Transakcji</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/transaction_list.css' %}">
     <script src="{% static 'js/transaction.js' %}" defer></script>
     <style>
@@ -15,140 +16,153 @@
     </style>
 </head>
 <body>
-    <h1>Zestawienie Transakcji</h1>
+    <div class="container">
+        <h1 class="title">Zestawienie Transakcji</h1>
 
-    <form method="GET" action="{% url 'transaction_list' %}">
-        <div>
-            <button type="button" onclick="toggleFilters()">Pokaż filtry</button>
-        </div>
-
-        <div class="filter-container">
-            <h2>Filtr</h2>
-            <div>
-                <label for="transaction_id">ID Transakcji:</label>
-                <input type="text" id="transaction_id" name="transaction_id" class="input-field" 
-                       placeholder="Wprowadź ID transakcji" value="{{ request.GET.transaction_id }}">
-            </div>
-            <div>
-                <label for="transaction_date_start">Data transakcji od:</label>
-                <input type="date" id="transaction_date_start" name="transaction_date_start" class="input-field" 
-                       value="{{ request.GET.transaction_date_start }}">
-            </div>
-            <div>
-                <label for="transaction_date_end">Data transakcji do:</label>
-                <input type="date" id="transaction_date_end" name="transaction_date_end" class="input-field" 
-                       value="{{ request.GET.transaction_date_end }}">
-            </div>
-            <div>
-                <label for="payment_method">Metoda płatności:</label>
-                <select id="payment_method" name="payment_method" class="input-field">
-                    <option value="">-- Wybierz metodę płatności --</option>
-                    {% for method in payment_methods %}
-                        <option value="{{ method.id }}" 
-                                {% if method.id == request.GET.payment_method %}selected{% endif %}>
-                            {{ method.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="table_id">Numer stolika:</label>
-                <input type="number" id="table_id" name="table_id" class="input-field" 
-                       placeholder="Wprowadź numer stolika" value="{{ request.GET.table_id }}">
-            </div>
-            <div>
-                <label for="is_completed">Status:</label>
-                <select id="is_completed" name="is_completed" class="input-field">
-                    <option value="">-- Wybierz status --</option>
-                    <option value="true" {% if request.GET.is_completed == 'true' %}selected{% endif %}>Zakończone</option>
-                    <option value="false" {% if request.GET.is_completed == 'false' %}selected{% endif %}>Niezakończone</option>
-                </select>
+        <form method="GET" action="{% url 'transaction_list' %}">
+            <div class="filter-actions">
+                <button type="button" onclick="toggleFilters()" class="btn btn-info">Pokaż filtry</button>
             </div>
 
-            <button type="submit">Filtruj</button>
-            <button type="button" onclick="clearFilters()">Usuń filtry</button>
-        </div>
-    </form>
+            <div class="filter-container">
+                <h2>Filtr</h2>
+                <div class="filter-item">
+                    <label for="transaction_id">ID Transakcji:</label>
+                    <input type="text" id="transaction_id" name="transaction_id" class="input-field"
+                           placeholder="Wprowadź ID transakcji" value="{{ request.GET.transaction_id }}">
+                </div>
+                <div class="filter-item">
+                    <label for="transaction_date_start">Data transakcji od:</label>
+                    <input type="date" id="transaction_date_start" name="transaction_date_start" class="input-field"
+                           value="{{ request.GET.transaction_date_start }}">
+                </div>
+                <div class="filter-item">
+                    <label for="transaction_date_end">Data transakcji do:</label>
+                    <input type="date" id="transaction_date_end" name="transaction_date_end" class="input-field"
+                           value="{{ request.GET.transaction_date_end }}">
+                </div>
+                <div class="filter-item">
+                    <label for="payment_method">Metoda płatności:</label>
+                    <select id="payment_method" name="payment_method" class="input-field">
+                        <option value="">-- Wybierz metodę płatności --</option>
+                        {% for method in payment_methods %}
+                            <option value="{{ method.id }}"
+                                    {% if method.id == request.GET.payment_method %}selected{% endif %}>
+                                {{ method.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="table_id">Numer stolika:</label>
+                    <input type="number" id="table_id" name="table_id" class="input-field"
+                           placeholder="Wprowadź numer stolika" value="{{ request.GET.table_id }}">
+                </div>
+                <div class="filter-item">
+                    <label for="is_completed">Status:</label>
+                    <select id="is_completed" name="is_completed" class="input-field">
+                        <option value="">-- Wybierz status --</option>
+                        <option value="true" {% if request.GET.is_completed == 'true' %}selected{% endif %}>Zakończone</option>
+                        <option value="false" {% if request.GET.is_completed == 'false' %}selected{% endif %}>Niezakończone</option>
+                    </select>
+                </div>
 
-    <script>
-        function toggleFilters() {
-            var filterContainer = document.querySelector('.filter-container');
-            var button = document.querySelector('button[type="button"]');
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filtruj</button>
+                    <button type="button" onclick="clearFilters()" class="btn btn-secondary">Usuń filtry</button>
+                </div>
+            </div>
+        </form>
 
-            if (filterContainer.style.display === 'none' || filterContainer.style.display === '') {
-                filterContainer.style.display = 'block';
-                button.textContent = 'Ukryj filtry';
-            } else {
-                filterContainer.style.display = 'none';
-                button.textContent = 'Pokaż filtry';
+        <script>
+            function toggleFilters() {
+                var filterContainer = document.querySelector('.filter-container');
+                var button = document.querySelector('button[type="button"]');
+
+                if (filterContainer.style.display === 'none' || filterContainer.style.display === '') {
+                    filterContainer.style.display = 'block';
+                    button.textContent = 'Ukryj filtry';
+                } else {
+                    filterContainer.style.display = 'none';
+                    button.textContent = 'Pokaż filtry';
+                }
             }
-        }
 
-        function clearFilters() {
-            document.getElementById('transaction_id').value = '';
-            document.getElementById('transaction_date_start').value = '';
-            document.getElementById('transaction_date_end').value = '';
-            document.getElementById('payment_method').value = '';
-            document.getElementById('table_id').value = '';
-            document.getElementById('is_completed').value = '';
-            window.location.href = "{% url 'transaction_list' %}";
-        }
+            function clearFilters() {
+                document.getElementById('transaction_id').value = '';
+                document.getElementById('transaction_date_start').value = '';
+                document.getElementById('transaction_date_end').value = '';
+                document.getElementById('payment_method').value = '';
+                document.getElementById('table_id').value = '';
+                document.getElementById('is_completed').value = '';
+                window.location.href = "{% url 'transaction_list' %}";
+            }
 
-        function goToTransactionDetails(transactionId) {
-        
-            var queryParams = new URLSearchParams(window.location.search);
-            queryParams.set('transaction_id', transactionId);
+            function goToTransactionDetails(transactionId) {
+                var queryParams = new URLSearchParams(window.location.search);
+                queryParams.set('transaction_id', transactionId);
+                window.location.href = "{% url 'transaction_details' '0' %}".replace('0', transactionId) + '?' + queryParams.toString();
+            }
+        </script>
 
-            
-            window.location.href = "{% url 'transaction_details' '0' %}".replace('0', transactionId) + '?' + queryParams.toString();
-        }
-    </script>
-
-    <table id="transaction-table">
-        <thead>
-            <tr>
-                <th><a href="?sort=transaction_id&order={% if current_sort_field == 'transaction_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer transakcji</a></th>
-                <th><a href="?sort=transaction_date&order={% if current_sort_field == 'transaction_date' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Data Transakcji</a></th>
-                <th><a href="?sort=total_amount&order={% if current_sort_field == 'total_amount' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Kwota</a></th>
-                <th><a href="?sort=payment_method__name&order={% if current_sort_field == 'payment_method__name' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Metoda płatności</a></th>
-                <th><a href="?sort=order_id&order={% if current_sort_field == 'order_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer zamówienia</a></th>
-                <th><a href="?sort=table_id&order={% if current_sort_field == 'table_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer stolika</a></th>
-                <th><a href="?sort=is_completed&order={% if current_sort_field == 'is_completed' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Status</a></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transaction in transactions %}
-                <tr class="transaction-row" onclick="window.location.href='{% url 'transaction_details' transaction.id %}?{{ request.GET.urlencode }}'">
-                    <td>
-                        {{ transaction.transaction_id }}
-                    </td>
-                    <td>{{ transaction.transaction_date|date:"d.m.Y H:i" }}</td>
-                    <td>{{ transaction.total_amount }}</td>
-                    <td>{{ transaction.payment_method.name }}</td>
-                    <td>{{ transaction.order_id }}</td>
-                    <td>{{ transaction.table_id }}</td>
-                    <td>{{ transaction.is_completed|yesno:"Zakończona,Niezakończona" }}</td>
+        <table id="transaction-table" class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'order' %}&{{ key }}={{ value }}{% endif %}{% endfor %}&sort=transaction_id&order={% if current_sort_field == 'transaction_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer transakcji</a>
+                    </th>
+                    <th>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'order' %}&{{ key }}={{ value }}{% endif %}{% endfor %}&sort=transaction_date&order={% if current_sort_field == 'transaction_date' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Data Transakcji</a>
+                    </th>
+                    <th>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'order' %}&{{ key }}={{ value }}{% endif %}{% endfor %}&sort=total_amount&order={% if current_sort_field == 'total_amount' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Kwota</a>
+                    </th>
+                    <th>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'order' %}&{{ key }}={{ value }}{% endif %}{% endfor %}&sort=payment_method__name&order={% if current_sort_field == 'payment_method__name' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Metoda płatności</a>
+                    </th>
+                    <th>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'order' %}&{{ key }}={{ value }}{% endif %}{% endfor %}&sort=order_id&order={% if current_sort_field == 'order_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer zamówienia</a>
+                    </th>
+                    <th>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'order' %}&{{ key }}={{ value }}{% endif %}{% endfor %}&sort=table_id&order={% if current_sort_field == 'table_id' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Numer stolika</a>
+                    </th>
+                    <th>
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'order' %}&{{ key }}={{ value }}{% endif %}{% endfor %}&sort=is_completed&order={% if current_sort_field == 'is_completed' and current_sort_order == 'asc' %}desc{% else %}asc{% endif %}">Status</a>
+                    </th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr class="transaction-row" onclick="window.location.href='{% url 'transaction_details' transaction.id %}?{{ request.GET.urlencode }}'">
+                        <td>{{ transaction.transaction_id }}</td>
+                        <td>{{ transaction.transaction_date|date:"d.m.Y H:i" }}</td>
+                        <td>{{ transaction.total_amount }}</td>
+                        <td>{{ transaction.payment_method.name }}</td>
+                        <td>{{ transaction.order_id }}</td>
+                        <td>{{ transaction.table_id }}</td>
+                        <td>{{ transaction.is_completed|yesno:"Zakończona,Niezakończona" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <div class="pagination">
-        <span class="current">
-            Strona {{ transactions.number }} z {{ transactions.paginator.num_pages }}
-        </span>
-    </div>
-    <div class="step-links">
-        {% if transactions.has_previous %}
-            <a href="?page=1">&laquo; pierwsza</a>
-            <a href="?page={{ transactions.previous_page_number }}">poprzednia</a>
-        {% endif %}
+        <div class="pagination">
+            <span class="current">
+                Strona {{ transactions.number }} z {{ transactions.paginator.num_pages }}
+            </span>
+        </div>
+        <div class="step-links">
+            {% if transactions.has_previous %}
+                <a href="?page=1">&laquo; pierwsza</a>
+                <a href="?page={{ transactions.previous_page_number }}">poprzednia</a>
+            {% endif %}
 
-        {% if transactions.has_next %}
-            <a href="?page={{ transactions.next_page_number }}">następna</a>
-            <a href="?page={{ transactions.paginator.num_pages }}">ostatnia &raquo;</a>
-        {% endif %}
+            {% if transactions.has_next %}
+                <a href="?page={{ transactions.next_page_number }}">następna</a>
+                <a href="?page={{ transactions.paginator.num_pages }}">ostatnia &raquo;</a>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>
-{% endblock content %}
+{% endblock %}

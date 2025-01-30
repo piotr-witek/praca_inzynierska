@@ -10,6 +10,7 @@ from .models import (
 )
 
 from dashboard.models import PaymentMethod
+from django.core.exceptions import ValidationError
 
 
 class PurchaseForm(forms.ModelForm):
@@ -132,12 +133,24 @@ class ProductFormEdit(forms.ModelForm):
             "category": "Kategoria",
             "quantity": "Ilość",
             "unit": "Jednostka miary",
-            "reorder_level": "Minimalna ilosc na stanie",
-            "expiration_date": "Termin ważnosci",
+            "reorder_level": "Minimalna ilość na stanie",
+            "expiration_date": "Termin ważności",
             "purchase_price": "Cena zakupu",
             "sales_price": "Cena sprzedaży",
             "supplier": "Dostawca",
         }
+
+    # Walidacja dla całego formularza
+    def clean_product_id(self):
+        product_id = self.cleaned_data.get("product_id")
+        # Sprawdzanie, czy product_id jest liczbą całkowitą
+        if not isinstance(product_id, int):
+            raise ValidationError("Identyfikator produktu musi być liczbą całkowitą.")
+        if product_id <= 0:
+            raise ValidationError(
+                "Identyfikator produktu musi być liczbą większą niż 0."
+            )
+        return product_id
 
     def clean(self):
         cleaned_data = super().clean()
@@ -147,51 +160,70 @@ class ProductFormEdit(forms.ModelForm):
         reorder_level = cleaned_data.get("reorder_level")
         quantity = cleaned_data.get("quantity")
 
+        # Walidacja ceny zakupu
         if purchase_price is not None:
             if purchase_price < 0:
-                raise forms.ValidationError(
-                    {"purchase_price": "Cena zakupu nie może być mniejsza od zera."}
+                self.add_error(
+                    "purchase_price", "Cena zakupu nie może być mniejsza od zera."
                 )
             if purchase_price == 0:
-                raise forms.ValidationError(
-                    {"purchase_price": "Cena zakupu nie może być równa zero."}
-                )
+                self.add_error("purchase_price", "Cena zakupu nie może być równa zero.")
 
+        # Walidacja ceny sprzedaży
         if sales_price is not None:
             if sales_price < 0:
-                raise forms.ValidationError(
-                    {"sales_price": "Cena sprzedaży nie może być mniejsza od zera."}
+                self.add_error(
+                    "sales_price", "Cena sprzedaży nie może być mniejsza od zera."
                 )
             if sales_price == 0:
-                raise forms.ValidationError(
-                    {"sales_price": "Cena sprzedaży nie może być równa zero."}
-                )
+                self.add_error("sales_price", "Cena sprzedaży nie może być równa zero.")
 
+        # Walidacja, aby podać cenę zakupu lub sprzedaży
         if not purchase_price and not sales_price:
-            raise forms.ValidationError(
-                {"purchase_price": "Musisz podać cenę zakupu lub cenę sprzedaży."}
+            self.add_error(
+                "purchase_price", "Musisz podać cenę zakupu lub cenę sprzedaży."
             )
 
+        # Walidacja daty ważności
         if expiration_date is not None and expiration_date < timezone.now().date():
-            raise forms.ValidationError(
-                {
-                    "expiration_date": "Termin ważności nie może być starszy niż bieżąca data."
-                }
+            self.add_error(
+                "expiration_date",
+                "Termin ważności nie może być starszy niż bieżąca data.",
             )
 
+        # Walidacja minimalnej ilości na stanie
         if reorder_level is not None and reorder_level < 0:
-            raise forms.ValidationError(
-                {
-                    "reorder_level": "Minimalna ilość na stanie nie może być mniejsza od zera."
-                }
+            self.add_error(
+                "reorder_level",
+                "Minimalna ilość na stanie nie może być mniejsza od zera.",
             )
 
+        # Walidacja ilości na stanie
         if quantity is not None and quantity < 0:
-            raise forms.ValidationError(
-                {"reorder_level": "Ilość na stanie nie może być mniejsza od zera."}
-            )
+            self.add_error("quantity", "Ilość na stanie nie może być mniejsza od zera.")
 
         return cleaned_data
+
+
+class ProductFormDelete(forms.Form):
+    product_id = forms.IntegerField(
+        widget=forms.NumberInput(attrs={"min": 1}),
+        required=True,
+        label="Identyfikator produktu",
+    )
+
+    def clean_product_id(self):
+        product_id = self.cleaned_data.get("product_id")
+        # Walidacja, czy product_id jest liczbą całkowitą
+        if not isinstance(product_id, int):
+            raise forms.ValidationError(
+                "Identyfikator produktu musi być liczbą całkowitą."
+            )
+        if product_id <= 0:
+            raise forms.ValidationError(
+                "Identyfikator produktu musi być liczbą większą niż 0."
+            )
+        return product_id
 
 
 class SupplierForm(forms.ModelForm):

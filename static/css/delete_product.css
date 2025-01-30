@@ -1,71 +1,162 @@
 
-h1 {
-    font-size: 1.8rem;
 
-    color: #333;
+.container_edit_product{
+    width: 80%;
+    max-width: 800px;
+    background-color: #ffffff;
+    padding: 30px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    text-align: center;
 }
 
+
+
+h1 {
+    font-size: 2.5rem;
+    color: #2d3436;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+h2 {
+    font-size: 1.8rem;
+    color: #2d3436;
+    text-align: center;
+    margin-bottom: 70px;
+    font-weight: 500;
+}
+
+.search-form,
+.form-card {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.search-form label,
+.form-card label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #2d3436;
+    text-align: left;
+}
+
+.search-input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 15px; 
+    justify-content: center; 
+}
+
+.search-form input,
+.form-card input {
+    width: 70%; 
+    padding: 12px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-form input:focus,
+.form-card input:focus {
+    outline: none;
+    border-color: #74b9ff;
+    box-shadow: 0 0 10px rgba(116, 185, 255, 0.5);
+}
+
+.search-btn,
+.submit-btn {
+    background-color: #0984e3;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+.search-btn:hover,
+.submit-btn:hover {
+    background-color: #74b9ff;
+}
+
+.submit-btn {
+    background-color: #00b894;
+    margin-top: 20px;
+}
+
+.search-btn {
+    flex-shrink: 0; 
+}
 
 .messages {
-    margin-bottom: 20px;
+    display: contents;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 30px;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
 }
 
+.message {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
 
 .message.success {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 10px;
-    border: 1px solid #c3e6cb;
-    border-radius: 5px;
+    background-color: #00b894;
+    color: white;
 }
-
 
 .message.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border: 1px solid #f5c6cb;
-    border-radius: 5px;
-}
-
-
-.form-card {
-    flex-direction: column;
-    align-items: center;
-}
-
-
-button.confirm-btn, button.search-btn {
-    background-color: #dc3545;
+    background-color: #e17055;
     color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 1em;
-    margin-top: 10px;
-}
-
-button.confirm-btn:hover, button.search-btn:hover {
-    background-color: #c82333;
 }
 
 
-a.back-link {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-    color: #007bff;
-    text-decoration: none;
+.form-card input[type="text"] {
+    font-size: 1rem;
 }
 
-a.back-link:hover {
-    text-decoration: underline;
+.form-card button {
+    width: 100%;
 }
 
-input {
 
-    width: 25%;
-    padding: 8px;
-    margin: 5px 0;
+@media screen and (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+
+    .search-input-wrapper {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-form input,
+    .form-card input,
+    .search-btn,
+    .submit-btn {
+        width: 100%;
+    }
+
+    .search-btn {
+        margin-top: 10px;
+    }
 }
+
+@media (min-width: 992px) {
+    section {
+         padding-top: 5%; 
+         padding-bottom: 5%; 
+    }
+    }

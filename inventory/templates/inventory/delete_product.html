@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
+
 <!DOCTYPE html>
 {% block content %}
-<html>
+<html lang="pl">
 <head>
-    <title>Wyszukaj i Usuń Produkt</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuwanie produktu</title>
     <link rel="stylesheet" href="{% static 'css/delete_product.css' %}">
 </head>
 <body>
-    <div class="container">
-        <h1>Wyszukaj Produkt do Usunięcia</h1>
-
-
+    <div class="container_edit_product">
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -20,35 +20,36 @@
             </div>
         {% endif %}
 
+        <h1>Usuwanie produktu</h1>
 
-        <form action="" method="post" class="form-card">
-            {% csrf_token %}
-            <input type="text" name="product_id" placeholder="Wpisz identyfikator" required>
-
-            <button type="submit" name="search" class="search-btn">Wyszukaj</button>
-        </form>
-
+       
+        <section class="search-section">
+            <form method="POST" class="search-form">
+                {% csrf_token %}
+                <div class="search-input-wrapper">
+                    {{ form.as_p }}
+                    <button type="submit" class="search-btn">Szukaj produktu</button>
+                </div>
+            </form>
+        </section>
 
         {% if product %}
-            <h2>Znaleziony Produkt</h2>
-            <p><strong>ID:</strong> {{ product.id }}</p>
-            <p><strong>Nazwa:</strong> {{ product.name }}</p>
+      
+        <section class="product-info-section">
+            <h2>Produkt do usunięcia</h2>
+            <p><strong>Nazwa produktu:</strong> {{ product.name }}</p>
             <p><strong>Kategoria:</strong> {{ product.category }}</p>
-            <p><strong>Ilość:</strong> {{ product.quantity }} </p>
-            <p><strong>Jednostka:</strong> {{ product.unit }} </p>
-            <p><strong>Min. na stanie:</strong> {{ product.reorder_level }} </p>
-            <p><strong>	Data ważności:</strong> {{ product.expiration_date }}</p>
-            <p><strong>	Cena zakupu:</strong> {{ product.purchase_price }}</p>
-            <p><strong>	Dostawca:</strong> {{ product.supplier }}</p>
-            <p><strong>Ostatnia data uzupełnienia:</strong> {{ product.last_restock_date }}</p>
+            <p><strong>Ilość:</strong> {{ product.quantity }}</p>
+            <p><strong>Cena zakupu:</strong> {{ product.purchase_price }}</p>
 
-
-            <form action="" method="post">
+           
+            <form method="POST">
                 {% csrf_token %}
-
+               
                 <input type="hidden" name="product_id" value="{{ product.id }}">
-                <button type="submit" name="delete" class="confirm-btn">Usuń Produkt</button>
+                <button type="submit" name="delete" class="submit-btn">Usuń produkt</button>
             </form>
+        </section>
         {% endif %}
     </div>
 </body>
