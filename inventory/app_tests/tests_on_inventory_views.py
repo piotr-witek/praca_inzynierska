@@ -10,10 +10,11 @@ from django.utils import timezone
 
 @pytest.mark.django_db
 def test_add_purchase(client, django_user_model):
-   
-    user = django_user_model.objects.create_user(username="testuser", password="password")
+
+    user = django_user_model.objects.create_user(
+        username="testuser", password="password"
+    )
     client.login(username="testuser", password="password")
-    
 
     item = InventoryItem.objects.create(
         name="Test Item",
@@ -22,15 +23,16 @@ def test_add_purchase(client, django_user_model):
         unit_id=1,
         reorder_level=5,
         expiration_date="2100-01-01",
-        supplier_id=1
+        supplier_id=1,
     )
 
-
-    response = client.post(reverse("add_purchase"), {
-        "item": item.id,
-        "quantity": 5,
-    })
-
+    response = client.post(
+        reverse("add_purchase"),
+        {
+            "item": item.id,
+            "quantity": 5,
+        },
+    )
 
     assert response.status_code == 302
     assert response.url == reverse("stock_status")
@@ -38,10 +40,8 @@ def test_add_purchase(client, django_user_model):
     messages = list(get_messages(response.wsgi_request))
     assert any("added successfully" in str(message) for message in messages)
 
-
     item.refresh_from_db()
     assert item.quantity == 11
-
 
     assert Purchase.objects.filter(item=item, quantity=5).exists()
 
@@ -49,10 +49,11 @@ def test_add_purchase(client, django_user_model):
 @pytest.mark.django_db
 def test_add_consumption(client, django_user_model):
 
-    user = django_user_model.objects.create_user(username="testuser", password="password")
+    user = django_user_model.objects.create_user(
+        username="testuser", password="password"
+    )
     client.login(username="testuser", password="password")
-    
- 
+
     item = InventoryItem.objects.create(
         name="Test Item",
         category_id=1,
@@ -60,22 +61,22 @@ def test_add_consumption(client, django_user_model):
         unit_id=1,
         reorder_level=5,
         expiration_date="2100-01-01",
-        supplier_id=1
+        supplier_id=1,
     )
 
- 
-    response = client.post(reverse("add_consumption"), {
-        "item": item.id,
-        "quantity": 3,
-    })
+    response = client.post(
+        reverse("add_consumption"),
+        {
+            "item": item.id,
+            "quantity": 3,
+        },
+    )
 
-   
     assert response.status_code == 302
     assert response.url == reverse("stock_status")
 
     messages = list(get_messages(response.wsgi_request))
     assert any("recorded successfully" in str(message) for message in messages)
-
 
     item.refresh_from_db()
     assert item.quantity == 7
@@ -86,10 +87,11 @@ def test_add_consumption(client, django_user_model):
 @pytest.mark.django_db
 def test_item_list_filtering(client, django_user_model):
 
-    user = django_user_model.objects.create_user(username="testuser", password="password")
+    user = django_user_model.objects.create_user(
+        username="testuser", password="password"
+    )
     client.login(username="testuser", password="password")
 
-  
     category = ItemCategory.objects.create(name="Test Category")
     supplier = Supplier.objects.create(name="Test Supplier")
     unit = UnitOfMeasurement.objects.create(name="Test Unit")
@@ -99,7 +101,7 @@ def test_item_list_filtering(client, django_user_model):
         quantity=10,
         unit=unit,
         expiration_date="2100-01-01",
-        supplier=supplier
+        supplier=supplier,
     )
     item2 = InventoryItem.objects.create(
         name="Item 2",
@@ -107,14 +109,12 @@ def test_item_list_filtering(client, django_user_model):
         quantity=5,
         unit=unit,
         expiration_date="2100-01-01",
-        supplier=supplier
+        supplier=supplier,
     )
 
-   
     response = client.get(reverse("item_list"), {"name": "Item 1"})
     assert response.status_code == 200
 
- 
     content = response.content.decode("utf-8")
     assert "Item 1" in content
     assert "Item 2" not in content
