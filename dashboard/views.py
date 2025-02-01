@@ -3,6 +3,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.cache import cache
 from pyexpat.errors import messages
+from django.contrib import messages
 from .models import (
     Table,
     OrderedProduct,
@@ -24,6 +25,9 @@ import io
 import pandas as pd
 import matplotlib.pyplot as plt
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.db.models.functions import Cast
+from django.db.models import IntegerField
 
 
 @login_required
@@ -360,49 +364,64 @@ def edit_order(request, table_id, order_id):
 
 @login_required
 def create_transaction(request, table_id, order_id):
-
     order_items = OrderedProduct.objects.filter(
         order_id=order_id, table__table_number=table_id, is_processed=0
     )
 
     if request.method == "POST":
+        try:
+            with transaction.atomic():
+                payment_method_id = request.POST.get("payment_method")
+                payment_method = get_object_or_404(PaymentMethod, id=payment_method_id)
+                total_amount = sum(item.total_price for item in order_items)
 
-        payment_method_id = request.POST.get("payment_method")
-        payment_method = get_object_or_404(PaymentMethod, id=payment_method_id)
-        total_amount = sum(item.total_price for item in order_items)
+                last_transaction = SalesTransaction.objects.all().order_by("id").last()
+                new_transaction_id = (
+                    str(int(last_transaction.transaction_id) + 1)
+                    if last_transaction
+                    else "1"
+                )
 
-        last_transaction = SalesTransaction.objects.all().order_by("id").last()
-        if last_transaction:
-            new_transaction_id = str(int(last_transaction.transaction_id) + 1)
-        else:
-            new_transaction_id = "1"
+                transaction_obj = SalesTransaction.objects.create(
+                    transaction_id=new_transaction_id,
+                    transaction_date=timezone.now(),
+                    total_amount=total_amount,
+                    payment_method=payment_method,
+                    table_id=table_id,
+                    order_id=order_id,
+                    is_completed=True,
+                )
 
-        transaction = SalesTransaction.objects.create(
-            transaction_id=new_transaction_id,
-            transaction_date=timezone.now(),
-            total_amount=total_amount,
-            payment_method=payment_method,
-            table_id=table_id,
-            order_id=order_id,
-            is_completed=True,
-        )
+                for item in order_items:
+                    SalesTransactionItem.objects.create(
+                        sales_transaction=transaction_obj,
+                        product_id=item.product.id,
+                        product_name=item.product_name,
+                        product_category=item.product_category,
+                        product_unit=item.product_unit,
+                        product_purchase_price=item.product_purchase_price,
+                        quantity=item.quantity,
+                        total_price=item.total_price,
+                        product_supplier=item.product_supplier,
+                    )
 
-        for item in order_items:
-            SalesTransactionItem.objects.create(
-                sales_transaction=transaction,
-                product_id=item.product.id,
-                product_name=item.product_name,
-                product_category=item.product_category,
-                product_unit=item.product_unit,
-                product_purchase_price=item.product_purchase_price,
-                quantity=item.quantity,
-                total_price=item.total_price,
-                product_supplier=item.product_supplier,
+                order_items.update(is_processed=1)
+
+                messages.success(request, "Transakcja została zakończona pomyślnie.")
+                return redirect(
+                    "create_transaction", table_id=table_id, order_id=order_id
+                )
+
+        except Exception as e:
+            print(e)
+            messages.error(
+                request,
+                "Wystąpił błąd podczas transakcji. Spróbuj ponownie."
+                + "\n"
+                + "Komunikat błędu:"
+                + e,
             )
-
-        order_items.update(is_processed=1)
-
-        return redirect("dashboard")
+            return redirect("create_transaction", table_id=table_id, order_id=order_id)
 
     payment_methods = PaymentMethod.objects.all()
     return render(
@@ -460,10 +479,22 @@ def transaction_list(request):
     sort_field = request.GET.get("sort", "transaction_id")
     sort_order = request.GET.get("order", "desc")
 
-    if sort_order == "desc":
-        sort_field = "-" + sort_field
+    if sort_field == "transaction_id":
 
-    transactions = transactions.order_by(sort_field)
+        transactions = transactions.annotate(
+            transaction_id_num=Cast("transaction_id", IntegerField())
+        )
+
+        if sort_order == "desc":
+            transactions = transactions.order_by("-transaction_id_num")
+        else:
+            transactions = transactions.order_by("transaction_id_num")
+    else:
+
+        if sort_order == "desc":
+            transactions = transactions.order_by("-" + sort_field)
+        else:
+            transactions = transactions.order_by(sort_field)
 
     paginator = Paginator(transactions, 20)
     page_number = request.GET.get("page")

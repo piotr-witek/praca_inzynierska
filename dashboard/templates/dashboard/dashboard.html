@@ -94,6 +94,8 @@
 <body>
 <div class="container">
     <h1>Zarządzanie stolikami</h1>
+
+
     <div class="dashboard" id="dashboard">
         {% for table in tables %}
         <div class="table" id="table-{{ table.id }}" 
@@ -138,17 +140,19 @@
                     <p>Kwota zamówienia: {{ table.unprocessed_order_total_price }}</p>
                 </div>
 
-                <a href="http://127.0.0.1:8000/dashboard/add_order/{{ table.table_number }}/{{ table.unprocessed_order_id }}"
-                   class="btn btn-secondary">Podgląd Zamówienia</a>
-
-                <a href="http://127.0.0.1:8000/dashboard/create_transaction/{{ table.table_number }}/{{ table.unprocessed_order_id }}"
-                   class="btn btn-warning">Utwórz Transakcję</a>
+                <a href="{% url 'add_order' table.table_number table.unprocessed_order_id %}" class="btn btn-secondary">
+                    Podgląd zamówienia
+                </a>
+                
+                <a href="{% url 'create_transaction' table.table_number table.unprocessed_order_id %}" class="btn btn-warning">
+                    Utwórz transakcję
+                </a>
             {% else %}
                 <a href="{% url 'add_order' table.id %}" 
                    class="btn btn-primary 
                    {% if table.is_reserved %}disabled{% endif %}" 
                    {% if table.is_reserved %}aria-disabled="true" tabindex="-1"{% endif %}>
-                   Dodaj Zamówienie
+                   Dodaj zamówienie
                 </a>
             {% endif %}
 

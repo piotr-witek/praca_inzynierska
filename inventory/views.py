@@ -15,6 +15,7 @@ from .forms import (
     PurchaseForm,
     SupplierForm,
     PaymentMethodForm,
+    ProductFormDelete,
 )
 from .models import InventoryItem, ItemCategory, Supplier, UnitOfMeasurement
 from .reports import (
@@ -241,6 +242,14 @@ def edit_product(request):
 
     if "search" in request.GET:
         query = request.GET.get("search").strip()
+
+        if not query.isdigit():
+            messages.error(
+                request,
+                f"Identyfikator produktu '{query}' jest nieprawidłowy. Musi być liczbą całkowitą.",
+            )
+            return render(request, "inventory/edit_product.html", {"searched": False})
+
         try:
             product = InventoryItem.objects.get(id=query)
             form = ProductFormEdit(instance=product)
@@ -284,35 +293,33 @@ def edit_product(request):
 @login_required
 def delete_product(request):
     product = None
+    form = ProductFormDelete(request.POST or None)
 
     if request.method == "POST":
+        if form.is_valid():
+            product_id = form.cleaned_data["product_id"]
 
-        if "search" in request.POST:
-            search_term = request.POST.get("product_id", "").strip()
-            if search_term:
-                try:
-                    product = InventoryItem.objects.get(id=search_term)
-                except InventoryItem.DoesNotExist:
-                    messages.error(
-                        request, "Nie znaleziono produktu o podanym identyfikatorze."
-                    )
+            try:
+                product = InventoryItem.objects.get(id=product_id)
+            except InventoryItem.DoesNotExist:
+                messages.error(request, "Nie znaleziono produktu do usunięcia.")
+                product = None
 
-        elif "delete" in request.POST:
+        if "delete" in request.POST and product:
+            try:
+                product.delete()
+                messages.success(
+                    request, f"Produkt '{product.name}' został usunięty pomyślnie!"
+                )
+                return redirect("delete_product")
+            except Exception as e:
+                messages.error(
+                    request, f"Wystąpił błąd podczas usuwania produktu: {str(e)}"
+                )
 
-            product_id = request.POST.get("product_id")
-            if product_id:
-                try:
-                    product_to_delete = InventoryItem.objects.get(id=product_id)
-                    product_to_delete.delete()
-                    messages.success(
-                        request,
-                        f"Produkt '{product_to_delete.name}' został usunięty pomyślnie!",
-                    )
-                    product = None
-                except InventoryItem.DoesNotExist:
-                    messages.error(request, "Nie znaleziono produktu do usunięcia.")
-
-    return render(request, "inventory/delete_product.html", {"product": product})
+    return render(
+        request, "inventory/delete_product.html", {"form": form, "product": product}
+    )
 
 
 @login_required
@@ -371,9 +378,7 @@ def administration(request):
 
 @login_required
 def notifications(request):
-
     current_date = timezone.now().date()
-
     days_until_expiration = 7
     expiration_date_limit = current_date + timedelta(days=days_until_expiration)
 
@@ -389,15 +394,20 @@ def notifications(request):
         if item.quantity < item.reorder_level
     ]
 
-    return render(
-        request,
-        "inventory/notifications.html",
-        {
-            "low_stock_items": low_stock_items,
-            "expiring_items": expiring_items,
-            "expired_items": expired_items,
-        },
-    )
+    def paginate_list(queryset, request, per_page=5, param="page"):
+        paginator = Paginator(queryset, per_page)
+        page_number = request.GET.get(param)
+        return paginator.get_page(page_number)
+
+    context = {
+        "low_stock_items": paginate_list(
+            low_stock_items, request, param="low_stock_page"
+        ),
+        "expiring_items": paginate_list(expiring_items, request, param="expiring_page"),
+        "expired_items": paginate_list(expired_items, request, param="expired_page"),
+    }
+
+    return render(request, "inventory/notifications.html", context)
 
 
 @login_required
@@ -412,34 +422,49 @@ def reports(request):
         date_from = datetime.strptime(data_od, "%Y-%m-%d") if data_od else None
         date_to = datetime.strptime(data_do, "%Y-%m-%d") if data_do else None
 
-        if report_type == "inventory":
-            if file_format == "xls":
-                return generate_inventory_xls(request, date_from, date_to, date_filter)
-            elif file_format == "csv":
-                return generate_inventory_csv(request, date_from, date_to, date_filter)
-        elif report_type == "suppliers":
-            if file_format == "xls":
-                return generate_suppliers_xls(request, date_from, date_to)
-            elif file_format == "csv":
-                return generate_suppliers_csv(request, date_from, date_to)
-        elif report_type == "expired_inventory":
-            if file_format == "xls":
-                return generate_expired_inventory_xls(request)
-            elif file_format == "csv":
-                return generate_expired_inventory_csv(request)
-        elif report_type == "expiring_inventory":
-            if file_format == "xls":
-                return generate_expiring_inventory_xls(request)
-            elif file_format == "csv":
-                return generate_expiring_inventory_csv(request)
-        elif report_type == "low_stock_inventory":
-            if file_format == "xls":
-                return generate_low_stock_inventory_xls(request)
-            elif file_format == "csv":
-                return generate_low_stock_inventory_csv(request)
+        try:
+            if report_type == "inventory":
+                if file_format == "xls":
+                    return generate_inventory_xls(
+                        request, date_from, date_to, date_filter
+                    )
+                elif file_format == "csv":
+                    return generate_inventory_csv(
+                        request, date_from, date_to, date_filter
+                    )
+            elif report_type == "suppliers":
+                if file_format == "xls":
+                    return generate_suppliers_xls(request, date_from, date_to)
+                elif file_format == "csv":
+                    return generate_suppliers_csv(request, date_from, date_to)
+            elif report_type == "expired_inventory":
+                if file_format == "xls":
+                    return generate_expired_inventory_xls(request)
+                elif file_format == "csv":
+                    return generate_expired_inventory_csv(request)
+            elif report_type == "expiring_inventory":
+                if file_format == "xls":
+                    return generate_expiring_inventory_xls(request)
+                elif file_format == "csv":
+                    return generate_expiring_inventory_csv(request)
+            elif report_type == "low_stock_inventory":
+                if file_format == "xls":
+                    return generate_low_stock_inventory_xls(request)
+                elif file_format == "csv":
+                    return generate_low_stock_inventory_csv(request)
 
-        messages.error(request, "Nieznany typ raportu lub format pliku.")
-        return redirect("reports")
+            raise ValueError("Nieznany typ raportu lub format pliku.")
+
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect("reports")
+
+        except Exception:
+            messages.error(
+                request,
+                "Wystąpił błąd podczas generowania raportu. Proszę spróbować ponownie.",
+            )
+            return redirect("reports")
 
     return render(request, "inventory/reports.html")
 
@@ -476,8 +501,8 @@ def download_price_chart(request):
 
     chart_data = df.groupby("supplier")["purchase_price"].mean().reset_index()
 
-    plt.figure(figsize=(12, 6))
-    bars = plt.bar(
+    fig, ax = plt.subplots(figsize=(12, 6))
+    bars = ax.bar(
         chart_data["supplier"],
         chart_data["purchase_price"],
         color="skyblue",
@@ -486,7 +511,7 @@ def download_price_chart(request):
 
     for bar in bars:
         yval = bar.get_height()
-        plt.text(
+        ax.text(
             bar.get_x() + bar.get_width() / 2,
             yval,
             round(yval, 2),
@@ -498,23 +523,19 @@ def download_price_chart(request):
     date_range = (
         f"({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})"
     )
-    plt.xlabel("Dostawcy", fontsize=14)
-    plt.ylabel("Średnia Cena Zakupu (PLN)", fontsize=14)
-    plt.title(f"Średnia Cena Zakupu według Dostawców {date_range}", fontsize=16)
-    plt.xticks(rotation=45, ha="right", fontsize=12)
-    plt.yticks(fontsize=12)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    ax.set_xlabel("Dostawcy", fontsize=14)
+    ax.set_ylabel("Średnia Cena Zakupu (PLN)", fontsize=14)
+    ax.set_title(f"Średnia Cena Zakupu według Dostawców {date_range}", fontsize=16)
+    ax.tick_params(axis="x", rotation=45, labelsize=12)
+    ax.tick_params(axis="y", labelsize=12)
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
 
     buf = io.BytesIO()
     plt.savefig(buf, format="png", bbox_inches="tight")
     buf.seek(0)
     plt.close()
 
-    response = HttpResponse(buf.getvalue(), content_type="image/png")
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="srednia_cen_zakupu_wg_dostawcow.png"'
-    return response
+    return HttpResponse(buf.getvalue(), content_type="image/png")
 
 
 @login_required
@@ -544,8 +565,8 @@ def download_purchase_sum_by_category(request):
 
     chart_data = df.groupby("category")["purchase_price"].sum().reset_index()
 
-    plt.figure(figsize=(12, 6))
-    bars = plt.bar(
+    fig, ax = plt.subplots(figsize=(12, 6))
+    bars = ax.bar(
         chart_data["category"],
         chart_data["purchase_price"],
         color="lightgreen",
@@ -554,7 +575,7 @@ def download_purchase_sum_by_category(request):
 
     for bar in bars:
         yval = bar.get_height()
-        plt.text(
+        ax.text(
             bar.get_x() + bar.get_width() / 2,
             yval,
             round(yval, 2),
@@ -566,23 +587,19 @@ def download_purchase_sum_by_category(request):
     date_range = (
         f"({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})"
     )
-    plt.xlabel("Kategorie", fontsize=14)
-    plt.ylabel("Suma Cen Zakupu (PLN)", fontsize=14)
-    plt.title(f"Suma Cen Zakupu według Kategorii {date_range}", fontsize=16)
-    plt.xticks(rotation=45, ha="right", fontsize=12)
-    plt.yticks(fontsize=12)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    ax.set_xlabel("Kategorie", fontsize=14)
+    ax.set_ylabel("Suma Cen Zakupu (PLN)", fontsize=14)
+    ax.set_title(f"Suma Cen Zakupu według Kategorii {date_range}", fontsize=16)
+    ax.tick_params(axis="x", rotation=45, labelsize=12)
+    ax.tick_params(axis="y", labelsize=12)
+    ax.grid(axis="y", linestyle="--", alpha=0.7)
 
     buf = io.BytesIO()
     plt.savefig(buf, format="png", bbox_inches="tight")
     buf.seek(0)
     plt.close()
 
-    response = HttpResponse(buf.getvalue(), content_type="image/png")
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="suma_cen_zakupów_wg_kategorii.png"'
-    return response
+    return HttpResponse(buf.getvalue(), content_type="image/png")
 
 
 @login_required
