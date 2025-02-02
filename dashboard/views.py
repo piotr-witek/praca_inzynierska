@@ -408,21 +408,17 @@ def create_transaction(request, table_id, order_id):
                 order_items.update(is_processed=1)
 
                 messages.success(request, "Transakcja została zakończona pomyślnie.")
-                return redirect(
-                    "create_transaction", table_id=table_id, order_id=order_id
-                )
+
+                return redirect("dashboard")
 
         except Exception as e:
             print(e)
             messages.error(
                 request,
-                "Wystąpił błąd podczas transakcji. Spróbuj ponownie."
-                + "\n"
-                + "Komunikat błędu:"
-                + e,
+                "Wystąpił błąd podczas transakcji. Spróbuj ponownie.\nKomunikat błędu:"
+                + str(e),
             )
             return redirect("create_transaction", table_id=table_id, order_id=order_id)
-
     payment_methods = PaymentMethod.objects.all()
     return render(
         request,
@@ -527,7 +523,7 @@ def transaction_details(request, transaction_id):
             },
         )
     except SalesTransaction.DoesNotExist:
-        return render(request, "404.html", {"error": "Transakcja nie istnieje."})
+        raise Http404("Transakcja nie istnieje.")
 
 
 @login_required

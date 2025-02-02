@@ -1,64 +1,62 @@
-from datetime import timedelta
-from datetime import datetime
+import io
+from datetime import datetime, timedelta
+
 import matplotlib
+import matplotlib.pyplot as plt
+import pandas as pd
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+
+from dashboard.models import PaymentMethod
 
 from .forms import (
     ConsumptionForm,
     ItemCategoryForm,
     ItemUnitForm,
-    ProductForm,
-    ProductFormEdit,
-    PurchaseForm,
-    SupplierForm,
     PaymentMethodForm,
+    ProductForm,
     ProductFormDelete,
+    ProductFormEdit,
+    SupplierForm,
 )
 from .models import InventoryItem, ItemCategory, Supplier, UnitOfMeasurement
 from .reports import (
-    generate_inventory_csv,
-    generate_inventory_xls,
-    generate_suppliers_csv,
-    generate_suppliers_xls,
     generate_expired_inventory_csv,
     generate_expired_inventory_xls,
     generate_expiring_inventory_csv,
     generate_expiring_inventory_xls,
+    generate_inventory_csv,
+    generate_inventory_xls,
     generate_low_stock_inventory_csv,
     generate_low_stock_inventory_xls,
+    generate_suppliers_csv,
+    generate_suppliers_xls,
 )
-
-import io
-
-import matplotlib.pyplot as plt
-import pandas as pd
-from django.http import HttpResponse
-from dashboard.models import PaymentMethod
-from django.contrib.auth.decorators import login_required
 
 matplotlib.use("Agg")
 
 
-@login_required
-def add_purchase(request):
-    if request.method == "POST":
-        form = PurchaseForm(request.POST)
-        if form.is_valid():
-            purchase = form.save()
-            item = purchase.item
-            item.quantity += purchase.quantity
-            item.save()
-            messages.success(
-                request,
-                f"Purchase of {purchase.quantity} {item.name} added successfully.",
-            )
-            return redirect("stock_status")
-    else:
-        form = PurchaseForm()
-    return render(request, "inventory/add_purchase.html", {"form": form})
+# @login_required
+# def add_purchase(request):
+#     if request.method == "POST":
+#         form = PurchaseForm(request.POST)
+#         if form.is_valid():
+#             purchase = form.save()
+#             item = purchase.item
+#             item.quantity += purchase.quantity
+#             item.save()
+#             messages.success(
+#                 request,
+#                 f"Purchase of {purchase.quantity} {item.name} added successfully.",
+#             )
+#             return redirect("stock_status")
+#     else:
+#         form = PurchaseForm()
+#     return render(request, "inventory/add_purchase.html", {"form": form})
 
 
 @login_required
@@ -70,7 +68,7 @@ def add_consumption(request):
             item = consumption.item
             item.quantity -= consumption.quantity
             item.save()
-            if item.quantity <= item.threshold:
+            if item.quantity <= item.reorder_level:
                 messages.warning(request, f"{item.name} has reached its threshold.")
             messages.success(
                 request,
@@ -602,6 +600,6 @@ def download_purchase_sum_by_category(request):
     return HttpResponse(buf.getvalue(), content_type="image/png")
 
 
-@login_required
-def inventory_management_page(request):
-    return render(request, "inventory/inventory_management.html")
+# @login_required
+# def inventory_management_page(request):
+#     return render(request, "inventory/inventory_management.html")

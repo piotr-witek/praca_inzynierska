@@ -1,6 +1,7 @@
-# dashboard/forms.py
 from django import forms
-from inventory.models import ItemCategory, InventoryItem
+
+from inventory.models import InventoryItem, ItemCategory
+
 from .models import OrderedProduct
 
 
@@ -11,12 +12,16 @@ class CategoryForm(forms.Form):
 
 
 class ProductForm(forms.ModelForm):
+    quantity = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
+    )
+
     class Meta:
         model = OrderedProduct
         fields = ["product", "quantity"]
         widgets = {
             "product": forms.Select(attrs={"class": "form-control"}),
-            "quantity": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
         }
 
     def __init__(self, *args, **kwargs):

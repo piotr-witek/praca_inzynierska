@@ -4,14 +4,14 @@ from . import views
 
 urlpatterns = [
     path("stock_status/", views.item_list, name="stock_status"),
-    path("add_purchase/", views.add_purchase, name="add_purchase"),
+    # path("add_purchase/", views.add_purchase, name="add_purchase"),
     path("add_consumption/", views.add_consumption, name="add_consumption"),
     path("add_product/", views.add_product, name="add_product"),
-    path(
-        "inventory_management/",
-        views.inventory_management_page,
-        name="inventory_management",
-    ),
+    # path(
+    #     "inventory_management/",
+    #     views.inventory_management_page,
+    #     name="inventory_management",
+    # ),
     path("add_product/", views.add_product, name="add_product"),
     path("edit/", views.edit_product, name="edit_product"),
     path("delete/", views.delete_product, name="delete_product"),
@@ -31,4 +31,5 @@ urlpatterns = [
         name="download_purchase_sum_by_category",
     ),
     path("payment/", views.payment_methods_list, name="payment_methods_list"),
+    path("item_list/", views.item_list, name="item_list"),
 ]

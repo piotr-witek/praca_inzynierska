@@ -1,7 +1,8 @@
-from django.db import migrations
-from django.utils.timezone import now
 from datetime import datetime, timedelta
 from decimal import Decimal
+
+from django.db import migrations
+from django.utils.timezone import now
 
 
 def load_test_data(apps, schema_editor):
