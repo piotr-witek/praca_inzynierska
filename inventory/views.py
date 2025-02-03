@@ -1,13 +1,12 @@
-import io
 from datetime import datetime, timedelta
-
+import plotly.express as px
+import plotly.io as pio
+from django.http import JsonResponse
 import matplotlib
-import matplotlib.pyplot as plt
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -466,6 +465,9 @@ def reports(request):
 
     return render(request, "inventory/reports.html")
 
+@login_required
+def data_visualization(request):
+    return render(request, "inventory/data_visualization.html")
 
 @login_required
 def data_visualization(request):
@@ -473,132 +475,91 @@ def data_visualization(request):
 
 
 @login_required
+def data_visualization(request):
+    return render(request, "inventory/data_visualization.html")
+
+@login_required
 def download_price_chart(request):
     start_date = request.POST.get("start_date")
     end_date = request.POST.get("end_date")
 
-    items = InventoryItem.objects.all()
+    if not start_date or not end_date:
+        return JsonResponse({"error": "Proszę wybrać przedział czasowy."}, status=400)
 
-    if start_date and end_date:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-        items = items.filter(created_at__range=(start_date, end_date))
-    else:
-        return HttpResponse("Proszę wybrać przedział czasowy.", status=400)
+  
+    start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
 
-    data = []
-    for item in items:
-        if item.purchase_price is not None:
-            data.append(
-                {"supplier": item.supplier.name, "purchase_price": item.purchase_price}
-            )
+   
+    end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+    end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)  
 
+    items = InventoryItem.objects.filter(created_at__range=(start_date, end_date))
+
+    data = [{"supplier": item.supplier.name, "purchase_price": item.purchase_price} for item in items if item.purchase_price is not None]
     df = pd.DataFrame(data)
+
     if df.empty:
-        return HttpResponse("Brak danych do wykresu.", status=404)
+        return JsonResponse({"error": "Brak danych do wykresu."}, status=404)
 
     chart_data = df.groupby("supplier")["purchase_price"].mean().reset_index()
 
-    fig, ax = plt.subplots(figsize=(12, 6))
-    bars = ax.bar(
-        chart_data["supplier"],
-        chart_data["purchase_price"],
-        color="skyblue",
-        edgecolor="black",
+    fig = px.bar(
+        chart_data,
+        x="supplier",
+        y="purchase_price",
+        title=f"Średnia cena zakupu według dostawców ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        labels={"supplier": "Dostawca", "purchase_price": "Średnia Cena Zakupu (PLN)"},
+        text_auto=True
     )
+    fig.update_traces(marker_color='skyblue', marker_line_color='black', marker_line_width=1.5)
+    fig.update_layout(xaxis_tickangle=-45)
 
-    for bar in bars:
-        yval = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            yval,
-            round(yval, 2),
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
+    graph_json = pio.to_json(fig)  
 
-    date_range = (
-        f"({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})"
-    )
-    ax.set_xlabel("Dostawcy", fontsize=14)
-    ax.set_ylabel("Średnia Cena Zakupu (PLN)", fontsize=14)
-    ax.set_title(f"Średnia Cena Zakupu według Dostawców {date_range}", fontsize=16)
-    ax.tick_params(axis="x", rotation=45, labelsize=12)
-    ax.tick_params(axis="y", labelsize=12)
-    ax.grid(axis="y", linestyle="--", alpha=0.7)
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
-    plt.close()
-
-    return HttpResponse(buf.getvalue(), content_type="image/png")
-
+    return JsonResponse({"graph_json": graph_json}, safe=False)
 
 @login_required
 def download_purchase_sum_by_category(request):
     start_date = request.POST.get("start_date")
     end_date = request.POST.get("end_date")
 
-    items = InventoryItem.objects.all()
+    if not start_date or not end_date:
+        return JsonResponse({"error": "Proszę wybrać przedział czasowy."}, status=400)
+    
+ 
+    start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
 
-    if start_date and end_date:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-        items = items.filter(created_at__range=(start_date, end_date))
-    else:
-        return HttpResponse("Proszę wybrać przedział czasowy.", status=400)
-
-    data = []
-    for item in items:
-        if item.purchase_price is not None:
-            data.append(
-                {"category": item.category.name, "purchase_price": item.purchase_price}
-            )
-
+ 
+    end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+    end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)  
+    
+    items = InventoryItem.objects.filter(created_at__range=(start_date, end_date))
+    
+    data = [{"category": item.category.name, "purchase_price": item.purchase_price} for item in items if item.purchase_price is not None]
     df = pd.DataFrame(data)
+    
     if df.empty:
-        return HttpResponse("Brak danych do wykresu.", status=404)
-
+        return JsonResponse({"error": "Brak danych do wykresu."}, status=404)
+    
     chart_data = df.groupby("category")["purchase_price"].sum().reset_index()
-
-    fig, ax = plt.subplots(figsize=(12, 6))
-    bars = ax.bar(
-        chart_data["category"],
-        chart_data["purchase_price"],
-        color="lightgreen",
-        edgecolor="black",
+    fig = px.bar(
+        chart_data, 
+        x="category", 
+        y="purchase_price", 
+        title=f"Suma cen zakupu według kategorii ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})", 
+        labels={"category": "Kategoria", "purchase_price": "Suma Cen Zakupu (PLN)"},
+        text_auto=True
     )
+    fig.update_traces(marker_color='lightgreen', marker_line_color='black', marker_line_width=1.5)
+    fig.update_layout(xaxis_tickangle=-45)
 
-    for bar in bars:
-        yval = bar.get_height()
-        ax.text(
-            bar.get_x() + bar.get_width() / 2,
-            yval,
-            round(yval, 2),
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
+    graph_json = pio.to_json(fig)  
 
-    date_range = (
-        f"({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})"
-    )
-    ax.set_xlabel("Kategorie", fontsize=14)
-    ax.set_ylabel("Suma Cen Zakupu (PLN)", fontsize=14)
-    ax.set_title(f"Suma Cen Zakupu według Kategorii {date_range}", fontsize=16)
-    ax.tick_params(axis="x", rotation=45, labelsize=12)
-    ax.tick_params(axis="y", labelsize=12)
-    ax.grid(axis="y", linestyle="--", alpha=0.7)
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
-    plt.close()
-
-    return HttpResponse(buf.getvalue(), content_type="image/png")
-
+    return JsonResponse({"graph_json": graph_json}, safe=False)
 
 # @login_required
 # def inventory_management_page(request):

@@ -8,59 +8,382 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wizualizacja danych</title>
     <link rel="stylesheet" href="{% static 'css/data_visualization.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Wizualizacja danych</h1>
 
-        <section class="form-section">
-            <h2>Średnia kwota transakcji per stolik</h2>
-            <form method="post" action="{% url 'download_average_transaction_per_table' %}">
-                {% csrf_token %}
-                <label for="start_date">Data początkowa:</label>
-                <input type="date" id="start_date" name="start_date" required>
-                <label for="end_date">Data końcowa:</label>
-                <input type="date" id="end_date" name="end_date" required>
-                <button type="submit" class="btn-secondary">Pobierz wykres</button>
-            </form>
-        </section>
+
 
         <section class="form-section">
-            <h2>Średnia kwota transakcji per metoda płatności</h2>
-            <form method="post" action="{% url 'download_average_transaction_per_payment_method' %}">
+            <h2>Średnia kwota transakcji na stolik</h2>
+            <form method="post" id="form-average-transaction-per-table">
                 {% csrf_token %}
-                <label for="start_date">Data początkowa:</label>
-                <input type="date" id="start_date" name="start_date" required>
-                <label for="end_date">Data końcowa:</label>
-                <input type="date" id="end_date" name="end_date" required>
-                <button type="submit" class="btn-secondary">Pobierz wykres</button>
+                <label for="start_date_price">Data początkowa:</label>
+                <input type="date" id="start_date_price" name="start_date" required>
+
+                <label for="end_date_price">Data końcowa:</label>
+                <input type="date" id="end_date_price" name="end_date" required>
+
+                <button type="submit" class="btn-primary">Generuj wykres</button>
             </form>
+
+            <button id="generate_24h_average_transaction_per_table" class="btn-secondary">Wygeneruj za okres 24h</button>
+            <div id="chart-container-1"></div> 
         </section>
 
-        <section class="form-section">
-            <h2>Suma kwoty transakcji per stolik</h2>
-            <form method="post" action="{% url 'download_total_transaction_per_table' %}">
-                {% csrf_token %}
-                <label for="start_date">Data początkowa:</label>
-                <input type="date" id="start_date" name="start_date" required>
-                <label for="end_date">Data końcowa:</label>
-                <input type="date" id="end_date" name="end_date" required>
-                <button type="submit" class="btn-secondary">Pobierz wykres</button>
-            </form>
-        </section>
+
+
+
 
         <section class="form-section">
-            <h2>Suma kwoty transakcji per metoda płatności</h2>
-            <form method="post" action="{% url 'download_total_transaction_per_payment_method' %}">
+            <h2>Średnia kwota transakcji na metode płatności</h2>
+            <form method="post" id="form-average-transaction-per-payment-method">
                 {% csrf_token %}
-                <label for="start_date">Data początkowa:</label>
-                <input type="date" id="start_date" name="start_date" required>
-                <label for="end_date">Data końcowa:</label>
-                <input type="date" id="end_date" name="end_date" required>
-                <button type="submit" class="btn-secondary">Pobierz wykres</button>
+                <label for="start_date_price">Data początkowa:</label>
+                <input type="date" id="start_date_price" name="start_date" required>
+
+                <label for="end_date_price">Data końcowa:</label>
+                <input type="date" id="end_date_price" name="end_date" required>
+
+                <button type="submit" class="btn-primary">Generuj wykres</button>
             </form>
+
+            <button id="generate_24h_average_transaction_per_payment_method" class="btn-secondary">Wygeneruj za okres 24h</button>
+            <div id="chart-container-2"></div> 
         </section>
+
+
+
+
+
+
+
+        <section class="form-section">
+            <h2>Suma kwoty transakcji na stolik</h2>
+            <form method="post" id="form-total-transaction-per-table">
+                {% csrf_token %}
+                <label for="start_date_price">Data początkowa:</label>
+                <input type="date" id="start_date_price" name="start_date" required>
+
+                <label for="end_date_price">Data końcowa:</label>
+                <input type="date" id="end_date_price" name="end_date" required>
+
+                <button type="submit" class="btn-primary">Generuj wykres</button>
+            </form>
+
+            <button id="generate_24h_total_transaction_per_table" class="btn-secondary">Wygeneruj za okres 24h</button>
+            <div id="chart-container-3"></div> 
+        </section>
+
+
+
+
+
+
+        <section class="form-section">
+            <h2>Suma kwoty transakcji na metode płatności</h2>
+            <form method="post" id="form-total-transaction-per-payment-method">
+                {% csrf_token %}
+                <label for="start_date_price">Data początkowa:</label>
+                <input type="date" id="start_date_price" name="start_date" required>
+
+                <label for="end_date_price">Data końcowa:</label>
+                <input type="date" id="end_date_price" name="end_date" required>
+
+                <button type="submit" class="btn-primary">Generuj wykres</button>
+            </form>
+
+            <button id="generate_24h_total_transaction_per_payment_method" class="btn-secondary">Wygeneruj za okres 24h</button>
+            <div id="chart-container-4"></div> 
+        </section>
+
+
+
+
     </div>
+
+    <script>
+
+
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            return csrfToken;
+        }
+        
+        
+        document.getElementById("form-average-transaction-per-table").addEventListener("submit", function(event) {
+            event.preventDefault();
+        
+            const formData = new FormData(this);
+            fetch("{% url 'generate_average_transaction_per_table' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken(), 
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+        
+                const graphJson = JSON.parse(data.graph_json);  
+                Plotly.newPlot("chart-container-1", graphJson.data, graphJson.layout); 
+            })
+            .catch(error => {
+                alert("Błąd generowania wykresu: " + error.message);
+            });
+        });
+        
+        
+        document.getElementById("generate_24h_average_transaction_per_table").addEventListener("click", function() {
+            const currentDate = new Date();
+            const startDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000); 
+        
+            const startDateString = startDate.toISOString().split('T')[0]; 
+            const endDateString = currentDate.toISOString().split('T')[0]; 
+        
+            const formData = new FormData();
+            formData.append("start_date", startDateString);
+            formData.append("end_date", endDateString);
+        
+            fetch("{% url 'generate_average_transaction_per_table' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken(), 
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+        
+                const graphJson = JSON.parse(data.graph_json); 
+                Plotly.newPlot("chart-container-1", graphJson.data, graphJson.layout); 
+            })
+            .catch(error => {
+                alert("Błąd generowania wykresu: " + error.message);
+            });
+        });
+        
+
+
+
+
+
+        document.getElementById("form-average-transaction-per-payment-method").addEventListener("submit", function(event) {
+            event.preventDefault();
+        
+            const formData = new FormData(this);
+            fetch("{% url 'generate_average_transaction_per_payment_method' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken(), 
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+        
+                const graphJson = JSON.parse(data.graph_json);  
+                Plotly.newPlot("chart-container-2", graphJson.data, graphJson.layout); 
+            })
+            .catch(error => {
+                alert("Błąd generowania wykresu: " + error.message);
+            });
+        });
+               
+        document.getElementById("generate_24h_average_transaction_per_payment_method").addEventListener("click", function() {
+            const currentDate = new Date();
+            const startDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000); 
+        
+            const startDateString = startDate.toISOString().split('T')[0]; 
+            const endDateString = currentDate.toISOString().split('T')[0]; 
+        
+            const formData = new FormData();
+            formData.append("start_date", startDateString);
+            formData.append("end_date", endDateString);
+        
+            fetch("{% url 'generate_average_transaction_per_payment_method' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken(), 
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+        
+                const graphJson = JSON.parse(data.graph_json); 
+                Plotly.newPlot("chart-container-2", graphJson.data, graphJson.layout); 
+            })
+            .catch(error => {
+                alert("Błąd generowania wykresu: " + error.message);
+            });
+        });
+        
+
+
+
+
+
+
+
+
+        document.getElementById("form-total-transaction-per-table").addEventListener("submit", function(event) {
+            event.preventDefault();
+        
+            const formData = new FormData(this);
+            fetch("{% url 'generate_total_transaction_per_table' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken(), 
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+        
+                const graphJson = JSON.parse(data.graph_json);  
+                Plotly.newPlot("chart-container-3", graphJson.data, graphJson.layout); 
+            })
+            .catch(error => {
+                alert("Błąd generowania wykresu: " + error.message);
+            });
+        });
+               
+        document.getElementById("generate_24h_total_transaction_per_table").addEventListener("click", function() {
+            const currentDate = new Date();
+            const startDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000); 
+        
+            const startDateString = startDate.toISOString().split('T')[0]; 
+            const endDateString = currentDate.toISOString().split('T')[0]; 
+        
+            const formData = new FormData();
+            formData.append("start_date", startDateString);
+            formData.append("end_date", endDateString);
+        
+            fetch("{% url 'generate_total_transaction_per_table' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken(), 
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+        
+                const graphJson = JSON.parse(data.graph_json); 
+                Plotly.newPlot("chart-container-3", graphJson.data, graphJson.layout); 
+            })
+            .catch(error => {
+                alert("Błąd generowania wykresu: " + error.message);
+            });
+        });
+        
+
+
+
+
+
+
+
+
+
+        document.getElementById("form-total-transaction-per-payment-method").addEventListener("submit", function(event) {
+            event.preventDefault();
+        
+            const formData = new FormData(this);
+            fetch("{% url 'generate_total_transaction_per_payment_method' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken(), 
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+        
+                const graphJson = JSON.parse(data.graph_json);  
+                Plotly.newPlot("chart-container-4", graphJson.data, graphJson.layout); 
+            })
+            .catch(error => {
+                alert("Błąd generowania wykresu: " + error.message);
+            });
+        });
+               
+        document.getElementById("generate_24h_total_transaction_per_payment_method").addEventListener("click", function() {
+            const currentDate = new Date();
+            const startDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000); 
+        
+            const startDateString = startDate.toISOString().split('T')[0]; 
+            const endDateString = currentDate.toISOString().split('T')[0]; 
+        
+            const formData = new FormData();
+            formData.append("start_date", startDateString);
+            formData.append("end_date", endDateString);
+        
+            fetch("{% url 'generate_total_transaction_per_payment_method' %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken(), 
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+        
+                const graphJson = JSON.parse(data.graph_json); 
+                Plotly.newPlot("chart-container-4", graphJson.data, graphJson.layout); 
+            })
+            .catch(error => {
+                alert("Błąd generowania wykresu: " + error.message);
+            });
+        });
+        
+
+
+
+
+
+
+
+
+
+
+    </script>
 </body>
 </html>
 {% endblock content %}

@@ -1,5 +1,9 @@
 from datetime import datetime
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse,JsonResponse
+import plotly.graph_objects as go
+import pandas as pd
+
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.cache import cache
 from pyexpat.errors import messages
@@ -21,9 +25,8 @@ from .reports_transactions import (
     generate_transaction_items_csv,
     generate_transaction_items_xls,
 )
-import io
+
 import pandas as pd
-import matplotlib.pyplot as plt
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models.functions import Cast
@@ -292,6 +295,7 @@ def add_order(request, table_id, order_id=None):
     )
 
 
+
 @login_required
 def edit_order(request, table_id, order_id):
     table = Table.objects.get(id=table_id)
@@ -360,7 +364,6 @@ def edit_order(request, table_id, order_id):
             "order_id": order_id,
         },
     )
-
 
 @login_required
 def create_transaction(request, table_id, order_id):
@@ -578,7 +581,11 @@ def generate_average_transaction_per_table(request):
 
     try:
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
+        
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+        end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
     except ValueError:
         return HttpResponse("Nieprawidłowy format daty.", status=400)
 
@@ -598,45 +605,31 @@ def generate_average_transaction_per_table(request):
     df = pd.DataFrame(data)
 
     if df.empty:
-        return None, "Brak danych do wygenerowania wykresu."
+        return JsonResponse({"error": "Brak danych do wygenerowania wykresu."}, status=404)
 
     chart_data = df.groupby("table_id")["total_amount"].mean().reset_index()
 
-    plt.figure(figsize=(12, 6))
-    bars = plt.bar(
-        chart_data["table_id"],
-        chart_data["total_amount"],
-        color="skyblue",
-        edgecolor="black",
+ 
+    fig = go.Figure(data=[go.Bar(
+        x=chart_data["table_id"],
+        y=chart_data["total_amount"],
+        text=[f"{round(val, 2)} PLN" for val in chart_data["total_amount"]],
+        textposition="outside",
+        marker=dict(color='skyblue', line=dict(color='black', width=2))
+    )])
+
+    fig.update_layout(
+        title=f"Średnia kwota transakcji na stolik ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        xaxis_title="Stoliki",
+        yaxis_title="Średnia Kwota Transakcji (PLN)",
+        xaxis_tickangle=-45,
+        template="plotly_white"
     )
 
-    for bar in bars:
-        yval = bar.get_height()
-        plt.text(
-            bar.get_x() + bar.get_width() / 2,
-            yval,
-            f"{round(yval, 2)} PLN",
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
 
-    plt.xlabel("Stoliki", fontsize=14)
-    plt.ylabel("Średnia Kwota Transakcji (PLN)", fontsize=14)
-    plt.title(
-        f"Średnia Kwota Transakcji na Stolik ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
-        fontsize=16,
-    )
-    plt.xticks(rotation=45, ha="right", fontsize=12)
-    plt.yticks(fontsize=12)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    graph_json = fig.to_json()
 
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
-    plt.close()
-
-    return buf, None
+    return JsonResponse({"graph_json": graph_json})
 
 
 @login_required
@@ -646,7 +639,11 @@ def generate_average_transaction_per_payment_method(request):
 
     try:
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
+        
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+        end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
     except ValueError:
         return HttpResponse("Nieprawidłowy format daty.", status=400)
 
@@ -666,46 +663,31 @@ def generate_average_transaction_per_payment_method(request):
     df = pd.DataFrame(data)
 
     if df.empty:
-        return None, "Brak danych do wygenerowania wykresu."
+        return JsonResponse({"error": "Brak danych do wygenerowania wykresu."}, status=404)
 
     chart_data = df.groupby("payment_method")["total_amount"].mean().reset_index()
 
-    plt.figure(figsize=(12, 6))
-    bars = plt.bar(
-        chart_data["payment_method"],
-        chart_data["total_amount"],
-        color="lightgreen",
-        edgecolor="black",
+   
+    fig = go.Figure(data=[go.Bar(
+        x=chart_data["payment_method"],
+        y=chart_data["total_amount"],
+        text=[round(val, 2) for val in chart_data["total_amount"]],
+        textposition="outside",
+        marker=dict(color='lightgreen', line=dict(color='black', width=2))
+    )])
+
+    fig.update_layout(
+        title=f"Średnia kwota transakcji na metode płatności ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        xaxis_title="Metody Płatności",
+        yaxis_title="Średnia Kwota Transakcji (PLN)",
+        xaxis_tickangle=-45,
+        template="plotly_white"
     )
 
-    for bar in bars:
-        yval = bar.get_height()
-        plt.text(
-            bar.get_x() + bar.get_width() / 2,
-            yval,
-            round(yval, 2),
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
+  
+    graph_json = fig.to_json()
 
-    plt.xlabel("Metody Płatności", fontsize=14)
-    plt.ylabel("Średnia Kwota Transakcji (PLN)", fontsize=14)
-    plt.title(
-        f"Średnia Kwota Transakcji na Metodę Płatności ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
-        fontsize=16,
-    )
-    plt.xticks(rotation=45, ha="right", fontsize=12)
-    plt.yticks(fontsize=12)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
-    plt.close()
-
-    return buf, None
-
+    return JsonResponse({"graph_json": graph_json})
 
 @login_required
 def generate_total_transaction_per_table(request):
@@ -714,7 +696,11 @@ def generate_total_transaction_per_table(request):
 
     try:
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
+        
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+        end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
     except ValueError:
         return HttpResponse("Nieprawidłowy format daty.", status=400)
 
@@ -734,45 +720,31 @@ def generate_total_transaction_per_table(request):
     df = pd.DataFrame(data)
 
     if df.empty:
-        return None, "Brak danych do wygenerowania wykresu."
+        return JsonResponse({"error": "Brak danych do wygenerowania wykresu."}, status=404)
 
     chart_data = df.groupby("table_id")["total_amount"].sum().reset_index()
 
-    plt.figure(figsize=(12, 6))
-    bars = plt.bar(
-        chart_data["table_id"],
-        chart_data["total_amount"],
-        color="lightcoral",
-        edgecolor="black",
+
+    fig = go.Figure(data=[go.Bar(
+        x=chart_data["table_id"],
+        y=chart_data["total_amount"],
+        text=[f"{round(val, 2)} PLN" for val in chart_data["total_amount"]],
+        textposition="outside",
+        marker=dict(color='lightcoral', line=dict(color='black', width=2))
+    )])
+
+    fig.update_layout(
+        title=f"Suma kwoty transakcji na stolik ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        xaxis_title="Stoliki",
+        yaxis_title="Suma Kwoty Transakcji (PLN)",
+        xaxis_tickangle=-45,
+        template="plotly_white"
     )
 
-    for bar in bars:
-        yval = bar.get_height()
-        plt.text(
-            bar.get_x() + bar.get_width() / 2,
-            yval,
-            f"{round(yval, 2)} PLN",
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
 
-    plt.xlabel("Stoliki", fontsize=14)
-    plt.ylabel("Suma Kwoty Transakcji (PLN)", fontsize=14)
-    plt.title(
-        f"Suma Kwoty Transakcji na Stolik ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
-        fontsize=16,
-    )
-    plt.xticks(rotation=45, ha="right", fontsize=12)
-    plt.yticks(fontsize=12)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    graph_json = fig.to_json()
 
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
-    plt.close()
-
-    return buf, None
+    return JsonResponse({"graph_json": graph_json})
 
 
 @login_required
@@ -782,7 +754,11 @@ def generate_total_transaction_per_payment_method(request):
 
     try:
         start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
+        
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+        end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
     except ValueError:
         return HttpResponse("Nieprawidłowy format daty.", status=400)
 
@@ -802,130 +778,28 @@ def generate_total_transaction_per_payment_method(request):
     df = pd.DataFrame(data)
 
     if df.empty:
-        return None, "Brak danych do wygenerowania wykresu."
+        return JsonResponse({"error": "Brak danych do wygenerowania wykresu."}, status=404)
 
     chart_data = df.groupby("payment_method")["total_amount"].sum().reset_index()
 
-    plt.figure(figsize=(12, 6))
-    bars = plt.bar(
-        chart_data["payment_method"],
-        chart_data["total_amount"],
-        color="lightgreen",
-        edgecolor="black",
+
+    fig = go.Figure(data=[go.Bar(
+        x=chart_data["payment_method"],
+        y=chart_data["total_amount"],
+        text=[f"{round(val, 2)} PLN" for val in chart_data["total_amount"]],
+        textposition="outside",
+        marker=dict(color='lightgreen', line=dict(color='black', width=2))
+    )])
+
+    fig.update_layout(
+        title=f"Suma kwoty transakcji na metode płatności ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
+        xaxis_title="Metody Płatności",
+        yaxis_title="Suma Kwoty Transakcji (PLN)",
+        xaxis_tickangle=-45,
+        template="plotly_white"
     )
 
-    for bar in bars:
-        yval = bar.get_height()
-        plt.text(
-            bar.get_x() + bar.get_width() / 2,
-            yval,
-            f"{round(yval, 2)} PLN",
-            ha="center",
-            va="bottom",
-            fontsize=10,
-        )
+ 
+    graph_json = fig.to_json()
 
-    plt.xlabel("Metody Płatności", fontsize=14)
-    plt.ylabel("Suma Kwoty Transakcji (PLN)", fontsize=14)
-    plt.title(
-        f"Suma Kwoty Transakcji na Metodę Płatności ({start_date.strftime('%d-%m-%Y')} - {end_date.strftime('%d-%m-%Y')})",
-        fontsize=16,
-    )
-    plt.xticks(rotation=45, ha="right", fontsize=12)
-    plt.yticks(fontsize=12)
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
-    plt.close()
-
-    return buf, None
-
-
-@login_required
-def download_average_transaction_per_table(request):
-    start_date = request.POST.get("start_date")
-    end_date = request.POST.get("end_date")
-
-    try:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    except ValueError:
-        return HttpResponse("Nieprawidłowy format daty.", status=400)
-
-    buf, error_message = generate_average_transaction_per_table(request)
-    if buf is None:
-        return HttpResponse(error_message, status=404)
-
-    response = HttpResponse(buf.getvalue(), content_type="image/png")
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="srednia_kwota_transakcji_na_stolik.png"'
-    return response
-
-
-@login_required
-def download_average_transaction_per_payment_method(request):
-    start_date = request.POST.get("start_date")
-    end_date = request.POST.get("end_date")
-
-    try:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    except ValueError:
-        return HttpResponse("Nieprawidłowy format daty.", status=400)
-
-    buf, error_message = generate_average_transaction_per_payment_method(request)
-    if buf is None:
-        return HttpResponse(error_message, status=404)
-
-    response = HttpResponse(buf.getvalue(), content_type="image/png")
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="srednia_kwota_transakcji_na_metode_platnosci.png"'
-    return response
-
-
-@login_required
-def download_total_transaction_per_table(request):
-    start_date = request.POST.get("start_date")
-    end_date = request.POST.get("end_date")
-
-    try:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    except ValueError:
-        return HttpResponse("Nieprawidłowy format daty.", status=400)
-
-    buf, error_message = generate_total_transaction_per_table(request)
-    if buf is None:
-        return HttpResponse(error_message, status=404)
-
-    response = HttpResponse(buf.getvalue(), content_type="image/png")
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="suma_kwoty_transakcji_na_stolik.png"'
-    return response
-
-
-@login_required
-def download_total_transaction_per_payment_method(request):
-    start_date = request.POST.get("start_date")
-    end_date = request.POST.get("end_date")
-
-    try:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    except ValueError:
-        return HttpResponse("Nieprawidłowy format daty.", status=400)
-
-    buf, error_message = generate_total_transaction_per_payment_method(request)
-    if buf is None:
-        return HttpResponse(error_message, status=404)
-
-    response = HttpResponse(buf.getvalue(), content_type="image/png")
-    response[
-        "Content-Disposition"
-    ] = 'attachment; filename="suma_kwoty_transakcji_na_metode_platnosci.png"'
-    return response
+    return JsonResponse({"graph_json": graph_json})
