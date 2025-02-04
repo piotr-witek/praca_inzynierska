@@ -3,6 +3,7 @@
 .container_edit_product{
     width: 80%;
     max-width: 800px;
+    margin: 2rem auto;
     background-color: #ffffff;
     padding: 30px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -132,32 +133,3 @@ h2 {
     width: 100%;
 }
 
-
-@media screen and (max-width: 600px) {
-    .container {
-        width: 90%;
-    }
-
-    .search-input-wrapper {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .search-form input,
-    .form-card input,
-    .search-btn,
-    .submit-btn {
-        width: 100%;
-    }
-
-    .search-btn {
-        margin-top: 10px;
-    }
-}
-
-@media (min-width: 992px) {
-    section {
-         padding-top: 5%; 
-         padding-bottom: 5%; 
-    }
-    }

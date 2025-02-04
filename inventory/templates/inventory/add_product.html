@@ -8,9 +8,8 @@
     <link rel="stylesheet" href="{% static 'css/add_product.css' %}">
 </head>
 <body>
-    <div class="container">
+    <div class="container_add_product">
         <h1>Dodawanie produktu</h1>
-
 
         {% if messages %}
             <div class="messages">
@@ -25,7 +24,6 @@
             {{ form.as_p }}
             <button type="submit" class="submit-btn">Dodaj produkt</button>
         </form>
-        <a href="{% url 'stock_status' %}" class="back-link">Powrót do stanu magazynu</a>
     </div>
 </body>
 </html>

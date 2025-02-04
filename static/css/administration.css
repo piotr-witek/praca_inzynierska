@@ -1,15 +1,35 @@
 
 
 
+.container_administration {
+    max-width: 900px;
+    margin: 30px auto;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+h1 {
+    color: #333333;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+
 h2 {
-    font-size: 22px;
-    font-weight: 500;
-    color: #555;
-    margin-top: 50px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #444444;
+    margin-top: 30px;
     margin-bottom: 15px;
     border-bottom: 2px solid #f0f0f0;
     padding-bottom: 5px;
 }
+
 
 .form-section {
     margin-bottom: 30px;
@@ -18,65 +38,97 @@ h2 {
 .form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 15px 20px;
+    gap: 15px;
+    padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #f9fafb;
-
 }
 
 label {
     font-size: 14px;
-    color: #666;
+    color: #555;
 }
 
+
 input, select, button {
-    padding: 10px;
-    font-size: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #ffffff;
+    width: 100%;
 }
 
 input:focus, select:focus {
     outline: none;
-    border-color: #008cba;
-    box-shadow: 0 0 5px rgba(0, 140, 186, 0.2);
+    border-color: #4a90e2;
+    box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
 }
+
 
 button {
     background-color: #4a90e2;
     color: white;
-    padding: 0.8rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1.1rem;
     font-weight: bold;
     transition: background-color 0.3s ease;
+    cursor: pointer;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    border-radius: 6px;
+    border: none;
 }
 
 button:hover {
-    background-color: #006f9a;
+    background-color: #357abd;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 
 .message {
-    padding: 10px;
-    border-radius: 5px;
-    color: #fff;
+    padding: 12px;
+    border-radius: 6px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    color: white;
+    text-align: center;
 }
 
-
 .message.success {
-    background-color: #4CAF50; 
+    background-color: #4CAF50;
 }
 
 .message.error {
-    background-color: #f44336; 
+    background-color: #f44336;
 }
 
 
+.table-info {
+    margin-top: 30px;
+    font-size: 1.2rem;
+    color: #555;
+    text-align: center;
+}
+
+.table-info p {
+    margin: 0;
+}
+
+
+.back-link {
+    color: #4a90e2;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.back-link:hover {
+    color: #357abd;
+}
 

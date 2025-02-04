@@ -32,16 +32,17 @@ from django.db import transaction
 from django.db.models.functions import Cast
 from django.db.models import IntegerField
 
-
 @login_required
 def dashboard(request):
-    tables = Table.objects.all()
 
+    tables = Table.objects.all().order_by('id')
     for table in tables:
 
         unprocessed_order = OrderedProduct.objects.filter(
             table=table, is_processed=0
         ).first()
+        
+   
         table.has_unprocessed_orders = bool(unprocessed_order)
         table.unprocessed_order_id = (
             unprocessed_order.order_id if unprocessed_order else None
@@ -59,7 +60,6 @@ def dashboard(request):
             table.orders_details.append(order_details)
 
     return render(request, "dashboard/dashboard.html", {"tables": tables})
-
 
 @login_required
 def reserve_table(request, table_id):
@@ -147,7 +147,7 @@ def cancel_reservation(request, table_id):
         table.save()
         return redirect("dashboard")
     else:
-        return HttpResponse("Błąd: Stolik nie jest zarezerwowany.", status=400)
+        return HttpResponse("Błąd", status=400)
 
 
 @login_required
@@ -294,31 +294,65 @@ def add_order(request, table_id, order_id=None):
         },
     )
 
-
-
 @login_required
 def edit_order(request, table_id, order_id):
-    table = Table.objects.get(id=table_id)
-    order_items = OrderedProduct.objects.filter(order_id=order_id, table=table)
+    table = get_object_or_404(Table, id=table_id)
+    order_items = OrderedProduct.objects.filter(order_id=order_id, table=table).order_by('id')
     total_price = sum(item.total_price for item in order_items)
+    categories = ItemCategory.objects.all()
+    selected_category = None
+    inventory_items = []
+    error_messages = []
 
     if request.method == "POST":
-        error_messages = []
+        category_id = request.POST.get("category")
+        if category_id:
+            selected_category = get_object_or_404(ItemCategory, id=category_id)
+            inventory_items = InventoryItem.objects.filter(
+                category=selected_category, sales_price__isnull=False
+            )
+
+            return render(
+                request,
+                "dashboard/edit_order.html",
+                {
+                    "table": table,
+                    "order_items": order_items,
+                    "total_price": total_price,
+                    "order_id": order_id,
+                    "categories": categories,
+                    "inventory_items": inventory_items,
+                    "selected_category": selected_category,
+                    "error_messages": error_messages,
+                },
+            )
 
         for item in order_items:
             new_quantity = request.POST.get(f"quantity_{item.id}")
             if new_quantity:
                 new_quantity = Decimal(new_quantity)
                 inventory_item = item.product
-
                 available_quantity = inventory_item.quantity + item.quantity
 
                 if new_quantity > available_quantity:
                     error_messages.append(
                         f"Nie ma wystarczającej ilości produktu: {inventory_item.name} w magazynie. "
-                        f"Aktualnie dostępna ilość: {available_quantity - item.quantity} {item.product_unit}."
+                        f"Aktualnie dostępna ilość: {available_quantity - item.quantity} {inventory_item.unit}."
                     )
-                    continue
+                    return render(
+                        request,
+                        "dashboard/edit_order.html",
+                        {
+                            "table": table,
+                            "order_items": order_items,
+                            "total_price": total_price,
+                            "order_id": order_id,
+                            "categories": categories,
+                            "inventory_items": inventory_items,
+                            "selected_category": selected_category,
+                            "error_messages": error_messages,
+                        },
+                    )
 
                 inventory_item.quantity += item.quantity
                 inventory_item.quantity -= new_quantity
@@ -328,29 +362,110 @@ def edit_order(request, table_id, order_id):
                 item.total_price = inventory_item.sales_price * new_quantity
                 item.save()
 
+
         remove_item_id = request.POST.get("remove_item")
         if remove_item_id:
             item_to_remove = get_object_or_404(
                 OrderedProduct, id=remove_item_id, order_id=order_id, table=table
             )
             inventory_item = item_to_remove.product
-
             inventory_item.quantity += item_to_remove.quantity
             inventory_item.save()
             item_to_remove.delete()
 
-        if error_messages:
-            return render(
-                request,
-                "dashboard/edit_order.html",
-                {
-                    "table": table,
-                    "order_items": order_items,
-                    "total_price": total_price,
-                    "order_id": order_id,
-                    "error_messages": error_messages,
-                },
-            )
+
+        if "add_product" in request.POST:
+            item_id = request.POST.get("inventory_item")
+            quantity = request.POST.get("quantity")
+
+            if item_id and quantity:
+                inventory_item = get_object_or_404(InventoryItem, id=item_id)
+                quantity = Decimal(quantity)
+
+    
+                if inventory_item.quantity < quantity:
+                    error_messages.append(
+                        f"Nie ma wystarczającej ilości {inventory_item.name} w magazynie. "
+                        f"Dostępna ilość: {inventory_item.quantity} {inventory_item.unit}."
+                    )
+                    return render(
+                        request,
+                        "dashboard/edit_order.html",
+                        {
+                            "table": table,
+                            "order_items": order_items,
+                            "total_price": total_price,
+                            "order_id": order_id,
+                            "categories": categories,
+                            "inventory_items": inventory_items,
+                            "selected_category": selected_category,
+                            "error_messages": error_messages,
+                        },
+                    )
+
+     
+                existing_order_item = OrderedProduct.objects.filter(
+                    order_id=order_id,
+                    table=table,
+                    product=inventory_item
+                ).first()
+
+                if existing_order_item:
+    
+                    new_quantity = existing_order_item.quantity + quantity
+                    available_quantity = inventory_item.quantity + existing_order_item.quantity
+
+      
+                    if new_quantity > available_quantity:
+                        error_messages.append(
+                            f"Nie ma wystarczającej ilości {inventory_item.name} w magazynie. "
+                            f"Dostępna ilość: {available_quantity} {inventory_item.unit}."
+                        )
+                        return render(
+                            request,
+                            "dashboard/edit_order.html",
+                            {
+                                "table": table,
+                                "order_items": order_items,
+                                "total_price": total_price,
+                                "order_id": order_id,
+                                "categories": categories,
+                                "inventory_items": inventory_items,
+                                "selected_category": selected_category,
+                                "error_messages": error_messages,
+                            },
+                        )
+
+  
+                    existing_order_item.quantity = new_quantity
+                    existing_order_item.total_price = inventory_item.sales_price * new_quantity
+                    existing_order_item.save()
+
+
+                    inventory_item.quantity -= quantity
+                    inventory_item.save()
+
+                else:
+
+                    total_item_price = inventory_item.sales_price * quantity
+                    OrderedProduct.objects.create(
+                        order_id=order_id,
+                        table=table,
+                        product=inventory_item,
+                        quantity=quantity,
+                        total_price=total_item_price,
+                        created_at=timezone.now(),
+                        is_processed=0,
+                        product_name=inventory_item.name,
+                        product_category=inventory_item.category.name,
+                        product_unit=inventory_item.unit.name,
+                        product_purchase_price=inventory_item.sales_price,
+                        product_supplier=inventory_item.supplier.name,
+                    )
+
+
+                    inventory_item.quantity -= quantity
+                    inventory_item.save()
 
         return redirect("edit_order", table_id=table_id, order_id=order_id)
 
@@ -362,6 +477,10 @@ def edit_order(request, table_id, order_id):
             "order_items": order_items,
             "total_price": total_price,
             "order_id": order_id,
+            "categories": categories,
+            "inventory_items": inventory_items,
+            "selected_category": selected_category,
+            "error_messages": error_messages,
         },
     )
 
@@ -410,7 +529,7 @@ def create_transaction(request, table_id, order_id):
 
                 order_items.update(is_processed=1)
 
-                messages.success(request, "Transakcja została zakończona pomyślnie.")
+              
 
                 return redirect("dashboard")
 

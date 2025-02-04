@@ -10,7 +10,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from dashboard.models import PaymentMethod
+from dashboard.models import PaymentMethod,Table
 
 from .forms import (
     ConsumptionForm,
@@ -321,44 +321,52 @@ def delete_product(request):
 
 @login_required
 def administration(request):
-
     supplier_form = SupplierForm()
     category_form = ItemCategoryForm()
     unit_form = ItemUnitForm()
     payment_method_form = PaymentMethodForm()
 
-    if request.method == "POST" and "add_supplier" in request.POST:
-        supplier_form = SupplierForm(request.POST)
-        if supplier_form.is_valid():
-            supplier_form.save()
-            messages.success(request, "Dostawca został pomyślnie dodany.")
-            return redirect("administration")
-        else:
-            messages.error(request, "Wystąpił błąd podczas dodawania dostawcy.")
+  
+    table_count = Table.objects.count()
 
-    elif request.method == "POST" and "add_category" in request.POST:
-        category_form = ItemCategoryForm(request.POST)
-        if category_form.is_valid():
-            category_form.save()
-            messages.success(request, "Kategoria towaru została pomyślnie dodana.")
-            return redirect("administration")
-        else:
-            messages.error(request, "Wystąpił błąd podczas dodawania kategorii.")
+    if request.method == "POST":
+        if "add_supplier" in request.POST:
+            supplier_form = SupplierForm(request.POST)
+            if supplier_form.is_valid():
+                supplier_form.save()
+                messages.success(request, "Dostawca został pomyślnie dodany.")
+                return redirect("administration")
+            else:
+                messages.error(request, "Wystąpił błąd podczas dodawania dostawcy.")
 
-    elif request.method == "POST" and "add_unit" in request.POST:
-        unit_form = ItemUnitForm(request.POST)
-        if unit_form.is_valid():
-            unit_form.save()
-            messages.success(request, "Jednostka miary została pomyślnie dodana.")
-            return redirect("administration")
-        else:
-            messages.error(request, "Wystąpił błąd podczas dodawania jednostki miary.")
+        elif "add_category" in request.POST:
+            category_form = ItemCategoryForm(request.POST)
+            if category_form.is_valid():
+                category_form.save()
+                messages.success(request, "Kategoria towaru została pomyślnie dodana.")
+                return redirect("administration")
+            else:
+                messages.error(request, "Wystąpił błąd podczas dodawania kategorii.")
 
-    elif request.method == "POST" and "add_payment_method" in request.POST:
-        payment_method_form = PaymentMethodForm(request.POST)
-        if payment_method_form.is_valid():
-            payment_method_form.save()
-            messages.success(request, "Metoda płatności została pomyślnie dodana.")
+        elif "add_unit" in request.POST:
+            unit_form = ItemUnitForm(request.POST)
+            if unit_form.is_valid():
+                unit_form.save()
+                messages.success(request, "Jednostka miary została pomyślnie dodana.")
+                return redirect("administration")
+            else:
+                messages.error(request, "Wystąpił błąd podczas dodawania jednostki miary.")
+
+        elif "add_payment_method" in request.POST:
+            payment_method_form = PaymentMethodForm(request.POST)
+            if payment_method_form.is_valid():
+                payment_method_form.save()
+                messages.success(request, "Metoda płatności została pomyślnie dodana.")
+                return redirect("administration")
+
+        elif "add_table" in request.POST:
+            new_table = Table.objects.create()
+            messages.success(request, f"Stolik {new_table.table_number} został dodany.")
             return redirect("administration")
 
     return render(
@@ -369,6 +377,7 @@ def administration(request):
             "category_form": category_form,
             "unit_form": unit_form,
             "payment_method_form": payment_method_form,
+            "table_count": table_count,
         },
     )
 

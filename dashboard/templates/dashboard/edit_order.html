@@ -2,64 +2,111 @@
 {% load static %}
 <!DOCTYPE html>
 {% block content %}
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/edit_order.css' %}">
     <title>Edycja zamówienia</title>
-    <link rel="stylesheet" href="{% static 'css/edit_order.csss' %}">
 </head>
 
-
+<body>
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Edycja zamówienia - stolik {{ table.table_number }}</h1>
+    <h2 class="nagl">Edycja zamówienia</h2>
+
 
     {% if error_messages %}
-    <div class="alert alert-danger">
+    <div class="alert alert-danger mb-4"> 
         <ul>
-            {% for error in error_messages %}
-                <li>{{ error }}</li>
+            {% for message in error_messages %}
+                <li>{{ message }}</li>
             {% endfor %}
         </ul>
     </div>
     {% endif %}
 
-    <h2 class="my-4">Produkty w zamówieniu:</h2>
-    <form method="POST" class="mb-4">
+
+    <h3>Zamówione</h3>
+    <form method="POST">
         {% csrf_token %}
-        <ul class="list-group">
-            {% for item in order_items %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ item.product.name }}</span> - 
-                <form method="POST" class="d-inline">
-                    {% csrf_token %}
-                    <div class="d-flex align-items-center">
-                        <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1" required class="form-control w-auto mr-2" style="max-width: 100px;">
-                        <button type="submit" class="btn btn-primary btn-sm">Zapisz</button>
-                    </div>
-                    <span class="text-muted ml-3">Dostępne w magazynie: {{ item.product.quantity }} {{ item.product.unit }}</span>
-                    <input type="hidden" name="edit_item_id" value="{{ item.id }}">
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Produkt</th>
+                    <th>Kategoria</th>
+                    <th>Aktualna ilość</th> 
+                    <th>Nowa ilość</th>
+                    <th>Cena jednostkowa</th>
+                    <th>Łączna cena</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.product_category }}</td>
+                        <td>{{ item.quantity }}</td> 
+                        <td>
+                            <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1" step="0.01" class="form-control">
+                        </td>
+                        <td>{{ item.product.sales_price }} zł/{{ item.product_unit }}</td>
+                        <td>{{ item.total_price }} zł</td>
+                        <td>
+                            <button type="submit" name="remove_item" value="{{ item.id }}" class="btn btn-danger btn-sm">Usuń</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
     </form>
 
-    <h2 class="mt-5">Usuń produkt</h2>
-    <form method="POST" class="mb-4">
+    <hr class="my-4">
+
+
+    <h3>Dodaj nowy produkt</h3>
+    <form method="POST">
         {% csrf_token %}
-        <ul class="list-group">
-            {% for item in order_items %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ item.product.name }} - {{ item.quantity }} sztuk - {{ item.total_price }} PLN</span>
-                <button type="submit" name="remove_item" value="{{ item.id }}" class="btn btn-danger btn-sm">Usuń</button>
-            </li>
-            {% endfor %}
-        </ul>
+        <div class="mb-4">
+            <select name="category" id="category" class="form-select" onchange="this.form.submit()">
+                <option value="">-- Wybierz kategorię --</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if selected_category and selected_category.id == category.id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
     </form>
 
-    <h3 class="cost">Łączna cena: <strong>{{ total_price }} PLN</strong></h3>
+    {% if inventory_items %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-4">
+            <select name="inventory_item" id="inventory_item" class="form-select">
+                <option value="">-- Wybierz produkt --</option>
+                {% for item in inventory_items %}
+                    <option value="{{ item.id }}">
+                        {{ item.name }} ({{ item.sales_price }} zł/{{ item.unit }}) - Dostępne: {{ item.quantity }} {{ item.unit }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <div class="cost">
+        <div class="mb-4">
+            <label for="quantity" class="form-label">Ilość:</label>
+            <input type="number" name="quantity" id="quantity" class="form-control" min="1" step="0.01" required>
+        </div>
+
+        <button type="submit" name="add_product" class="btn btn-success">Dodaj produkt</button>
+    </form>
+    {% endif %}
+
+    <hr class="my-4">
+    <h4>Łączna wartość zamówienia: {{ total_price }} zł</h4>
+
+    <div class="mt-3">
         {% if order_items %}
         <a href="{% url 'add_order' table_id=table.id order_id=order_id %}" class="btn btn-secondary btn-lg">Powrót do zamówienia</a>
         {% else %}

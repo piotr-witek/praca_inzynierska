@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/administration.css' %}">
 </head>
 <body>
-    <div class="container">
+    <div class="container_administration">
         <h1>Zarządzanie</h1>
 
         {% if messages %}
@@ -19,33 +19,48 @@
             </div>
         {% endif %}
 
-        <h2>Dodaj Dostawcę</h2>
+     
+        <h2>Dostawcy</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ supplier_form.as_p }}
             <button type="submit" name="add_supplier">Dodaj</button>
         </form>
 
-        <h2>Dodaj Kategorię Towaru</h2>
+      
+        <h2>Kategorie towarów</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ category_form.as_p }}
             <button type="submit" name="add_category">Dodaj</button>
         </form>
 
-        <h2>Dodaj Jednostkę Miary</h2>
+      
+        <h2>Jednostki miary</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ unit_form.as_p }}
             <button type="submit" name="add_unit">Dodaj</button>
         </form>
 
-        <h2>Dodaj Metodę Płatności</h2>
+      
+        <h2>Metody płatności</h2>
         <form method="post" action="{% url 'administration' %}" class="form">
             {% csrf_token %}
             {{ payment_method_form.as_p }}
             <button type="submit" name="add_payment_method">Dodaj</button>
         </form>
+
+     
+        <h2>Stoliki</h2>
+        <p class="table-info">Aktualna liczba stolików: {{ table_count }}</p>
+        <form method="post" action="{% url 'administration' %}" class="form">
+            {% csrf_token %}
+            <button type="submit" name="add_table">Dodaj</button>
+        </form>
+
+       
+        <a href="{% url 'dashboard' %}" class="back-link">Powrót do panelu</a>
     </div>
 </body>
 </html>

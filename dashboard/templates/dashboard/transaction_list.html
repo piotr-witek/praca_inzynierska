@@ -8,6 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/transaction_list.css' %}">
+    <title>Podgląd transakcji</title>
     <script src="{% static 'js/transaction.js' %}" defer></script>
     <style>
         .filter-container {
@@ -17,7 +18,7 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="title">Zestawienie Transakcji</h1>
+        <h1 class="title">Podgląd transakcji</h1>
 
         <form method="GET" action="{% url 'transaction_list' %}">
             <div class="filter-actions">
