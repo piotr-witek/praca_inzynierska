@@ -5,12 +5,13 @@ source = accounts, inventory, dashboard
 omit =
     */__init__.py
     */migrations/*
-    */tests/*
+    */app_tests/*
     */settings.py
     */wsgi.py
     */asgi.py
+    */tests.py
 precision = 2
-show_missing = True 
+show_missing = False 
 
 [html]
 directory = coverage_html 

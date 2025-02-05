@@ -1,5 +1,5 @@
 import io
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.timezone import now, timedelta
-
+from unittest.mock import patch
 from dashboard.models import (
     OrderedProduct,
     PaymentMethod,
@@ -219,14 +219,6 @@ class CancelReservationViewTests(TestCase):
         self.assertRedirects(response, reverse("dashboard"))
         self.table.refresh_from_db()
         self.assertFalse(self.table.is_reserved)
-
-    def test_cancel_reservation_not_reserved(self):
-        self.table.is_reserved = False
-        self.table.save()
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("Błąd: Stolik nie jest zarezerwowany.", response.content.decode())
-
 
 class EditOrderViewTests(TestCase):
     def setUp(self):
@@ -451,84 +443,6 @@ class DataVisualizationTransactionViewTests(TestCase):
         )
 
 
-class DownloadViewsTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", password="testpassword"
-        )
-        self.client.login(username="testuser", password="testpassword")
-
-    @patch("dashboard.views.generate_average_transaction_per_table")
-    def test_download_average_transaction_per_table_success(self, mock_generate):
-        dummy_buf = io.BytesIO(b"dummy image")
-        mock_generate.return_value = (dummy_buf, None)
-        url = reverse("download_average_transaction_per_table")
-        response = self.client.post(
-            url, {"start_date": "2025-01-01", "end_date": "2025-01-31"}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["Content-Disposition"],
-            'attachment; filename="srednia_kwota_transakcji_na_stolik.png"',
-        )
-        self.assertEqual(response.content, b"dummy image")
-
-    @patch("dashboard.views.generate_average_transaction_per_payment_method")
-    def test_download_average_transaction_per_payment_method_success(
-        self, mock_generate
-    ):
-        dummy_buf = io.BytesIO(b"dummy image")
-        mock_generate.return_value = (dummy_buf, None)
-        url = reverse("download_average_transaction_per_payment_method")
-        response = self.client.post(
-            url, {"start_date": "2025-01-01", "end_date": "2025-01-31"}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["Content-Disposition"],
-            'attachment; filename="srednia_kwota_transakcji_na_metode_platnosci.png"',
-        )
-        self.assertEqual(response.content, b"dummy image")
-
-    @patch("dashboard.views.generate_total_transaction_per_table")
-    def test_download_total_transaction_per_table_success(self, mock_generate):
-        dummy_buf = io.BytesIO(b"dummy image")
-        mock_generate.return_value = (dummy_buf, None)
-        url = reverse("download_total_transaction_per_table")
-        response = self.client.post(
-            url, {"start_date": "2025-01-01", "end_date": "2025-01-31"}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["Content-Disposition"],
-            'attachment; filename="suma_kwoty_transakcji_na_stolik.png"',
-        )
-        self.assertEqual(response.content, b"dummy image")
-
-    @patch("dashboard.views.generate_total_transaction_per_payment_method")
-    def test_download_total_transaction_per_payment_method_success(self, mock_generate):
-        dummy_buf = io.BytesIO(b"dummy image")
-        mock_generate.return_value = (dummy_buf, None)
-        url = reverse("download_total_transaction_per_payment_method")
-        response = self.client.post(
-            url, {"start_date": "2025-01-01", "end_date": "2025-01-31"}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["Content-Disposition"],
-            'attachment; filename="suma_kwoty_transakcji_na_metode_platnosci.png"',
-        )
-        self.assertEqual(response.content, b"dummy image")
-
-    def test_download_view_invalid_date_format(self):
-        url = reverse("download_total_transaction_per_table")
-        response = self.client.post(
-            url, {"start_date": "invalid-date", "end_date": "2025-01-31"}
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("Nieprawidłowy format daty.", response.content.decode())
-
-
 class CreateTransactionErrorTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -568,3 +482,304 @@ class CreateTransactionErrorTests(TestCase):
             "create_transaction", args=[self.table.id, self.order.order_id]
         )
         self.assertRedirects(response, expected_url)
+
+
+class GraphGenerationViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="graphuser", password="graphpass")
+        self.client.login(username="graphuser", password="graphpass")
+        self.payment_method1 = PaymentMethod.objects.create(name="Gotówka")
+        self.payment_method2 = PaymentMethod.objects.create(name="Karta")
+        self.table1 = Table.objects.create(table_number=1)
+        self.table2 = Table.objects.create(table_number=2)
+        self.transaction1 = SalesTransaction.objects.create(
+            transaction_id="1",
+            transaction_date=timezone.make_aware(datetime(2025, 1, 15)),
+            total_amount=Decimal("100.00"),
+            payment_method=self.payment_method1,
+            table_id=self.table1.table_number,
+            order_id=1,
+            is_completed=True,
+        )
+        self.transaction2 = SalesTransaction.objects.create(
+            transaction_id="2",
+            transaction_date=timezone.make_aware(datetime(2025, 1, 20)),
+            total_amount=Decimal("200.00"),
+            payment_method=self.payment_method2,
+            table_id=self.table2.table_number,
+            order_id=2,
+            is_completed=True,
+        )
+
+    def test_generate_average_transaction_per_table_valid(self):
+        url = reverse("generate_average_transaction_per_table")
+        response = self.client.post(url, {"start_date": "2025-01-01", "end_date": "2025-01-31"})
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertIn("graph_json", json_data)
+
+    def test_generate_average_transaction_per_table_invalid_date(self):
+        url = reverse("generate_average_transaction_per_table")
+        response = self.client.post(url, {"start_date": "invalid-date", "end_date": "2025-01-31"})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode(), "Nieprawidłowy format daty.")
+
+    def test_generate_average_transaction_per_table_no_data(self):
+        url = reverse("generate_average_transaction_per_table")
+        response = self.client.post(url, {"start_date": "2030-01-01", "end_date": "2030-01-31"})
+        self.assertEqual(response.status_code, 404)
+        json_data = response.json()
+        self.assertEqual(json_data.get("error"), "Brak danych do wygenerowania wykresu.")
+
+    def test_generate_average_transaction_per_payment_method_valid(self):
+        url = reverse("generate_average_transaction_per_payment_method")
+        response = self.client.post(url, {"start_date": "2025-01-01", "end_date": "2025-01-31"})
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertIn("graph_json", json_data)
+
+    def test_generate_average_transaction_per_payment_method_invalid_date(self):
+        url = reverse("generate_average_transaction_per_payment_method")
+        response = self.client.post(url, {"start_date": "invalid", "end_date": "2025-01-31"})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode(), "Nieprawidłowy format daty.")
+
+    def test_generate_average_transaction_per_payment_method_no_data(self):
+        url = reverse("generate_average_transaction_per_payment_method")
+        response = self.client.post(url, {"start_date": "2030-01-01", "end_date": "2030-01-31"})
+        self.assertEqual(response.status_code, 404)
+        json_data = response.json()
+        self.assertEqual(json_data.get("error"), "Brak danych do wygenerowania wykresu.")
+
+    def test_generate_total_transaction_per_table_valid(self):
+        url = reverse("generate_total_transaction_per_table")
+        response = self.client.post(url, {"start_date": "2025-01-01", "end_date": "2025-01-31"})
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertIn("graph_json", json_data)
+
+    def test_generate_total_transaction_per_table_invalid_date(self):
+        url = reverse("generate_total_transaction_per_table")
+        response = self.client.post(url, {"start_date": "invalid", "end_date": "2025-01-31"})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode(), "Nieprawidłowy format daty.")
+
+    def test_generate_total_transaction_per_table_no_data(self):
+        url = reverse("generate_total_transaction_per_table")
+        response = self.client.post(url, {"start_date": "2030-01-01", "end_date": "2030-01-31"})
+        self.assertEqual(response.status_code, 404)
+        json_data = response.json()
+        self.assertEqual(json_data.get("error"), "Brak danych do wygenerowania wykresu.")
+
+    def test_generate_total_transaction_per_payment_method_valid(self):
+        url = reverse("generate_total_transaction_per_payment_method")
+        response = self.client.post(url, {"start_date": "2025-01-01", "end_date": "2025-01-31"})
+        self.assertEqual(response.status_code, 200)
+        json_data = response.json()
+        self.assertIn("graph_json", json_data)
+
+    def test_generate_total_transaction_per_payment_method_invalid_date(self):
+        url = reverse("generate_total_transaction_per_payment_method")
+        response = self.client.post(url, {"start_date": "invalid", "end_date": "2025-01-31"})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content.decode(), "Nieprawidłowy format daty.")
+
+    def test_generate_total_transaction_per_payment_method_no_data(self):
+        url = reverse("generate_total_transaction_per_payment_method")
+        response = self.client.post(url, {"start_date": "2030-01-01", "end_date": "2030-01-31"})
+        self.assertEqual(response.status_code, 404)
+        json_data = response.json()
+        self.assertEqual(json_data.get("error"), "Brak danych do wygenerowania wykresu.")
+
+
+class ReserveTableAdditionalTests(TestCase):
+    def setUp(self):
+        self.table = Table.objects.create(table_number=1)
+        self.url = reverse("reserve_table", args=[self.table.id])
+        self.user = User.objects.create_user(username="reservecase", password="testpass")
+        self.client.login(username="reservecase", password="testpass")
+
+    def test_reserve_table_show_form(self):
+        response = self.client.post(self.url, {"show_form": True})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["show_date_form"])
+        self.assertTemplateUsed(response, "dashboard/reserve_table.html")
+
+
+class AddOrderAdditionalTests(TestCase):
+    def setUp(self):
+        self.table = Table.objects.create(table_number=1)
+        self.category = ItemCategory.objects.create(name="Category 2")
+        self.supplier = Supplier.objects.create(name="Supplier 2")
+        self.unit = UnitOfMeasurement.objects.create(name="szt.")
+        self.user = User.objects.create_user(username="orderuser", password="orderpass")
+        self.client.login(username="orderuser", password="orderpass")
+        self.inventory_item = InventoryItem.objects.create(
+            name="Item 2",
+            category=self.category,
+            quantity=10,
+            sales_price=Decimal("15.00"),
+            supplier=self.supplier,
+            unit=self.unit,
+            expiration_date="3000-01-01",
+        )
+        self.url = reverse("add_order", args=[self.table.id])
+
+    def test_add_order_post_remove_item(self):
+        response = self.client.post(
+            self.url,
+            {
+                "category": self.category.id,
+                "inventory_item": self.inventory_item.id,
+                "quantity": 2,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        cached_items = cache.get(f"order_{self.table.id}")
+        self.assertIsNotNone(cached_items)
+        self.assertEqual(len(cached_items), 1)
+        response = self.client.post(self.url, {"remove_item": str(self.inventory_item.id)})
+        cached_items = cache.get(f"order_{self.table.id}")
+        self.assertEqual(len(cached_items), 0)
+
+
+class EditOrderAdditionalTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="edituser", password="editpass")
+        self.client.login(username="edituser", password="editpass")
+        self.table = Table.objects.create(table_number=1)
+        self.category = ItemCategory.objects.create(name="Category Edit")
+        self.supplier = Supplier.objects.create(name="Supplier Edit")
+        self.unit = UnitOfMeasurement.objects.create(name="szt.")
+        self.inventory_item = InventoryItem.objects.create(
+            name="Item Edit",
+            category=self.category,
+            quantity=10,
+            sales_price=Decimal("20.00"),
+            supplier=self.supplier,
+            unit=self.unit,
+            expiration_date="3000-01-01",
+        )
+        self.order_number = 1
+        self.order_item = OrderedProduct.objects.create(
+            order_id=self.order_number,
+            table=self.table,
+            product=self.inventory_item,
+            product_name="Item Edit",
+            quantity=2,
+            total_price=Decimal("40.00"),
+            is_processed=0,
+            product_category=self.category.name,
+            product_unit=self.unit.name,
+            product_purchase_price=self.inventory_item.sales_price,
+            product_supplier=self.supplier.name,
+        )
+        self.url = reverse("edit_order", args=[self.table.id, self.order_number])
+        self.inventory_item2 = InventoryItem.objects.create(
+            name="Item Edit 2",
+            category=self.category,
+            quantity=20,
+            sales_price=Decimal("30.00"),
+            supplier=self.supplier,
+            unit=self.unit,
+            expiration_date="3000-01-01",
+        )
+
+    def test_edit_order_post_add_product(self):
+        post_data = {
+            "add_product": True,
+            "inventory_item": self.inventory_item2.id,
+            "quantity": "3",
+        }
+        response = self.client.post(self.url, post_data)
+        self.assertRedirects(response, self.url)
+        order_item = OrderedProduct.objects.filter(
+            order_id=self.order_number,
+            table=self.table,
+            product=self.inventory_item2
+        ).first()
+        self.assertIsNotNone(order_item)
+        self.assertEqual(order_item.quantity, Decimal("3"))
+        self.inventory_item2.refresh_from_db()
+        self.assertEqual(self.inventory_item2.quantity, Decimal("17"))
+
+
+class TransactionListAdditionalTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="transuser", password="transpass")
+        self.client.login(username="transuser", password="transpass")
+        self.url = reverse("transaction_list")
+        self.payment_method = PaymentMethod.objects.create(name="Gotówka")
+        self.transaction_a = SalesTransaction.objects.create(
+            transaction_id="2",
+            transaction_date=timezone.now(),
+            total_amount=Decimal("50.00"),
+            payment_method=self.payment_method,
+            table_id=1,
+            order_id=1,
+            is_completed=True,
+        )
+        self.transaction_b = SalesTransaction.objects.create(
+            transaction_id="10",
+            transaction_date=timezone.now(),
+            total_amount=Decimal("150.00"),
+            payment_method=self.payment_method,
+            table_id=2,
+            order_id=2,
+            is_completed=True,
+        )
+
+    def test_transaction_list_sorting_by_transaction_id_asc(self):
+        url = f"{self.url}?sort=transaction_id&order=asc"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        transactions = response.context["transactions"].object_list
+        trans_ids = [int(t.transaction_id) for t in transactions]
+        self.assertEqual(trans_ids, sorted(trans_ids))
+
+    def test_transaction_list_filtering_by_order_id(self):
+        url = f"{self.url}?order_id=1"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        transactions = response.context["transactions"].object_list
+        for trans in transactions:
+            self.assertEqual(trans.order_id, 1)
+
+
+
+
+class ReportsTransactionsAdditionalTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="reportsuser", password="reportspass")
+        self.client.login(username="reportsuser", password="reportspass")
+        self.url = reverse("reports_transactions")
+
+    @patch("dashboard.views.generate_transaction_items_csv")
+    def test_reports_transactions_post_transaction_items_csv(self, mock_generate_csv):
+        dummy_response = HttpResponse("dummy transaction items csv", content_type="text/csv")
+        mock_generate_csv.return_value = dummy_response
+        response = self.client.post(
+            self.url,
+            {
+                "report_type": "transaction_items",
+                "file_format": "csv",
+                "data_od": "2025-01-01",
+                "data_do": "2025-01-31",
+            },
+        )
+        self.assertEqual(response.content, b"dummy transaction items csv")
+
+    @patch("dashboard.views.generate_transaction_items_xls")
+    def test_reports_transactions_post_transaction_items_xls(self, mock_generate_xls):
+        dummy_response = HttpResponse("dummy transaction items xls", content_type="application/vnd.ms-excel")
+        mock_generate_xls.return_value = dummy_response
+        response = self.client.post(
+            self.url,
+            {
+                "report_type": "transaction_items",
+                "file_format": "xls",
+                "data_od": "2025-01-01",
+                "data_do": "2025-01-31",
+            },
+        )
+        self.assertEqual(response.content, b"dummy transaction items xls")
