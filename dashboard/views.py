@@ -25,7 +25,7 @@ from .reports_transactions import (
     generate_transaction_items_csv,
     generate_transaction_items_xls,
 )
-
+from django.utils.timezone import make_aware, now
 import pandas as pd
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -84,11 +84,12 @@ def reserve_table(request, table_id):
             if reservation_date_str:
                 try:
 
-                    reservation_date = datetime.strptime(
-                        reservation_date_str, "%Y-%m-%dT%H:%M"
+                    reservation_date = make_aware(
+                        datetime.strptime(reservation_date_str, "%Y-%m-%dT%H:%M"),
+                        timezone.get_current_timezone()
                     )
 
-                    if reservation_date < datetime.now():
+                    if reservation_date < now():
                         error_message = (
                             "Błąd: Data nie może być wcześniejsza niż aktualny czas."
                         )
